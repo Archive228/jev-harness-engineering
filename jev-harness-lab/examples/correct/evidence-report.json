@@ -15,9 +15,9 @@
         "argv": [
           "/Library/Developer/CommandLineTools/usr/bin/python3",
           "-B",
-          "/Users/archive/Downloads/jev-research-2026-09-19/article/jev-harness-lab/check_runner.py",
+          "<workspace>/jev-harness-lab/check_runner.py",
           "C1",
-          "/Users/archive/Downloads/jev-research-2026-09-19/article/jev-harness-lab/examples/correct/project"
+          "<workspace>/jev-harness-lab/examples/correct/project"
         ],
         "snapshot": "c0ef34d5505bd60b55a3433bb36ab8e3158c41b82484b785056f006dc2a2c85c",
         "snapshot_after": "c0ef34d5505bd60b55a3433bb36ab8e3158c41b82484b785056f006dc2a2c85c",
@@ -58,9 +58,9 @@
         "argv": [
           "/Library/Developer/CommandLineTools/usr/bin/python3",
           "-B",
-          "/Users/archive/Downloads/jev-research-2026-09-19/article/jev-harness-lab/check_runner.py",
+          "<workspace>/jev-harness-lab/check_runner.py",
           "C2",
-          "/Users/archive/Downloads/jev-research-2026-09-19/article/jev-harness-lab/examples/correct/project"
+          "<workspace>/jev-harness-lab/examples/correct/project"
         ],
         "snapshot": "c0ef34d5505bd60b55a3433bb36ab8e3158c41b82484b785056f006dc2a2c85c",
         "snapshot_after": "c0ef34d5505bd60b55a3433bb36ab8e3158c41b82484b785056f006dc2a2c85c",

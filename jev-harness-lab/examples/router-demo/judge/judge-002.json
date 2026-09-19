@@ -18,9 +18,9 @@
             "argv": [
               "/Library/Developer/CommandLineTools/usr/bin/python3",
               "-B",
-              "/Users/archive/Downloads/jev-research-2026-09-19/article/jev-harness-lab/check_runner.py",
+              "<workspace>/jev-harness-lab/check_runner.py",
               "C2",
-              "/Users/archive/Downloads/jev-research-2026-09-19/article/jev-harness-lab/examples/router-demo/project"
+              "<workspace>/jev-harness-lab/examples/router-demo/project"
             ],
             "snapshot": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
             "snapshot_after": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
