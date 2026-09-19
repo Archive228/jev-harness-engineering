@@ -1,6 +1,6 @@
 {
   "project": "<workspace>/jev-harness-lab/runs/worker-eval-01/both-title-only-seed/project",
-  "project_relative_to_state": null,
+  "project_relative_to_state": "../both-title-only-seed/project",
   "snapshot": "ba1fdc15327a3d1c76900d9013b8c02f363192721e634b432ef6931e7b54ff0d",
   "records": [
     {
