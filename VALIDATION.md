@@ -49,7 +49,7 @@ python3 run.py loop --mode live --selector jev --case missing-evidence --worker-
 
 ## Репозиторий, CI и статья
 
-Репозиторий: [Archive228/jev-harness-engineering](https://github.com/Archive228/jev-harness-engineering). Workflow выполняет unit/subprocess tests и offline-матрицу на Python 3.9, 3.12 и 3.13. Состояние конкретного коммита видно в [GitHub Actions](https://github.com/Archive228/jev-harness-engineering/actions).
+Репозиторий: [Archive228/jev-harness-engineering](https://github.com/Archive228/jev-harness-engineering). Unit/subprocess tests и offline-матрица успешно прошли на Python 3.9, 3.12 и 3.13: [протокол CI для `25e1ad2`](https://github.com/Archive228/jev-harness-engineering/actions/runs/35466973846). Workflow повторяет эти проверки на каждом push. Состояние конкретного коммита видно в [GitHub Actions](https://github.com/Archive228/jev-harness-engineering/actions).
 
 HTML воспроизводится из Markdown командами `npm ci --ignore-scripts` и `npm run build:article`; Node >=20, зависимость `marked` зафиксирована в lockfile. Четыре SVG/PNG проверены визуально. HTML проверялся на ширине 1440 и 390 px: иллюстрации загружаются, горизонтального переполнения нет.
 

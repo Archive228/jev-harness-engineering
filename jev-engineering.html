@@ -354,7 +354,7 @@ python3 run.py loop --mode demo --case stalled --out runs/stalled
 <p>Воспроизведение после настройки Codex:</p>
 <pre><code class="language-bash">python3 worker_eval.py --out runs/my-worker-evaluation
 </code></pre>
-<p>Команда выполняет три реальные задачи; понадобятся авторизация Codex и доступный лимит аккаунта. Автоматическая тестовая часть отдельно проходит <strong>67 проверок</strong> и запускается в CI на Python 3.9, 3.12 и 3.13.</p>
+<p>Команда выполняет три реальные задачи; понадобятся авторизация Codex и доступный лимит аккаунта. Автоматическая тестовая часть содержит <strong>67 проверок</strong>. Все они и девять offline-сценариев успешно прошли в CI на Python 3.9, 3.12 и 3.13 — <a href="https://github.com/Archive228/jev-harness-engineering/actions/runs/35466973846">сохранённый прогон</a>.</p>
 <h3>Replay: меняем правило на сохранённой записи</h3>
 <p>Replay читает сохранённые входы и ответы, заново рассчитывает действия policy и не вызывает модели:</p>
 <pre><code class="language-bash">python3 run.py replay --run runs/first-loop --policy policy.json
