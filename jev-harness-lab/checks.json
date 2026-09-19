@@ -1,0 +1,6 @@
+{
+  "C1": {"kind": "mandatory", "criterion": "R1", "scope": "Calls application search('milk') and asserts that item 1 is returned by a title match."},
+  "C2": {"kind": "mandatory", "criterion": "R2", "scope": "Calls application search('carton') and asserts that item 1 is returned by a description-only match."},
+  "D1": {"kind": "diagnostic", "scope": "Bypass the UI request builder and call the backend with title and description fields. Isolate backend filtering from request construction."},
+  "D2": {"kind": "diagnostic", "scope": "Inspect the search request constructed by the UI. Reveal whether its fields parameter includes description."}
+}

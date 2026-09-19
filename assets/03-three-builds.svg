@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1160" viewBox="0 0 1480 1160" role="img" aria-labelledby="title desc">
+<title id="title">Jev в трёх мини-сборках</title>
+<desc id="desc">Первая сборка использует Noul для смысловой оценки свидетельств. Вторая использует Choice для выбора необязательной диагностики из реестра. Третья соединяет их с worker и программными правилами переходов. Обязательные проверки, лимиты и решение о завершении задаются кодом.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L8,4.5 L0,9" fill="#66716C"/></marker></defs>
+<rect x="0" y="0" width="1480" height="1160" rx="0" fill="#FBF8F2"/>
+<text x="64" y="64" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#66716C" text-anchor="start">03  /  ТРИ МИНИ-СБОРКИ</text>
+<text x="64" y="126" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#26302F" text-anchor="start">Три инструмента. Один контракт с Jev.</text>
+<text x="64" y="172" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">Вход → узкий смысловой вопрос → ответ → наблюдаемый результат.</text>
+<rect x="64" y="219" width="1352" height="252" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<rect x="88" y="239" width="56" height="34" rx="17" fill="#F1F2EC"/>
+<text x="116.0" y="262" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">01</text>
+<text x="159" y="265" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Evidence report</text>
+<text x="88" y="324" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">Критерии, snapshot,</text>
+<text x="88" y="358" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">результаты команд</text>
+<line x1="406" y1="337" x2="474" y2="337" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="488" y="289" width="420" height="108" rx="20" fill="#FFF0E8"/>
+<text x="511" y="320" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#E47254" text-anchor="start">Jev · Noul</text>
+<text x="511" y="353" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">Связано ли свидетельство</text>
+<text x="511" y="382" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">с нужным критерием?</text>
+<line x1="922" y1="337" x2="986" y2="337" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1004" y="324" font-family="Menlo, Consolas, monospace" font-size="23" font-weight="700" fill="#26302F" text-anchor="start">evidence-report.json</text>
+<text x="1004" y="363" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#66716C" text-anchor="start">passed · failed · unverified</text>
+<line x1="88" y1="415" x2="1392" y2="415" stroke="#D8DCD4" stroke-width="2"/>
+<text x="88" y="448" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">Noul — аннотация. Статусы задаёт код по свежим результатам тестов.</text>
+<rect x="64" y="502" width="1352" height="252" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<rect x="88" y="522" width="56" height="34" rx="17" fill="#F1F2EC"/>
+<text x="116.0" y="545" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">02</text>
+<text x="159" y="548" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Next-check router</text>
+<text x="88" y="607" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">Провал проверки,</text>
+<text x="88" y="641" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">реестр диагностики</text>
+<line x1="406" y1="620" x2="474" y2="620" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="488" y="572" width="420" height="108" rx="20" fill="#FFF0E8"/>
+<text x="511" y="603" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#E47254" text-anchor="start">Jev · Choice</text>
+<text x="511" y="636" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">Какая дополнительная</text>
+<text x="511" y="665" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">проверка полезна сейчас?</text>
+<line x1="922" y1="620" x2="986" y2="620" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1004" y="607" font-family="Menlo, Consolas, monospace" font-size="23" font-weight="700" fill="#26302F" text-anchor="start">next-check.json</text>
+<text x="1004" y="646" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#66716C" text-anchor="start">ID из реестра / отказ</text>
+<line x1="88" y1="698" x2="1392" y2="698" stroke="#D8DCD4" stroke-width="2"/>
+<text x="88" y="731" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">Обязательные проверки запускает код. Jev выбирает дополнительную диагностику.</text>
+<rect x="64" y="785" width="1352" height="252" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<rect x="88" y="805" width="56" height="34" rx="17" fill="#F1F2EC"/>
+<text x="116.0" y="828" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">03</text>
+<text x="159" y="831" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Bounded loop</text>
+<text x="88" y="890" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">Новый snapshot,</text>
+<text x="88" y="924" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">отчёт и лимиты</text>
+<line x1="406" y1="903" x2="474" y2="903" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="488" y="855" width="420" height="108" rx="20" fill="#FFF0E8"/>
+<text x="511" y="886" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#E47254" text-anchor="start">Jev · Noul + Choice</text>
+<text x="511" y="919" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">Связь с критерием?</text>
+<text x="511" y="948" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">Что проверить дальше?</text>
+<line x1="922" y1="903" x2="986" y2="903" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1004" y="890" font-family="Menlo, Consolas, monospace" font-size="23" font-weight="700" fill="#26302F" text-anchor="start">run-report.md</text>
+<text x="1004" y="929" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#66716C" text-anchor="start">complete / stopped + причина</text>
+<line x1="88" y1="981" x2="1392" y2="981" stroke="#D8DCD4" stroke-width="2"/>
+<text x="88" y="1014" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">Код завершает цикл только при выполнении условий приёмки; лимиты ограничивают попытки.</text>
+<text x="64" y="1100" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#26302F" text-anchor="start">Jev возвращает оценку или ID. Проверки, исправления и остановку выполняет приложение.</text>
+</svg>

@@ -1,0 +1,35 @@
+{
+  "kind": "preregistered_codex_worker_sanity_experiment",
+  "created_at_unix": 1789848733.003583,
+  "selector": "fixed",
+  "mode": "live",
+  "remote_jev_requests_expected": 0,
+  "policy": {
+    "scope_threshold": 0.8,
+    "min_choice_confidence": 0.6,
+    "max_iterations": 2,
+    "max_checks": 10,
+    "max_jev_calls": 10,
+    "max_seconds": 300,
+    "command_timeout": 10,
+    "api_timeout": 20,
+    "worker_timeout": 105
+  },
+  "cases": [
+    {
+      "case": "ui-title-only",
+      "initial_sha256": "2c751442facf34981beae4f3d4288168cfbca9eac9a2d2f9b5f585071f3618bb",
+      "initial_source_file": "ui-title-only-seed/initial-app.py.txt"
+    },
+    {
+      "case": "backend-title-only",
+      "initial_sha256": "5dd2cf4603c4900e17ab8ab058167185fe105a36f54a4dd82465505a127502b5",
+      "initial_source_file": "backend-title-only-seed/initial-app.py.txt"
+    },
+    {
+      "case": "both-title-only",
+      "initial_sha256": "d33b5b425ad1ea4cccf7a043f21236b27a7adf0a6a55586eebe57bbf3ab25245",
+      "initial_source_file": "both-title-only-seed/initial-app.py.txt"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "project": "<workspace>/jev-harness-lab/runs/worker-eval-01/both-title-only-seed/project",
+  "project_relative_to_state": "project",
+  "snapshot": "1e3e1d86fba8dec9772ffd2695aa82ef5f78740719cd1b6b3f38b0909290105a",
+  "records": [],
+  "case": "missing-evidence",
+  "worker_claim": "The requested search behavior needs independent verification."
+}

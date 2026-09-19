@@ -1,0 +1,17 @@
+{
+  "status": "complete",
+  "reason": "acceptance_contract_satisfied",
+  "mode": "live",
+  "synthetic_judge_and_worker": false,
+  "checks_executed": 5,
+  "worker_iterations": 1,
+  "judge_invocations": 0,
+  "remote_jev_requests": 0,
+  "judge_elapsed_ms": 0.0,
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "elapsed_ms": 15059.89,
+  "output_directory": "<workspace>/jev-harness-lab/runs/worker-eval-01/ui-title-only"
+}

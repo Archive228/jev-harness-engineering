@@ -1,0 +1,17 @@
+{
+  "status": "reported",
+  "reason": "evidence_report_written",
+  "mode": "demo",
+  "synthetic_judge_and_worker": true,
+  "checks_executed": 1,
+  "worker_iterations": 0,
+  "judge_invocations": 1,
+  "remote_jev_requests": 0,
+  "judge_elapsed_ms": 0.01,
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "elapsed_ms": 89.23,
+  "output_directory": "/Users/archive/Downloads/jev-research-2026-09-19/article/jev-harness-lab/examples/evidence-demo"
+}

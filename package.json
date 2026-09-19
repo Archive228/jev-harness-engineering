@@ -1,0 +1,15 @@
+{
+  "name": "jev-harness-engineering",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build the readable HTML edition of the Jev + Harness Engineering article",
+  "scripts": {
+    "build:article": "node scripts/build-article.cjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "marked": "17.0.5"
+  }
+}

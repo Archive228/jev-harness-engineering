@@ -1,0 +1,6 @@
+{
+  "claim": "Changed only `app.py`: backend search now checks the supplied fields, allowing case-insensitive matches in either title or description. Python and tests were not run.",
+  "synthetic": false,
+  "adapter": "/Library/Developer/CommandLineTools/usr/bin/python3",
+  "stderr": "{\"provider\": \"codex_cli\", \"usage\": {\"input_tokens\": 52453, \"cached_input_tokens\": 17408, \"output_tokens\": 271, \"reasoning_output_tokens\": 52}, \"completed_items\": {\"agent_message\": 2, \"command_execution\": 1, \"file_change\": 1}}\n"
+}

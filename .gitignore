@@ -1,0 +1,26 @@
+# Local credentials and user configuration
+.env
+.env.*
+!.env.example
+*credentials*.json
+*.pem
+*.key
+jev-harness-lab/worker-config-claude.json
+jev-harness-lab/worker-config-codex.json
+
+# Python and OS artifacts
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+.pytest_cache/
+node_modules/
+
+# Fresh experiments; curated examples below remain versioned
+jev-harness-lab/runs/*
+!jev-harness-lab/runs/example/
+jev-harness-lab/evaluation-local*/
+jev-harness-lab/live-runs/
+jev-harness-lab/live-evaluation*/
+jev-harness-lab/evaluation-ci/
+*.zip

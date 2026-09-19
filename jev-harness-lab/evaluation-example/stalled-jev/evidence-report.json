@@ -1,0 +1,88 @@
+{
+  "snapshot": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+  "criteria": [
+    {
+      "criterion": "R1",
+      "requirement": "Searching for a word present in an item's title returns that item.",
+      "check_id": "C1",
+      "status": "passed",
+      "reason": "fresh_zero_exit_known_contract",
+      "scope_noul": 0.99,
+      "scope_supported": true,
+      "record": {
+        "check_id": "C1",
+        "scope": "Calls application search('milk') and asserts that item 1 is returned by a title match.",
+        "argv": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "-B",
+          "/Users/archive/Downloads/jev-research-2026-09-19/article/jev-harness-lab/check_runner.py",
+          "C1",
+          "/Users/archive/Downloads/jev-research-2026-09-19/article/jev-harness-lab/evaluation-example/stalled-jev/project"
+        ],
+        "snapshot": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+        "snapshot_after": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+        "exit_code": 0,
+        "stdout": "{\"check_id\": \"C1\", \"kind\": \"check_completed\", \"observation\": {\"query\": \"milk\", \"actual_ids\": [1], \"expected_ids\": [1]}}\n",
+        "stderr": "",
+        "elapsed_ms": 49.79,
+        "executed_at_unix": 1789848751.024287,
+        "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+        "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+        "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+        "check_result": {
+          "check_id": "C1",
+          "kind": "check_completed",
+          "observation": {
+            "query": "milk",
+            "actual_ids": [
+              1
+            ],
+            "expected_ids": [
+              1
+            ]
+          }
+        }
+      }
+    },
+    {
+      "criterion": "R2",
+      "requirement": "Searching for a word present only in an item's description returns that item.",
+      "check_id": "C2",
+      "status": "failed",
+      "reason": "nonzero_exit",
+      "scope_noul": null,
+      "scope_supported": null,
+      "record": {
+        "check_id": "C2",
+        "scope": "Calls application search('carton') and asserts that item 1 is returned by a description-only match.",
+        "argv": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "-B",
+          "/Users/archive/Downloads/jev-research-2026-09-19/article/jev-harness-lab/check_runner.py",
+          "C2",
+          "/Users/archive/Downloads/jev-research-2026-09-19/article/jev-harness-lab/evaluation-example/stalled-jev/project"
+        ],
+        "snapshot": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+        "snapshot_after": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+        "exit_code": 1,
+        "stdout": "{\"check_id\": \"C2\", \"kind\": \"assertion_failure\", \"error\": \"AssertionError\", \"detail\": \"description-only search: expected [1], got []\"}\n",
+        "stderr": "",
+        "elapsed_ms": 49.88,
+        "executed_at_unix": 1789848751.07538,
+        "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+        "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+        "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+        "check_result": {
+          "check_id": "C2",
+          "kind": "assertion_failure",
+          "error": "AssertionError",
+          "detail": "description-only search: expected [1], got []"
+        }
+      }
+    }
+  ],
+  "all_passed": false,
+  "scope_warning": "Noul is a shadow annotation of described check scope. Known mandatory test mappings determine acceptance in code; model scores neither promote nor downgrade them.",
+  "mode": "demo",
+  "synthetic_judgment": true
+}

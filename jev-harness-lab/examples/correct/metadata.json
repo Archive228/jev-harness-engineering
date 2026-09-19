@@ -1,0 +1,10 @@
+{
+  "mode": "demo",
+  "synthetic_judge_and_worker": true,
+  "model_requested": "jev-1.13.0",
+  "python_version": "3.9.6 (default, Mar  6 2026, 16:22:43) \n[Clang 21.0.0 (clang-2100.0.123.102)]",
+  "case": "correct",
+  "command": "loop",
+  "selector": "jev",
+  "warning": "Demo tests execute real code; demo model answers and worker actions are fixtures, not Jev results."
+}

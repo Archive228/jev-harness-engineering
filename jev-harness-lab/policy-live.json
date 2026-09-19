@@ -1,0 +1,11 @@
+{
+  "scope_threshold": 0.8,
+  "min_choice_confidence": 0.6,
+  "max_iterations": 2,
+  "max_checks": 10,
+  "max_jev_calls": 10,
+  "max_seconds": 240,
+  "command_timeout": 10,
+  "api_timeout": 20,
+  "worker_timeout": 90
+}

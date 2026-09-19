@@ -1,0 +1,510 @@
+{
+  "kind": "offline_integration_matrix",
+  "all_judge_answers_and_workers_are_synthetic": true,
+  "warning": "Three authored fixtures, one deterministic repair, no real Jev/model trial. No accuracy, speed or cost advantage can be inferred.",
+  "baseline_note": "fixed runs D1; all runs D1 and D2; both skip Jev shadow annotations. jev uses synthetic D2 choice and synthetic Noul.",
+  "oracle_note": "Additional fixed assertions execute after stop and are never passed back into worker/router. This small oracle is also incomplete.",
+  "rows": [
+    {
+      "case": "correct",
+      "selector": "fixed",
+      "status": "complete",
+      "reason": "acceptance_contract_satisfied",
+      "checks": 2,
+      "iterations": 0,
+      "judge_invocations": 0,
+      "remote_jev_requests": 0,
+      "unknown_criteria": 0,
+      "false_complete": false,
+      "independent_acceptance": {
+        "passed": true,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [
+              2
+            ],
+            "pass": true
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 57.28
+      },
+      "elapsed_ms": 106.54
+    },
+    {
+      "case": "correct",
+      "selector": "all",
+      "status": "complete",
+      "reason": "acceptance_contract_satisfied",
+      "checks": 2,
+      "iterations": 0,
+      "judge_invocations": 0,
+      "remote_jev_requests": 0,
+      "unknown_criteria": 0,
+      "false_complete": false,
+      "independent_acceptance": {
+        "passed": true,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [
+              2
+            ],
+            "pass": true
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 57.78
+      },
+      "elapsed_ms": 103.15
+    },
+    {
+      "case": "correct",
+      "selector": "jev",
+      "status": "complete",
+      "reason": "acceptance_contract_satisfied",
+      "checks": 2,
+      "iterations": 0,
+      "judge_invocations": 1,
+      "remote_jev_requests": 0,
+      "unknown_criteria": 0,
+      "false_complete": false,
+      "independent_acceptance": {
+        "passed": true,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [
+              2
+            ],
+            "pass": true
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 60.45
+      },
+      "elapsed_ms": 107.68
+    },
+    {
+      "case": "missing-evidence",
+      "selector": "fixed",
+      "status": "complete",
+      "reason": "acceptance_contract_satisfied",
+      "checks": 5,
+      "iterations": 1,
+      "judge_invocations": 0,
+      "remote_jev_requests": 0,
+      "unknown_criteria": 0,
+      "false_complete": false,
+      "independent_acceptance": {
+        "passed": true,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [
+              2
+            ],
+            "pass": true
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 59.02
+      },
+      "elapsed_ms": 272.3
+    },
+    {
+      "case": "missing-evidence",
+      "selector": "all",
+      "status": "complete",
+      "reason": "acceptance_contract_satisfied",
+      "checks": 6,
+      "iterations": 1,
+      "judge_invocations": 0,
+      "remote_jev_requests": 0,
+      "unknown_criteria": 0,
+      "false_complete": false,
+      "independent_acceptance": {
+        "passed": true,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [
+              2
+            ],
+            "pass": true
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 56.38
+      },
+      "elapsed_ms": 312.42
+    },
+    {
+      "case": "missing-evidence",
+      "selector": "jev",
+      "status": "complete",
+      "reason": "acceptance_contract_satisfied",
+      "checks": 5,
+      "iterations": 1,
+      "judge_invocations": 3,
+      "remote_jev_requests": 0,
+      "unknown_criteria": 0,
+      "false_complete": false,
+      "independent_acceptance": {
+        "passed": true,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [
+              2
+            ],
+            "pass": true
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 56.84
+      },
+      "elapsed_ms": 287.31
+    },
+    {
+      "case": "stalled",
+      "selector": "fixed",
+      "status": "stop",
+      "reason": "no_new_evidence_or_source_change",
+      "checks": 3,
+      "iterations": 1,
+      "judge_invocations": 0,
+      "remote_jev_requests": 0,
+      "unknown_criteria": 0,
+      "false_complete": false,
+      "independent_acceptance": {
+        "passed": false,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [],
+            "pass": false
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [],
+            "pass": false
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 59.41
+      },
+      "elapsed_ms": 159.63
+    },
+    {
+      "case": "stalled",
+      "selector": "all",
+      "status": "stop",
+      "reason": "no_new_evidence_or_source_change",
+      "checks": 4,
+      "iterations": 1,
+      "judge_invocations": 0,
+      "remote_jev_requests": 0,
+      "unknown_criteria": 0,
+      "false_complete": false,
+      "independent_acceptance": {
+        "passed": false,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [],
+            "pass": false
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [],
+            "pass": false
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 59.02
+      },
+      "elapsed_ms": 237.57
+    },
+    {
+      "case": "stalled",
+      "selector": "jev",
+      "status": "stop",
+      "reason": "no_new_evidence_or_source_change",
+      "checks": 3,
+      "iterations": 1,
+      "judge_invocations": 2,
+      "remote_jev_requests": 0,
+      "unknown_criteria": 0,
+      "false_complete": false,
+      "independent_acceptance": {
+        "passed": false,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [],
+            "pass": false
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [],
+            "pass": false
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 56.65
+      },
+      "elapsed_ms": 154.9
+    }
+  ]
+}

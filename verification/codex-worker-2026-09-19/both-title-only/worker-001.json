@@ -1,0 +1,6 @@
+{
+  "claim": "Updated only `app.py`: the UI requests both title and description, and the backend matches any requested field. Existing case-insensitive matching is preserved. Python and tests were not run.",
+  "synthetic": false,
+  "adapter": "/Library/Developer/CommandLineTools/usr/bin/python3",
+  "stderr": "{\"provider\": \"codex_cli\", \"usage\": {\"input_tokens\": 52413, \"cached_input_tokens\": 34304, \"output_tokens\": 310, \"reasoning_output_tokens\": 0}, \"completed_items\": {\"agent_message\": 2, \"command_execution\": 1, \"file_change\": 1}}\n"
+}

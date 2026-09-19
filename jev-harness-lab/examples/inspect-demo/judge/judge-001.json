@@ -1,0 +1,73 @@
+{
+  "mode": "demo",
+  "synthetic": true,
+  "request": {
+    "state": "В Safari экспорт PDF завершается ошибкой. В Chrome тот же документ экспортируется. Сейчас пользуюсь Chrome, но хочу вернуть экспорт в Safari.",
+    "model": "jev-1.13.0",
+    "questions": {
+      "category": {
+        "type": "choice",
+        "instructions": "What category best describes the reported problem?",
+        "criteria": {
+          "export": "Exporting or downloading a document",
+          "account": "Signing in or account access",
+          "payment": "Billing or payment",
+          "other": "None of these categories"
+        }
+      },
+      "impact": {
+        "type": "score",
+        "instructions": "How much does the issue obstruct the user's task?",
+        "criteria": [
+          "Cosmetic issue; functionality works",
+          "Function is broken, but a working workaround exists",
+          "Task is blocked and no working workaround is stated"
+        ]
+      },
+      "has_workaround": {
+        "type": "noul",
+        "instructions": "Does the message explicitly state a working workaround?"
+      }
+    }
+  },
+  "response": {
+    "model": "SYNTHETIC-DEMO-NOT-JEV",
+    "answers": {
+      "category": {
+        "type": "choice",
+        "choice": "export",
+        "confidence": 1.0,
+        "probabilities": {
+          "export": 1.0,
+          "account": 0.0,
+          "payment": 0.0,
+          "other": 0.0
+        }
+      },
+      "impact": {
+        "type": "score",
+        "score": 1.0,
+        "confidence": 1.0,
+        "legend": {
+          "0": "Cosmetic issue; functionality works",
+          "1": "Function is broken, but a working workaround exists",
+          "2": "Task is blocked and no working workaround is stated"
+        },
+        "probabilities": {
+          "0": 0.0,
+          "1": 1.0,
+          "2": 0.0
+        }
+      },
+      "has_workaround": {
+        "type": "noul",
+        "noul": 0.99
+      }
+    },
+    "usage": {
+      "input_tokens": 0,
+      "output_tokens": 0
+    }
+  },
+  "elapsed_ms": 0.02
+}

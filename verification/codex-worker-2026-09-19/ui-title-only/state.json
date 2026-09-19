@@ -1,0 +1,173 @@
+{
+  "project": "<workspace>/jev-harness-lab/runs/worker-eval-01/ui-title-only-seed/project",
+  "project_relative_to_state": null,
+  "snapshot": "29418bd04497ad6eefde17e03fc089ffc9792e2f020a4c7219dda59a9b3c2871",
+  "records": [
+    {
+      "check_id": "C1",
+      "scope": "Calls application search('milk') and asserts that item 1 is returned by a title match.",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "<workspace>/jev-harness-lab/check_runner.py",
+        "C1",
+        "<workspace>/jev-harness-lab/runs/worker-eval-01/ui-title-only-seed/project"
+      ],
+      "snapshot": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+      "snapshot_after": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+      "exit_code": 0,
+      "stdout": "{\"check_id\": \"C1\", \"kind\": \"check_completed\", \"observation\": {\"query\": \"milk\", \"actual_ids\": [1], \"expected_ids\": [1]}}\n",
+      "stderr": "",
+      "elapsed_ms": 61.11,
+      "executed_at_unix": 1789848733.1126678,
+      "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+      "check_result": {
+        "check_id": "C1",
+        "kind": "check_completed",
+        "observation": {
+          "query": "milk",
+          "actual_ids": [
+            1
+          ],
+          "expected_ids": [
+            1
+          ]
+        }
+      }
+    },
+    {
+      "check_id": "C2",
+      "scope": "Calls application search('carton') and asserts that item 1 is returned by a description-only match.",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "<workspace>/jev-harness-lab/check_runner.py",
+        "C2",
+        "<workspace>/jev-harness-lab/runs/worker-eval-01/ui-title-only-seed/project"
+      ],
+      "snapshot": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+      "snapshot_after": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+      "exit_code": 1,
+      "stdout": "{\"check_id\": \"C2\", \"kind\": \"assertion_failure\", \"error\": \"AssertionError\", \"detail\": \"description-only search: expected [1], got []\"}\n",
+      "stderr": "",
+      "elapsed_ms": 53.87,
+      "executed_at_unix": 1789848733.167736,
+      "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+      "check_result": {
+        "check_id": "C2",
+        "kind": "assertion_failure",
+        "error": "AssertionError",
+        "detail": "description-only search: expected [1], got []"
+      }
+    },
+    {
+      "check_id": "D1",
+      "scope": "Bypass the UI request builder and call the backend with title and description fields. Isolate backend filtering from request construction.",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "<workspace>/jev-harness-lab/check_runner.py",
+        "D1",
+        "<workspace>/jev-harness-lab/runs/worker-eval-01/ui-title-only-seed/project"
+      ],
+      "snapshot": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+      "snapshot_after": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+      "exit_code": 0,
+      "stdout": "{\"check_id\": \"D1\", \"kind\": \"check_completed\", \"observation\": {\"backend_direct_ids\": [1], \"expected_ids\": [1], \"backend_match\": true}}\n",
+      "stderr": "",
+      "elapsed_ms": 52.9,
+      "executed_at_unix": 1789848733.2218292,
+      "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+      "check_result": {
+        "check_id": "D1",
+        "kind": "check_completed",
+        "observation": {
+          "backend_direct_ids": [
+            1
+          ],
+          "expected_ids": [
+            1
+          ],
+          "backend_match": true
+        }
+      }
+    },
+    {
+      "check_id": "C1",
+      "scope": "Calls application search('milk') and asserts that item 1 is returned by a title match.",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "<workspace>/jev-harness-lab/check_runner.py",
+        "C1",
+        "<workspace>/jev-harness-lab/runs/worker-eval-01/ui-title-only-seed/project"
+      ],
+      "snapshot": "29418bd04497ad6eefde17e03fc089ffc9792e2f020a4c7219dda59a9b3c2871",
+      "snapshot_after": "29418bd04497ad6eefde17e03fc089ffc9792e2f020a4c7219dda59a9b3c2871",
+      "exit_code": 0,
+      "stdout": "{\"check_id\": \"C1\", \"kind\": \"check_completed\", \"observation\": {\"query\": \"milk\", \"actual_ids\": [1], \"expected_ids\": [1]}}\n",
+      "stderr": "",
+      "elapsed_ms": 55.45,
+      "executed_at_unix": 1789848748.047643,
+      "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+      "check_result": {
+        "check_id": "C1",
+        "kind": "check_completed",
+        "observation": {
+          "query": "milk",
+          "actual_ids": [
+            1
+          ],
+          "expected_ids": [
+            1
+          ]
+        }
+      }
+    },
+    {
+      "check_id": "C2",
+      "scope": "Calls application search('carton') and asserts that item 1 is returned by a description-only match.",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "<workspace>/jev-harness-lab/check_runner.py",
+        "C2",
+        "<workspace>/jev-harness-lab/runs/worker-eval-01/ui-title-only-seed/project"
+      ],
+      "snapshot": "29418bd04497ad6eefde17e03fc089ffc9792e2f020a4c7219dda59a9b3c2871",
+      "snapshot_after": "29418bd04497ad6eefde17e03fc089ffc9792e2f020a4c7219dda59a9b3c2871",
+      "exit_code": 0,
+      "stdout": "{\"check_id\": \"C2\", \"kind\": \"check_completed\", \"observation\": {\"query\": \"carton\", \"actual_ids\": [1], \"expected_ids\": [1]}}\n",
+      "stderr": "",
+      "elapsed_ms": 55.07,
+      "executed_at_unix": 1789848748.103919,
+      "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+      "check_result": {
+        "check_id": "C2",
+        "kind": "check_completed",
+        "observation": {
+          "query": "carton",
+          "actual_ids": [
+            1
+          ],
+          "expected_ids": [
+            1
+          ]
+        }
+      }
+    }
+  ],
+  "case": "missing-evidence",
+  "worker_claim": "Updated only `app.py`: UI search requests now include both `title` and `description`, using the backend’s existing OR matching. Updated the docstring accordingly. No Python or tests were run.",
+  "provenance_note": "Imported records are trusted caller data; hashes check freshness, not authenticity."
+}

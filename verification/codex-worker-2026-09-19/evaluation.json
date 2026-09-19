@@ -1,0 +1,221 @@
+{
+  "kind": "preregistered_codex_worker_sanity_experiment",
+  "completed_cases": 3,
+  "planned_cases": 3,
+  "worker": "real_codex_cli",
+  "selector": "fixed",
+  "note": "Three authored toy faults, one run each. No Jev calls, no Jev benefit or general reliability claim.",
+  "oracle_note": "Four fixed observations after stop; independent from the two acceptance checks, not exhaustive.",
+  "rows": [
+    {
+      "case": "ui-title-only",
+      "initial_sha256": "2c751442facf34981beae4f3d4288168cfbca9eac9a2d2f9b5f585071f3618bb",
+      "final_sha256": "e77ae9c173b18781655df087f51bbeb56733188d325e7952f19c2d71de28f286",
+      "status": "complete",
+      "reason": "acceptance_contract_satisfied",
+      "checks": 5,
+      "iterations": 1,
+      "remote_jev_requests": 0,
+      "worker_calls": [
+        {
+          "iteration_file": "worker-001.json",
+          "synthetic": false,
+          "provider": "codex_cli",
+          "usage": {
+            "input_tokens": 52462,
+            "cached_input_tokens": 34304,
+            "output_tokens": 303,
+            "reasoning_output_tokens": 38
+          }
+        }
+      ],
+      "elapsed_ms": 15170.0,
+      "harness_elapsed_ms": 15059.89,
+      "independent_acceptance": {
+        "passed": true,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [
+              2
+            ],
+            "pass": true
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 60.45
+      },
+      "false_complete": false
+    },
+    {
+      "case": "backend-title-only",
+      "initial_sha256": "5dd2cf4603c4900e17ab8ab058167185fe105a36f54a4dd82465505a127502b5",
+      "final_sha256": "b0b1b3eeef49673f9998089b533c389f9b44db1668a86a8be468dba3af02094f",
+      "status": "complete",
+      "reason": "acceptance_contract_satisfied",
+      "checks": 5,
+      "iterations": 1,
+      "remote_jev_requests": 0,
+      "worker_calls": [
+        {
+          "iteration_file": "worker-001.json",
+          "synthetic": false,
+          "provider": "codex_cli",
+          "usage": {
+            "input_tokens": 52453,
+            "cached_input_tokens": 17408,
+            "output_tokens": 271,
+            "reasoning_output_tokens": 52
+          }
+        }
+      ],
+      "elapsed_ms": 17015.5,
+      "harness_elapsed_ms": 16916.57,
+      "independent_acceptance": {
+        "passed": true,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [
+              2
+            ],
+            "pass": true
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 56.34
+      },
+      "false_complete": false
+    },
+    {
+      "case": "both-title-only",
+      "initial_sha256": "d33b5b425ad1ea4cccf7a043f21236b27a7adf0a6a55586eebe57bbf3ab25245",
+      "final_sha256": "c03cd6d64ef3b9cecf150fb25dd23ce0d0b93f3634cd2708df9a9f4b3dbd3831",
+      "status": "complete",
+      "reason": "acceptance_contract_satisfied",
+      "checks": 5,
+      "iterations": 1,
+      "remote_jev_requests": 0,
+      "worker_calls": [
+        {
+          "iteration_file": "worker-001.json",
+          "synthetic": false,
+          "provider": "codex_cli",
+          "usage": {
+            "input_tokens": 52413,
+            "cached_input_tokens": 34304,
+            "output_tokens": 310,
+            "reasoning_output_tokens": 0
+          }
+        }
+      ],
+      "elapsed_ms": 20429.76,
+      "harness_elapsed_ms": 20322.03,
+      "independent_acceptance": {
+        "passed": true,
+        "observations": [
+          {
+            "query": "blue",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "export",
+            "expected": [
+              2
+            ],
+            "actual": [
+              2
+            ],
+            "pass": true
+          },
+          {
+            "query": "MILK",
+            "expected": [
+              1
+            ],
+            "actual": [
+              1
+            ],
+            "pass": true
+          },
+          {
+            "query": "does-not-exist",
+            "expected": [],
+            "actual": [],
+            "pass": true
+          }
+        ],
+        "execution_error": null,
+        "exit_code": 0,
+        "elapsed_ms": 56.2
+      },
+      "false_complete": false
+    }
+  ]
+}
