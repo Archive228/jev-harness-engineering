@@ -1,0 +1,50 @@
+{
+  "repository": "https://github.com/openai/codex",
+  "commit": "d99213289f9abe6daeefa50cde67634d9ea6eeed",
+  "retrieved_at": "2026-09-21",
+  "license": "Apache-2.0",
+  "files": [
+    {
+      "file": "plan.md",
+      "upstream_path": "codex-rs/collaboration-mode-templates/templates/plan.md",
+      "sha256": "d6d46c2d460a9d91ada2167605a8dfc56efde6b2ab61e101444c736c6fd6960a",
+      "modified": false,
+      "url": "https://github.com/openai/codex/blob/d99213289f9abe6daeefa50cde67634d9ea6eeed/codex-rs/collaboration-mode-templates/templates/plan.md"
+    },
+    {
+      "file": "request_user_input_spec.rs",
+      "upstream_path": "codex-rs/core/src/tools/handlers/request_user_input_spec.rs",
+      "sha256": "86ef5b005211ea6cc14c5a99821357a4484cccbb4756c911bbeba3913315d16f",
+      "modified": false,
+      "url": "https://github.com/openai/codex/blob/d99213289f9abe6daeefa50cde67634d9ea6eeed/codex-rs/core/src/tools/handlers/request_user_input_spec.rs"
+    },
+    {
+      "file": "ToolRequestUserInputParams.json",
+      "upstream_path": "codex-rs/app-server-protocol/schema/json/ToolRequestUserInputParams.json",
+      "sha256": "fda15b62e7446105b59c8ed85c908abed2a47db70653e57c92c47a2f204fa77a",
+      "modified": false,
+      "url": "https://github.com/openai/codex/blob/d99213289f9abe6daeefa50cde67634d9ea6eeed/codex-rs/app-server-protocol/schema/json/ToolRequestUserInputParams.json"
+    },
+    {
+      "file": "ToolRequestUserInputResponse.json",
+      "upstream_path": "codex-rs/app-server-protocol/schema/json/ToolRequestUserInputResponse.json",
+      "sha256": "5073b245f741fa8ce62ec52e4dd1809b7831f9c4284c279a78abc9b171f8e3f2",
+      "modified": false,
+      "url": "https://github.com/openai/codex/blob/d99213289f9abe6daeefa50cde67634d9ea6eeed/codex-rs/app-server-protocol/schema/json/ToolRequestUserInputResponse.json"
+    },
+    {
+      "file": "LICENSE",
+      "upstream_path": "LICENSE",
+      "sha256": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc",
+      "modified": false,
+      "url": "https://github.com/openai/codex/blob/d99213289f9abe6daeefa50cde67634d9ea6eeed/LICENSE"
+    },
+    {
+      "file": "NOTICE",
+      "upstream_path": "NOTICE",
+      "sha256": "9d71575ecfd9a843fc1677b0efb08053c6ba9fd686a0de1a6f5382fd3c220915",
+      "modified": false,
+      "url": "https://github.com/openai/codex/blob/d99213289f9abe6daeefa50cde67634d9ea6eeed/NOTICE"
+    }
+  ]
+}

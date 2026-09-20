@@ -1,0 +1,25 @@
+{
+  "original_request": "Хочу что-нибудь полезное про крипту, чтобы запустить прямо в терминале.",
+  "follow_up": "Хочу что-нибудь полезное про крипту, чтобы запустить прямо в терминале.",
+  "conversation": [
+    {
+      "role": "user",
+      "text": "Хочу что-нибудь полезное про крипту, чтобы запустить прямо в терминале."
+    }
+  ],
+  "answers": [],
+  "previous_response": null,
+  "draft_is_not_consent": true,
+  "workspace": {
+    "files": [],
+    "source_snippets": [],
+    "partial": false,
+    "snapshot": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  "registered_checks": [],
+  "execution_limits": {
+    "network": false,
+    "install_dependencies": false,
+    "workspace_only": true
+  }
+}

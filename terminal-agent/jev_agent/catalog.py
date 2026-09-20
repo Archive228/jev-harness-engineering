@@ -260,10 +260,15 @@ def export_session(session):
         lines.extend(["### " + role, "", _fenced(entry.get("text", "")), ""])
     lines.extend(["## Наблюдаемые события", ""])
     for event in session.events():
-        if event.get("type") not in {"jev", "tool", "checks", "context", "triage", "end", "error"}:
+        if event.get("type") not in {"jev", "tool", "checks", "context", "triage", "brief", "end", "error"}:
             continue
         lines.extend(["### #{} · {}".format(event.get("seq", "?"), event["type"]), "",
                       _fenced(json.dumps(clean(event.get("data", {})), ensure_ascii=False, indent=2), "json"), ""])
+    brief = _directory(session) / "brief.json"
+    if brief.is_file():
+        data = _json_file(brief, 1_000_000)
+        lines.extend(["## Уточнение задачи и согласованный план", "",
+                      _fenced(json.dumps(clean(data), ensure_ascii=False, indent=2), "json"), ""])
     path = _directory(session) / "exports" / "session.md"
     _atomic_text(path, "\n".join(lines))
     return path

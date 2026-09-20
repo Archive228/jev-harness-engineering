@@ -35,6 +35,7 @@ def main(argv=None):
     parser.add_argument("--resume", metavar="SESSION", help="Продолжить сессию: last, ID или путь")
     parser.add_argument("--sessions", type=Path, default=ROOT / ".sessions", help="Где сохранять историю и протоколы")
     parser.add_argument("--prompt", help="Только заполнить поле; не запускает агента автоматически")
+    parser.add_argument("--direct", action="store_true", help="Чат без предварительного опроса и согласования плана")
     parser.add_argument("--run", metavar="TEXT", help="Явно запустить один запрос без TUI; JSONL для интеграций")
     parser.add_argument("--mode", choices=["auto", "plan"], help="auto: выполнение; plan: только чтение и план")
     parser.add_argument("--jev-mode", choices=["assist", "observe", "off"], help="Как применять решения Jev; по умолчанию assist")
@@ -66,7 +67,8 @@ def main(argv=None):
                 parser.error("--resume уже определяет проект; не сочетайте с --project/--mission")
             name = ((args.sessions / "last-session.txt").read_text().strip()
                     if args.resume == "last" else args.resume)
-            directory = Path(name) if Path(name).is_absolute() else args.sessions / name
+            requested = Path(name)
+            directory = requested if requested.is_absolute() or len(requested.parts) > 1 else args.sessions / requested
             session = Session.load(directory, activate=not args.export)
         else:
             session = Session.create(args.sessions, project=args.project, mission=args.mission)
@@ -83,7 +85,7 @@ def main(argv=None):
                 return 130
             return 0 if result["status"] in ("accepted", "ready", "answered") else 2
         from .tui import JevApp
-        JevApp(session, initial_prompt=args.prompt).run()
+        JevApp(session, initial_prompt=args.prompt, guided=not args.direct).run()
         return 0
     except (ValueError, OSError) as exc:
         print(clean(str(exc)), file=sys.stderr)

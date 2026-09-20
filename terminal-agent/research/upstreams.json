@@ -22,8 +22,12 @@
       "repository": "https://github.com/anomalyco/opencode",
       "commit": "d870e22c70f27103016dcd479edcfebf86136d93",
       "license": "MIT",
-      "license_path": "licenses/opencode-LICENSE.txt",
-      "usage": "Interaction and architecture reference; independent Python implementation; upstream source code not bundled"
+      "license_path": "../vendor/opencode/LICENSE",
+      "usage": "Actual MIT-licensed single-choice question state machine port to jev_agent/question_state.py; exact original question.shared.ts and MIT notice vendored; other UI paths remain interaction references",
+      "provenance_path": "../vendor/opencode/PROVENANCE.md",
+      "runtime_paths": [
+        "../jev_agent/question_state.py"
+      ]
     },
     {
       "name": "Crush",
@@ -32,6 +36,32 @@
       "license": "FSL-1.1-MIT",
       "license_path": "licenses/crush-LICENSE.txt",
       "usage": "Interaction and architecture reference; independent Python implementation; upstream source code not bundled"
+    },
+    {
+      "name": "Hermes",
+      "repository": "https://github.com/NousResearch/hermes-agent",
+      "commit": "c1c84ea37f9cfee75a1bf8326b5597959c7ba499",
+      "license": "MIT",
+      "license_path": "../vendor/hermes/LICENSE",
+      "provenance_path": "../vendor/hermes/README.md",
+      "runtime_paths": [
+        "../jev_agent/choice_labels.py"
+      ],
+      "usage": "Actual adaptation of mark_recommended/strip_recommended helpers with localized display; exact clarify_tool.py and MIT notice vendored for provenance; upstream registry/runtime not imported"
+    },
+    {
+      "name": "OpenAI Codex",
+      "repository": "https://github.com/openai/codex",
+      "commit": "d99213289f9abe6daeefa50cde67634d9ea6eeed",
+      "license": "Apache-2.0",
+      "license_path": "../vendor/codex/LICENSE",
+      "notice_path": "../vendor/codex/NOTICE",
+      "provenance_path": "../vendor/codex/ADAPTATIONS.md",
+      "source_manifest_path": "../vendor/codex/source.json",
+      "runtime_paths": [
+        "../jev_agent/prompts/intake.md"
+      ],
+      "usage": "Actual adaptation of planning prompt and request-user-input guidance; exact prompt, Rust tool specification, generated wire schemas, LICENSE and NOTICE vendored; Rust and app-server sources are references, not executed"
     }
   ]
 }

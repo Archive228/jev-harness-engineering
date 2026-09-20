@@ -93,15 +93,16 @@ class JevApp(App):
         Binding("pageup", "chat_page(-1)", "Выше", priority=True, show=False),
         Binding("pagedown", "chat_page(1)", "Ниже", priority=True, show=False),
         Binding("ctrl+end", "latest_answer", "К ответу", priority=True, show=False),
+        Binding("f5", "open_brief", "Задача", priority=True, show=False),
         Binding("escape", "back_to_chat", "К чату", show=False),
     ]
     CSS = """
     * { scrollbar-color: #684763; scrollbar-color-hover: #a76e98;
         scrollbar-color-active: #f2a0cc; scrollbar-background: #211a28; }
     Screen { background: #18151d; color: #eee8f1; }
-    #masthead { height: 3; padding: 0 3; background: #201a27; border-bottom: solid #3b2d46; }
-    #navigation { height: 3; padding: 0 2; background: #201a27; }
-    #navigation Button { min-width: 8; width: auto; height: 3; border: none; padding: 0 2;
+    #masthead { height: 2; padding: 0 2; background: #201a27; }
+    #navigation { height: 1; padding: 0 2; background: #201a27; }
+    #navigation Button { min-width: 5; width: auto; height: 1; border: none; padding: 0 1;
         margin-right: 1; background: #2e2435; color: #c9bdd2; }
     #navigation Button:hover, #navigation Button:focus { background: #49324c; color: #f2a0cc; }
     #navigation #nav-new { color: #f2a0cc; }
@@ -110,16 +111,16 @@ class JevApp(App):
     #phase-strip { height: 1; margin: 1 1 0 1; color: #aaa0b2; }
     #chat { height: 1fr; padding: 0 2 1 1; scrollbar-size: 1 1; }
     #welcome { height: auto; padding: 2 1; color: #aaa0b2; }
-    #welcome-example { margin: 0 1 1 1; width: auto; border: none; background: #49324c; color: #f2a0cc; }
+    #welcome-example { margin: 0 1 1 1; width: auto; height: 1; border: none; background: #49324c; color: #f2a0cc; }
     .conversation-card { height: auto; margin-top: 1; padding: 0 1; }
     .message-role { height: 1; margin-bottom: 1; }
     .message-body { height: auto; }
-    .conversation-card.user { background: #2a2031; border-left: thick #f2a0cc; padding: 1 2; }
+    .conversation-card.user { background: #2a2031; border-left: solid #654968; padding: 0 1; }
     .conversation-card.notice { border-left: solid #4f3b5c; }
     .conversation-card.notice .message-role { margin-bottom: 0; }
     .conversation-card.jev { border-left: solid #f2a0cc; }
     .conversation-card.jev .message-role { margin-bottom: 0; }
-    .conversation-card.answer { border-left: thick #f2a0cc; padding: 1 2; }
+    .conversation-card.answer { border-left: solid #f2a0cc; padding: 0 1; }
     .activity-group { height: auto; margin: 1 0; border: none; padding: 0; background: #211a28; }
     .activity-group > CollapsibleTitle { color: #c9a1c3; padding: 0 1; background: #2a2031; }
     .activity-group > Contents { padding: 0 1 1 1; }
@@ -146,23 +147,27 @@ class JevApp(App):
     Tab.-active { color: #f2a0cc; }
     Underline > .underline--bar { color: #f2a0cc; background: #211a28; }
     #status { height: 1; padding: 0 3; color: #aaa0b2; }
-    #result-actions { display: none; height: 3; padding: 0 2; }
-    #result-actions Button { width: auto; min-width: 8; height: 3; padding: 0 1;
+    #brief-actions { display: none; height: 3; padding: 0 2; }
+    #brief-actions Button { width: auto; min-width: 8; height: 3; border: none;
+        padding: 0 2; margin-right: 1; background: #55344e; color: #eee8f1; }
+    #brief-hint { height: 3; width: 1fr; padding: 1 1; color: #aaa0b2; }
+    #result-actions { display: none; height: 1; padding: 0 2; }
+    #result-actions Button { width: auto; min-width: 8; height: 1; padding: 0 1;
         border: none; background: #2e2435; color: #f2a0cc; margin-right: 1; }
-    #result-actions #result-summary { width: 1fr; height: 2; padding: 1 1 0 0; color: #c9bdd2; }
+    #result-actions #result-summary { width: 1fr; height: 1; padding: 0 1 0 0; color: #c9bdd2; }
     #composer { height: auto; margin: 0 2; }
-    #prompt { height: 5; border: round #654968; background: #241d2c;
+    #prompt { height: 3; border: round #654968; background: #241d2c;
         padding: 0 1; scrollbar-size: 1 1; }
     #prompt:focus { border: round #f2a0cc; }
-    #composer-actions { height: 3; align-vertical: middle; }
-    #prompt-meta { width: 1fr; height: 2; color: #aaa0b2; padding-left: 1; }
-    #expand-prompt, #mode-picker, #jev-picker { height: 3; width: auto; min-width: 5; border: none;
+    #composer-actions { height: 1; align-vertical: middle; }
+    #prompt-meta { width: 1fr; height: 1; color: #aaa0b2; padding-left: 1; }
+    #expand-prompt, #mode-picker, #jev-picker { height: 1; width: auto; min-width: 5; border: none;
         padding: 0 1; background: #2e2435; color: #c9bdd2; margin-right: 1; }
-    #send-prompt, #stop-run { width: 18; min-width: 14; height: 3;
-        background: #55344e; color: #eee8f1; border: round #654968; }
+    #send-prompt, #stop-run { width: 18; min-width: 14; height: 1;
+        background: #55344e; color: #eee8f1; border: none; }
     #stop-run { display: none; color: #ee9b9b; }
     #send-prompt:hover { background: #72445f; }
-    Screen.input-expanded #body, Screen.input-expanded #status { display: none; }
+    Screen.input-expanded #body, Screen.input-expanded #status, Screen.input-expanded #brief-actions { display: none; }
     Screen.input-expanded #composer { height: 1fr; }
     Footer { background: #201a27; color: #aaa0b2; }
     FooterKey { background: #201a27; }
@@ -183,12 +188,19 @@ class JevApp(App):
     """
 
     def __init__(self, session: Any, initial_prompt: Optional[str] = None,
-                 replay_events: Optional[list] = None) -> None:
+                 replay_events: Optional[list] = None, guided=None, intake=None) -> None:
         super().__init__()
         self.session = session
         self.initial_prompt = initial_prompt
         self.replay_events = replay_events
         self.is_replay = replay_events is not None
+        self.guided = bool(hasattr(session, "runner") if guided is None else guided)
+        self.intake = intake
+        if self.guided and not self.is_replay and self.intake is None:
+            from .intake import IntakeController
+            self.intake = IntakeController(session)
+        self._preparing = False
+        self._brief_revisions_seen = set()
         self._busy = False
         self._event_count = 0
         self._event_types = []
@@ -226,6 +238,7 @@ class JevApp(App):
         yield Static(id="masthead")
         with Horizontal(id="navigation"):
             yield Button("＋ Новый", id="nav-new")
+            yield Button("Задача", id="nav-brief")
             yield Button("Сессии", id="nav-sessions")
             yield Button("Файлы", id="nav-files")
             yield Button("Jev", id="nav-jev")
@@ -235,9 +248,9 @@ class JevApp(App):
             with Vertical(id="main"):
                 yield Static(id="phase-strip")
                 with VerticalScroll(id="chat"):
-                    yield Static(Text("Что сделаем?\n\nОпишите задачу своими словами или вставьте большой запрос.\n"
-                                      "Jev выберет следующий шаг, агент выполнит работу.\n\n"
-                                      "Enter — отправить  ·  Ctrl+J — новая строка", style=MUTED), id="welcome")
+                    yield Static(Text("Что хотите сделать?\n\nМожно начать с одной фразы.\n"
+                                      "Уточним детали → подготовим план → выполним.\n\n"
+                                      "Вы описываете идею. Агент помогает превратить её в задачу.", style=MUTED), id="welcome")
                     yield Button("Вставить пример задачи", id="welcome-example")
             with Vertical(id="rail"):
                 yield Static("НАБЛЮДЕНИЕ  /  F6 закрыть", id="drawer-title")
@@ -252,6 +265,9 @@ class JevApp(App):
                     with TabPane("События", id="events-tab"):
                         yield RichLog(id="event-log", markup=False, highlight=False,
                                       wrap=True, min_width=20, max_lines=4000)
+        with Horizontal(id="brief-actions"):
+            yield Button("Уточнить задачу", id="brief-open")
+            yield Static(id="brief-hint")
         with Horizontal(id="result-actions"):
             yield Static(id="result-summary")
             yield Button("↓ Ответ", id="result-answer")
@@ -282,6 +298,10 @@ class JevApp(App):
             from .catalog import load_draft
             editor.load_text(self.initial_prompt if self.initial_prompt is not None else load_draft(self.session))
         self.call_after_refresh(self._resize_prompt)
+        if self.intake and self.intake.state.get("last_error"):
+            self._chat("ERROR", self.intake.state["last_error"], YELLOW, activity=False)
+        if self.intake and self.intake.state.get("status") in {"questions", "plan"}:
+            self.call_after_refresh(self.action_open_brief)
 
     def _restore_history(self) -> None:
         self._restoring = True
@@ -486,6 +506,28 @@ class JevApp(App):
             self._files = data.get("changed") or []
         elif kind == "meters":
             self._meters.update(data)
+        elif kind == "brief":
+            response = data.get("response") or {}
+            status = data.get("status", "")
+            revision = data.get("revision", 0)
+            identity = (status, revision, response.get("message", ""))
+            if not data.get("last_error") and status in {"questions", "plan", "answer"} and identity not in self._brief_revisions_seen:
+                self._brief_revisions_seen.add(identity)
+                if self._activity:
+                    self._activity.update_summary(finished=True, status="complete")
+                if status == "answer":
+                    self._last_answer = response.get("answer") or response.get("message", "")
+                    self._answer_card = self._chat("ASSISTANT", self._last_answer, AMBER, activity=False)
+                    if self._answer_card:
+                        self._answer_card.add_class("answer")
+                    self._outcome = "answered"
+                elif status == "questions":
+                    self._chat("УТОЧНИМ ЗАДАЧУ", response.get("message") or "Нужно уточнить несколько деталей.", AMBER, activity=False)
+                    self._outcome = "needs_input"
+                else:
+                    plan = response.get("plan") or {}
+                    self._chat("ПЛАН ГОТОВ", plan.get("title", "") + "\n" + plan.get("goal", ""), AMBER, activity=False)
+                    self._outcome = "plan_ready"
         elif kind == "end":
             final_meters = data.get("meters")
             if isinstance(final_meters, dict):
@@ -559,7 +601,22 @@ class JevApp(App):
             ribbon.append(symbol + plain(name, 32), style=GREEN if done else AMBER if bad or active else MUTED)
         if not self._phases:
             ribbon.append("○  Готов к задаче   ·   действия появятся после отправки", style=MUTED)
-        self._view.query_one("#phase-strip", Static).update(ribbon)
+        if self.guided:
+            state = self.intake.state.get("status", "idle") if self.intake else "idle"
+            if self._preparing:
+                label = "● Уточняем задачу  →  План  →  Выполнение"
+            elif state == "questions":
+                label = "● Ваши ответы  →  План  →  Выполнение"
+            elif state == "plan":
+                label = "✓ Задача понятна  →  ● Согласуем план  →  Выполнение"
+            elif self._busy:
+                label = "✓ План принят  →  ● Выполнение  →  Проверки"
+            else:
+                label = ""
+            ribbon = Text(label, style=AMBER)
+        strip = self._view.query_one("#phase-strip", Static)
+        strip.display = bool(ribbon.plain.strip()) and (self._busy or bool(self.intake and self.intake.state.get("status") in {"questions", "plan"}))
+        strip.update(ribbon)
 
     def _render_decisions(self) -> None:
         data = self._latest_jev
@@ -607,6 +664,15 @@ class JevApp(App):
 
     def _render_evidence(self) -> None:
         out = Text()
+        if self._meters:
+            out.append("Вызовы и использование\n", style=f"bold {AMBER}")
+            out.append("Jev {} · исполнитель {} · подготовка {}\n".format(
+                self._meters.get("jev_calls", 0), self._meters.get("worker_calls", 0),
+                self._meters.get("planner_calls", 0)), style=CREAM)
+            out.append("{} событий · {:.1f} s\n".format(self._event_count, self._elapsed_ms / 1000), style=MUTED)
+            if self._meters.get("usage_complete") is False:
+                out.append("usage неполный\n", style=YELLOW)
+            out.append("\n")
         if self._checks:
             out.append("{} / {} проверок пройдено\n".format(self._checks.get("passed", "?"), self._checks.get("total", "?")),
                        style=f"bold {GREEN}")
@@ -641,15 +707,15 @@ class JevApp(App):
         elapsed = self._elapsed_ms / 1000
         if self._busy and self._turn_started is not None:
             elapsed = max(elapsed, time.monotonic() - self._turn_started)
-        mode = "ЗАПИСЬ" if self.is_replay else "РАБОТАЕТ" if self._busy else "ОЖИДАНИЕ"
+        mode = "Запись" if self.is_replay else "Разбираю задачу" if self._preparing else "Работаю" if self._busy else "Готов к сообщению"
         execution_mode = getattr(self.session, "execution_mode", "auto")
         jev_mode = getattr(self.session, "jev_mode", "assist")
         top = Text("JEV", style=f"bold {AMBER}")
         top.append(" / HARNESS", style=f"bold {CREAM}")
-        top.append("   " + mode, style=MUTED)
-        if not self._busy:
-            top.append("   ·   " + status_label(self._outcome).lower(), style=GREEN)
-        if self.size.height >= 32:
+        top.append("   ·   " + mode, style=MUTED)
+        if self.guided:
+            top.append("   ·   с уточнением задачи", style=MUTED)
+        if self.size.height >= 28:
             path = str(self.session.workspace)
             if len(path) > self.size.width - 8:
                 path = "…/" + "/".join(Path(path).parts[-3:])
@@ -659,12 +725,9 @@ class JevApp(App):
         status.append("{:5.1f}s  ".format(elapsed), style=CREAM)
         if self._meters.get("usage_complete") is False:
             status.append("usage неполный · ", style=f"bold {YELLOW}")
-        status.append("Jev {}  ·  worker {}  ·  проверок {}  ·  событий {}".format(
-            self._meters.get("jev_calls", 0), self._meters.get("worker_calls", 0),
-            self._meters.get("checks", 0), self._event_count), style=MUTED)
-        if self.size.width >= 110 and self._detail:
-            status.append("  /  " + plain(self._detail, 70), style=MUTED)
+        status.append("Изучаю запрос и проект" if self._preparing else plain(self._detail, 100), style=MUTED)
         self._view.query_one("#status", Static).update(status)
+        self._view.query_one("#status").display = self._busy and not self._expanded_input
         active = self._busy or self.session.busy
         self._view.query_one("#stop-run").display = active
         self._view.query_one("#send-prompt").display = not active
@@ -677,6 +740,14 @@ class JevApp(App):
         if self._files:
             brief += " · файлы: {}".format(len(self._files))
         self._view.query_one("#result-summary", Static).update(Text(brief, style=GREEN))
+        state = self.intake.state if self.intake else {}
+        pending = self.guided and state.get("status") in {"questions", "plan", "interrupted"}
+        self._view.query_one("#brief-actions").display = bool(pending and not active and not self._expanded_input)
+        self._view.query_one("#brief-open", Button).label = "Посмотреть план" if state.get("status") == "plan" else "Ответить на вопросы" if state.get("status") == "questions" else "Продолжить обсуждение"
+        self._view.query_one("#brief-hint", Static).update("Работа начнётся после принятия плана" if state.get("status") == "plan" else "Можно выбрать вариант или написать своими словами")
+        self._view.query_one("#nav-brief", Button).disabled = active or self.is_replay
+        self._view.query_one("#nav-brief").display = self.guided
+        self._view.query_one("#send-prompt", Button).label = "Уточнить ↵" if pending else "Обсудить ↵" if self.guided else "Отправить ↵"
 
     def on_text_area_changed(self, event: TextArea.Changed) -> None:
         if event.text_area.id == "prompt":
@@ -707,10 +778,10 @@ class JevApp(App):
         editor = self._view.query_one("#prompt", PromptEditor)
         rows = max(1, editor.wrapped_document.height)
         editor.styles.height = "1fr" if self._expanded_input else min(
-            max(5, rows + 2), max(5, self.size.height // 2 - 3))
+            max(3, rows + 2), max(5, self.size.height // 2 - 3))
         lines = len(editor.text.split("\n")) if editor.text else 0
         self._view.query_one("#prompt-meta", Static).update(
-            "{} строк · {} символов\nCtrl+J — новая строка".format(lines, len(editor.text)))
+            "{} строк · {} симв · Ctrl+J ↵".format(lines, len(editor.text)))
 
     def action_expand_input(self) -> None:
         if not self._ui_active() or self.screen is not self._view:
@@ -728,7 +799,8 @@ class JevApp(App):
                    "expand-prompt": self.action_expand_input, "mode-picker": self.action_mode_picker,
                    "jev-picker": self.action_jev_picker, "result-answer": self.action_latest_answer,
                    "result-files": self.action_files, "result-copy": self.action_copy_answer,
-                   "result-export": self.action_export}
+                   "result-export": self.action_export, "nav-brief": self.action_open_brief,
+                   "brief-open": self.action_open_brief}
         if event.button.id in actions:
             event.stop()
             actions[event.button.id]()
@@ -775,6 +847,10 @@ class JevApp(App):
                 self.action_sessions()
             elif command == "/new":
                 self.run_worker(self.action_new_session(), exclusive=True, group="navigation")
+            elif command in ("/brief", "/plan"):
+                self.action_open_brief()
+            elif command in ("/guided", "/direct"):
+                self._set_guided(command == "/guided")
             elif command == "/files":
                 self.action_files()
             elif command == "/export":
@@ -813,6 +889,9 @@ class JevApp(App):
             self._view.query_one("#prompt", PromptEditor).load_text(prompt)
             self._chat("SYSTEM", "Задача выполняется. Следующее сообщение сохранено во вводе; /stop — остановить.", YELLOW)
             return
+        if self.guided and self.intake:
+            self._start_intake(prompt)
+            return
         self._busy = True
         self._outcome = "running"
         self._turn_started = time.monotonic()
@@ -820,6 +899,101 @@ class JevApp(App):
         self._refresh_status()
         self._runner = self.run_worker(self._run_turn(prompt), name="agent-turn", exclusive=True,
                                        exit_on_error=False)
+
+    def _set_guided(self, enabled):
+        if self._busy or self.session.busy or self.is_replay:
+            self.notify("Режим обсуждения меняется между ходами", severity="warning")
+            return
+        self.guided = bool(enabled)
+        if enabled and self.intake is None:
+            from .intake import IntakeController
+            self.intake = IntakeController(self.session)
+        self.notify("Сначала уточняем задачу и согласуем план" if enabled else "Прямое выполнение следующих запросов")
+        self._refresh_all()
+
+    def _start_intake(self, text, answers=None):
+        if self.is_replay or self._busy or self.session.busy or not self.intake:
+            return
+        self._busy = self._preparing = True
+        self._outcome = "running"
+        self._turn_started = time.monotonic()
+        self._elapsed_ms = 0
+        self._refresh_all()
+        self._runner = self.run_worker(self._prepare_brief(text, answers), name="prepare-task", exclusive=True,
+                                       group="agent-turn", exit_on_error=False)
+
+    async def _prepare_brief(self, text, answers):
+        try:
+            state = await self.intake.prepare(text, self.emit, answers=answers)
+            if state.get("last_error"):
+                self._chat("ERROR", state["last_error"], YELLOW, activity=False)
+        except Exception as exc:
+            self._chat("ERROR", plain(str(exc), 2000), YELLOW, activity=False)
+        finally:
+            self._busy = self._preparing = False
+            self._refresh_all()
+            if self._ui_active():
+                # Drain the queued final event before opening its interactive view.
+                if not self.intake.state.get("last_error"):
+                    self.call_after_refresh(self.action_open_brief)
+                else:
+                    self._focus_editor()
+
+    def action_open_brief(self):
+        if self.screen is not self._view or self.is_replay or self._busy or self.session.busy:
+            return
+        if not self.intake:
+            self._set_guided(True)
+        state = self.intake.state
+        response = state.get("response") or {}
+        from .intake_widgets import QuestionsScreen, PlanScreen
+        if state.get("status") == "questions":
+            self.push_screen(QuestionsScreen(response.get("questions") or [],
+                                             draft_answers=state.get("draft_answers"),
+                                             on_draft=self.intake.save_draft_answers), self._answers_selected)
+        elif state.get("status") == "plan":
+            revision = state.get("revision")
+            notice = state.get("last_error") or ("В режиме «Только план» выполнение выключено. Закройте план и выберите «Выполнение»." if self.session.execution_mode == "plan" else "")
+            self.push_screen(PlanScreen(response.get("plan") or {},
+                                        original_request=state.get("original", ""),
+                                        refined_prompt=state.get("refined_prompt", ""),
+                                        can_execute=not bool(notice), notice=notice),
+                             lambda choice: self._plan_selected(choice, revision))
+        else:
+            if state.get("status") == "interrupted":
+                self.notify("Обсуждение прервано. Напишите, что продолжить или изменить.")
+            self._focus_editor()
+
+    def _answers_selected(self, answers):
+        self._focus_editor()
+        if answers is not None:
+            self._start_intake("", answers=answers)
+
+    def _plan_selected(self, choice, revision):
+        self._focus_editor()
+        if not isinstance(choice, dict):
+            return
+        if choice.get("action") == "revise" and choice.get("feedback", "").strip():
+            self._start_intake(choice["feedback"])
+        elif choice.get("action") == "execute":
+            if self._busy or self.session.busy:
+                return
+            self._busy = True
+            self._outcome = "running"
+            self._turn_started = time.monotonic()
+            self._refresh_all()
+            self._runner = self.run_worker(self._execute_brief(revision), name="approved-task",
+                                           exclusive=True, group="agent-turn", exit_on_error=False)
+
+    async def _execute_brief(self, revision):
+        try:
+            await self.intake.execute(revision, self.emit)
+        except Exception as exc:
+            self._chat("ERROR", plain(str(exc), 2000), YELLOW, activity=False)
+        finally:
+            self._busy = False
+            self._refresh_all()
+            self._focus_editor()
 
     async def _run_turn(self, prompt: str) -> None:
         try:
@@ -955,6 +1129,9 @@ class JevApp(App):
             return
         choices = [
             {"title": "Новый чат", "description": "Ctrl+N · новая рабочая папка; текущая сессия сохраняется", "value": "/new"},
+            {"title": "Уточнения и план задачи", "description": "F5 · продолжить ответы или пересмотреть план", "value": "/brief"},
+            {"title": "Сначала обсудить задачу", "description": "/guided · вопросы и план перед работой", "value": "/guided"},
+            {"title": "Прямое выполнение", "description": "/direct · следующие запросы сразу исполнителю", "value": "/direct"},
             {"title": "Детали Jev и граф", "description": "F6 · вероятности, проверки и файлы", "value": "/details"},
             {"title": "Журнал событий", "description": "F3 · точные сохранённые данные", "value": "/events"},
             {"title": "Продолжить сессию", "description": "/sessions · поиск по предыдущим задачам", "value": "/sessions"},
@@ -1017,6 +1194,12 @@ class JevApp(App):
             self._draft_timer.stop()
             self._draft_timer = None
         self.session = replacement
+        if self.guided:
+            from .intake import IntakeController
+            self.intake = IntakeController(replacement)
+        else:
+            self.intake = None
+        self._brief_revisions_seen.clear()
         # Keep the editor and its owner consistent before any yielding UI work;
         # a pending autosave must never write session A's draft into session B.
         self._latest_draft = restored_draft
@@ -1036,11 +1219,15 @@ class JevApp(App):
         await self._view.query_one("#chat", VerticalScroll).remove_children()
         self._view.query_one("#event-log", RichLog).clear()
         self._restore_history()
+        if self.intake and self.intake.state.get("last_error"):
+            self._chat("ERROR", self.intake.state["last_error"], YELLOW, activity=False)
         if not self.session.events():
             await self._view.query_one("#chat", VerticalScroll).mount(
                 Static(Text("Новая задача\n\nНапишите запрос или начните с примера.", style=MUTED), id="welcome"),
                 Button("Вставить пример задачи", id="welcome-example"))
         self._focus_editor()
+        if self.intake and self.intake.state.get("status") in {"questions", "plan"}:
+            self.call_after_refresh(self.action_open_brief)
 
     def action_files(self) -> None:
         from .catalog import list_artifacts

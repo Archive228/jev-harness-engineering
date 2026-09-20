@@ -1,0 +1,13 @@
+{
+  "candidates": [],
+  "partial": false,
+  "files_scanned": 0,
+  "bytes_read": 0,
+  "entries_seen": 0,
+  "ignored_files": 0,
+  "no_matches": true,
+  "attempt": 1,
+  "selected": [],
+  "selection": "lexical",
+  "mode": "assist"
+}

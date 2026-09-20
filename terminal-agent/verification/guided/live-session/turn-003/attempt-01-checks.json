@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "generated-tests",
+      "title": "Тесты проекта (могли быть созданы worker)",
+      "passed": true,
+      "exit_code": 0,
+      "output": "test_different_fees_and_fractional_quantity (test_crypto_profit.CalculationTests) ... ok\ntest_loss_break_even_and_total_loss (test_crypto_profit.CalculationTests) ... ok\ntest_one_percent_on_both_operations (test_crypto_profit.CalculationTests) ... ok\ntest_without_fees (test_crypto_profit.CalculationTests) ... ok\ntest_comma_and_independent_fees (test_crypto_profit.TerminalTests) ... ok\ntest_default_fees (test_crypto_profit.TerminalTests) ... ok\ntest_end_of_input_cancels_cleanly (test_crypto_profit.TerminalTests) ... ok\ntest_fee_just_below_one_hundred_is_allowed (test_crypto_profit.TerminalTests) ... ok\ntest_invalid_input_retries_each_field (test_crypto_profit.TerminalTests) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.739s\n\nOK\n",
+      "elapsed_ms": 778.94,
+      "origin": "worker_generated"
+    }
+  ],
+  "passed": 1,
+  "total": 1,
+  "snapshot": "e1c375317d98505ec8baa55a354c238f6ff3461724d7d378d5be8f22811a02a3",
+  "snapshot_after": "e1c375317d98505ec8baa55a354c238f6ff3461724d7d378d5be8f22811a02a3",
+  "fresh": true,
+  "registered": false,
+  "stage": "attempt-01"
+}

@@ -1,0 +1,80 @@
+{
+  "date": "2026-09-21",
+  "session_id": "20260921-015950-267362",
+  "initial_request": "Хочу что-нибудь полезное про крипту, чтобы запустить прямо в терминале.",
+  "answered": [
+    {
+      "id": "crypto_tool_purpose",
+      "question": "Что вам полезнее?",
+      "answer": "Считать прибыль"
+    }
+  ],
+  "planner_rounds": [
+    {
+      "round": "round-001",
+      "result": {
+        "status": "questions",
+        "revision": 1,
+        "last_error": null,
+        "planner_meters": {
+          "jev_calls": 0,
+          "worker_calls": 0,
+          "checks": 0,
+          "jev_tokens": 0,
+          "worker_tokens": 0,
+          "planner_calls": 1,
+          "planner_tokens": 17292,
+          "usage_complete": true,
+          "elapsed_ms": 30186.62
+        }
+      },
+      "workspace_unchanged": true,
+      "workspace_files": 0
+    },
+    {
+      "round": "round-002",
+      "result": {
+        "status": "plan",
+        "revision": 2,
+        "last_error": null,
+        "planner_meters": {
+          "jev_calls": 0,
+          "worker_calls": 0,
+          "checks": 0,
+          "jev_tokens": 0,
+          "worker_tokens": 0,
+          "planner_calls": 1,
+          "planner_tokens": 18443,
+          "usage_complete": true,
+          "elapsed_ms": 31886.72
+        }
+      },
+      "workspace_unchanged": true,
+      "workspace_files": 0
+    }
+  ],
+  "approved_revision": 2,
+  "exact_approved_prompt_used": true,
+  "resumed_before_execution": true,
+  "execution": {
+    "status": "ready",
+    "reason": "response_prepared_without_independent_acceptance",
+    "summary": "Готово: создан `crypto_profit.py` с русскими подсказками, отдельными комиссиями и повторным вводом при ошибках. Инструкция и примеры — в `README.md`. Зависимости не нужны.\n\nЗапуск из рабочей папки:\n\n```sh\npython3 crypto_profit.py\n```\n\nПроверено: все 9 тестов прошли. Контрольные запуски подтвердили прибыль **40,00 (20%)** без комиссий и **35,60 (17,62%)** с комиссией 1% на каждой операции.\n\nПовторить проверки:\n\n```sh\npython3 -m unittest discover -v\n```",
+    "elapsed_ms": 140201.3,
+    "meters": {
+      "jev_calls": 2,
+      "worker_calls": 1,
+      "checks": 1,
+      "jev_tokens": 5086,
+      "worker_tokens": 127182,
+      "usage_complete": true
+    },
+    "workspace": "<checkout>/terminal-agent/.sessions/guided-eval/20260921-015950-267362/workspace",
+    "turn": 3
+  },
+  "artifact_sha256": {
+    "README.md": "cfc8ca6e3ecf15f937574300e7e72e22916325308f97799037c054691fbd3074",
+    "crypto_profit.py": "3972a32c344653b679b4c26a8ed4cccbfc5d4f7b40bc9ad3ccd9e2b41cb0b5e0",
+    "test_crypto_profit.py": "938424b5f1e99b030b3c543c46aafc3ceefa79a225c2069a318b05601ce43182"
+  }
+}

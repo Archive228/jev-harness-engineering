@@ -1,0 +1,15 @@
+CASE: eof_after_3_fields
+COMMAND: python3 crypto_profit.py
+STDIN (JSON lines, empty strings mean Enter): ["100", "2", "120"]
+EXPECTED VALUES: null
+EXPECTED ERROR COUNT: 0
+EXIT CODE: 1
+STATUS: PASS
+STDOUT:
+Калькулятор прибыли от криптосделки
+Продажа всего купленного количества. Все цены — в одной валюте.
+Дробные числа: через точку или запятую. Комиссии: в процентах.
+Цена покупки за монету: Количество монет: Цена продажи за монету: Комиссия покупки, % [Enter = 0]: 
+Расчёт отменён: ввод прерван.
+
+STDERR:

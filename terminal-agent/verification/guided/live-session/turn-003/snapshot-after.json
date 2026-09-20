@@ -1,0 +1,8 @@
+{
+  "digest": "e1c375317d98505ec8baa55a354c238f6ff3461724d7d378d5be8f22811a02a3",
+  "files": {
+    "README.md": "cfc8ca6e3ecf15f937574300e7e72e22916325308f97799037c054691fbd3074",
+    "crypto_profit.py": "3972a32c344653b679b4c26a8ed4cccbfc5d4f7b40bc9ad3ccd9e2b41cb0b5e0",
+    "test_crypto_profit.py": "938424b5f1e99b030b3c543c46aafc3ceefa79a225c2069a318b05601ce43182"
+  }
+}

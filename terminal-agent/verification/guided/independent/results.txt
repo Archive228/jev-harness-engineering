@@ -1,0 +1,52 @@
+Independent CLI cases: 47/47 PASS
+Generated test suite (reported separately): 9 tests, exit 0
+Workspace source files unchanged: True
+Python: 3.9.6
+
+PASS profit_without_fees
+PASS profit_default_blank_fees
+PASS profit_one_percent_each
+PASS loss
+PASS break_even
+PASS zero_sale_price
+PASS comma_fractions_distinct_fees
+PASS fee_below_upper_bound
+PASS retry_buy_price_abc
+PASS retry_buy_price_empty
+PASS retry_buy_price_0
+PASS retry_buy_price_minus_1
+PASS retry_buy_price_NaN
+PASS retry_buy_price_Inf
+PASS retry_buy_price_minus_Infinity
+PASS retry_quantity_abc
+PASS retry_quantity_empty
+PASS retry_quantity_0
+PASS retry_quantity_minus_1
+PASS retry_quantity_NaN
+PASS retry_quantity_Inf
+PASS retry_quantity_minus_Infinity
+PASS retry_sell_price_abc
+PASS retry_sell_price_empty
+PASS retry_sell_price_minus_1
+PASS retry_sell_price_NaN
+PASS retry_sell_price_Inf
+PASS retry_sell_price_minus_Infinity
+PASS retry_buy_fee_abc
+PASS retry_buy_fee_minus_1
+PASS retry_buy_fee_100
+PASS retry_buy_fee_101
+PASS retry_buy_fee_NaN
+PASS retry_buy_fee_Inf
+PASS retry_buy_fee_minus_Infinity
+PASS retry_sell_fee_abc
+PASS retry_sell_fee_minus_1
+PASS retry_sell_fee_100
+PASS retry_sell_fee_101
+PASS retry_sell_fee_NaN
+PASS retry_sell_fee_Inf
+PASS retry_sell_fee_minus_Infinity
+PASS eof_after_0_fields
+PASS eof_after_1_fields
+PASS eof_after_2_fields
+PASS eof_after_3_fields
+PASS eof_after_4_fields

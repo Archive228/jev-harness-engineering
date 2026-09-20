@@ -1,0 +1,1090 @@
+{
+  "description": "Independent after-run black-box CLI verification; no production functions imported",
+  "python_version": "3.9.6",
+  "independent_cases": 47,
+  "independent_passed": 47,
+  "independent_failed": 0,
+  "generated_suite": {
+    "command": "python3 -m unittest discover -v",
+    "exit_code": 0,
+    "test_count": 9,
+    "passed": true
+  },
+  "workspace_unchanged": true,
+  "workspace_sha256": {
+    "README.md": "cfc8ca6e3ecf15f937574300e7e72e22916325308f97799037c054691fbd3074",
+    "crypto_profit.py": "3972a32c344653b679b4c26a8ed4cccbfc5d4f7b40bc9ad3ccd9e2b41cb0b5e0",
+    "test_crypto_profit.py": "938424b5f1e99b030b3c543c46aafc3ceefa79a225c2069a318b05601ce43182"
+  },
+  "cases": [
+    {
+      "name": "profit_without_fees",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 0,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 25.91
+    },
+    {
+      "name": "profit_default_blank_fees",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "",
+        ""
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 0,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 22.53
+    },
+    {
+      "name": "profit_one_percent_each",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "1",
+        "1"
+      ],
+      "expected_values": [
+        "202,00",
+        "237,60",
+        "4,40",
+        "35,60",
+        "17,62%"
+      ],
+      "expected_errors": 0,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 21.17
+    },
+    {
+      "name": "loss",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "80",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "160,00",
+        "0,00",
+        "-40,00",
+        "-20,00%"
+      ],
+      "expected_errors": 0,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 20.9
+    },
+    {
+      "name": "break_even",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "100",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "200,00",
+        "0,00",
+        "0,00",
+        "0,00%"
+      ],
+      "expected_errors": 0,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 22.06
+    },
+    {
+      "name": "zero_sale_price",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "0",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "0,00",
+        "0,00",
+        "-200,00",
+        "-100,00%"
+      ],
+      "expected_errors": 0,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 20.91
+    },
+    {
+      "name": "comma_fractions_distinct_fees",
+      "passed": true,
+      "input_lines": [
+        "80,0",
+        "0,5",
+        "100,0",
+        "2,0",
+        "1,0"
+      ],
+      "expected_values": [
+        "40,80",
+        "49,50",
+        "1,30",
+        "8,70",
+        "21,32%"
+      ],
+      "expected_errors": 0,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 20.75
+    },
+    {
+      "name": "fee_below_upper_bound",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "1",
+        "100",
+        "0",
+        "99,99"
+      ],
+      "expected_values": [
+        "100,00",
+        "0,01",
+        "99,99",
+        "-99,99",
+        "-99,99%"
+      ],
+      "expected_errors": 0,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 20.37
+    },
+    {
+      "name": "retry_buy_price_abc",
+      "passed": true,
+      "input_lines": [
+        "abc",
+        "100",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 20.12
+    },
+    {
+      "name": "retry_buy_price_empty",
+      "passed": true,
+      "input_lines": [
+        "",
+        "100",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 20.0
+    },
+    {
+      "name": "retry_buy_price_0",
+      "passed": true,
+      "input_lines": [
+        "0",
+        "100",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 20.79
+    },
+    {
+      "name": "retry_buy_price_minus_1",
+      "passed": true,
+      "input_lines": [
+        "-1",
+        "100",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 20.3
+    },
+    {
+      "name": "retry_buy_price_NaN",
+      "passed": true,
+      "input_lines": [
+        "NaN",
+        "100",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 20.54
+    },
+    {
+      "name": "retry_buy_price_Inf",
+      "passed": true,
+      "input_lines": [
+        "Inf",
+        "100",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 26.44
+    },
+    {
+      "name": "retry_buy_price_minus_Infinity",
+      "passed": true,
+      "input_lines": [
+        "-Infinity",
+        "100",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 30.31
+    },
+    {
+      "name": "retry_quantity_abc",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "abc",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 21.78
+    },
+    {
+      "name": "retry_quantity_empty",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 21.42
+    },
+    {
+      "name": "retry_quantity_0",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "0",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 20.57
+    },
+    {
+      "name": "retry_quantity_minus_1",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "-1",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 20.99
+    },
+    {
+      "name": "retry_quantity_NaN",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "NaN",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 21.93
+    },
+    {
+      "name": "retry_quantity_Inf",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "Inf",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 24.48
+    },
+    {
+      "name": "retry_quantity_minus_Infinity",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "-Infinity",
+        "2",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 24.02
+    },
+    {
+      "name": "retry_sell_price_abc",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "abc",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 24.67
+    },
+    {
+      "name": "retry_sell_price_empty",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 35.74
+    },
+    {
+      "name": "retry_sell_price_minus_1",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "-1",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 31.64
+    },
+    {
+      "name": "retry_sell_price_NaN",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "NaN",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 29.57
+    },
+    {
+      "name": "retry_sell_price_Inf",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "Inf",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 30.96
+    },
+    {
+      "name": "retry_sell_price_minus_Infinity",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "-Infinity",
+        "120",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 43.95
+    },
+    {
+      "name": "retry_buy_fee_abc",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "abc",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 39.25
+    },
+    {
+      "name": "retry_buy_fee_minus_1",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "-1",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 22.96
+    },
+    {
+      "name": "retry_buy_fee_100",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "100",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 23.41
+    },
+    {
+      "name": "retry_buy_fee_101",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "101",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 24.3
+    },
+    {
+      "name": "retry_buy_fee_NaN",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "NaN",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 22.64
+    },
+    {
+      "name": "retry_buy_fee_Inf",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "Inf",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 22.67
+    },
+    {
+      "name": "retry_buy_fee_minus_Infinity",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "-Infinity",
+        "0",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 23.01
+    },
+    {
+      "name": "retry_sell_fee_abc",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "0",
+        "abc",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 23.35
+    },
+    {
+      "name": "retry_sell_fee_minus_1",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "0",
+        "-1",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 25.24
+    },
+    {
+      "name": "retry_sell_fee_100",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "0",
+        "100",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 26.16
+    },
+    {
+      "name": "retry_sell_fee_101",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "0",
+        "101",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 27.6
+    },
+    {
+      "name": "retry_sell_fee_NaN",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "0",
+        "NaN",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 26.01
+    },
+    {
+      "name": "retry_sell_fee_Inf",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "0",
+        "Inf",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 24.62
+    },
+    {
+      "name": "retry_sell_fee_minus_Infinity",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "0",
+        "-Infinity",
+        "0"
+      ],
+      "expected_values": [
+        "200,00",
+        "240,00",
+        "0,00",
+        "40,00",
+        "20,00%"
+      ],
+      "expected_errors": 1,
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "failures": [],
+      "duration_ms": 26.01
+    },
+    {
+      "name": "eof_after_0_fields",
+      "passed": true,
+      "input_lines": [],
+      "expected_values": null,
+      "expected_errors": 0,
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "failures": [],
+      "duration_ms": 28.0
+    },
+    {
+      "name": "eof_after_1_fields",
+      "passed": true,
+      "input_lines": [
+        "100"
+      ],
+      "expected_values": null,
+      "expected_errors": 0,
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "failures": [],
+      "duration_ms": 23.82
+    },
+    {
+      "name": "eof_after_2_fields",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2"
+      ],
+      "expected_values": null,
+      "expected_errors": 0,
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "failures": [],
+      "duration_ms": 29.9
+    },
+    {
+      "name": "eof_after_3_fields",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120"
+      ],
+      "expected_values": null,
+      "expected_errors": 0,
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "failures": [],
+      "duration_ms": 22.59
+    },
+    {
+      "name": "eof_after_4_fields",
+      "passed": true,
+      "input_lines": [
+        "100",
+        "2",
+        "120",
+        "0"
+      ],
+      "expected_values": null,
+      "expected_errors": 0,
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "failures": [],
+      "duration_ms": 31.58
+    }
+  ]
+}

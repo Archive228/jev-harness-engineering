@@ -344,7 +344,9 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
             status = app.query_one("#status", Static).renderable.plain
             self.assertIn("usage неполный", status)
             self.assertLess(status.index("usage неполный"), 30)
-            self.assertIn("Jev 2", status)
+            evidence = app.query_one("#evidence", Static).renderable.plain
+            self.assertIn("Jev 2", evidence)
+            self.assertIn("usage неполный", evidence)
 
     async def test_graph_shows_all_seven_observed_phases(self):
         self.session.recorded = [
@@ -627,7 +629,7 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
             self.assertNotIn("●", card.title)
             self.assertFalse(card.has_class("tool-done"))
             header = app.query_one("#masthead", Static).renderable.plain
-            self.assertIn("ОЖИДАНИЕ", header)
+            self.assertIn("Готов к сообщению", header)
             self.assertNotIn("LIVE", header)
 
     def test_outcome_labels_distinguish_prepared_and_contract_checked(self):

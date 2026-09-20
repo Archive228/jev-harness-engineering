@@ -1,0 +1,16 @@
+{
+  "status": "questions",
+  "revision": 1,
+  "last_error": null,
+  "planner_meters": {
+    "jev_calls": 0,
+    "worker_calls": 0,
+    "checks": 0,
+    "jev_tokens": 0,
+    "worker_tokens": 0,
+    "planner_calls": 1,
+    "planner_tokens": 17292,
+    "usage_complete": true,
+    "elapsed_ms": 30186.62
+  }
+}

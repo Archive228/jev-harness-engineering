@@ -1,0 +1,14 @@
+test_different_fees_and_fractional_quantity (test_crypto_profit.CalculationTests) ... ok
+test_loss_break_even_and_total_loss (test_crypto_profit.CalculationTests) ... ok
+test_one_percent_on_both_operations (test_crypto_profit.CalculationTests) ... ok
+test_without_fees (test_crypto_profit.CalculationTests) ... ok
+test_comma_and_independent_fees (test_crypto_profit.TerminalTests) ... ok
+test_default_fees (test_crypto_profit.TerminalTests) ... ok
+test_end_of_input_cancels_cleanly (test_crypto_profit.TerminalTests) ... ok
+test_fee_just_below_one_hundred_is_allowed (test_crypto_profit.TerminalTests) ... ok
+test_invalid_input_retries_each_field (test_crypto_profit.TerminalTests) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.361s
+
+OK

@@ -526,7 +526,7 @@ class Session:
             return {"status": "answered" if readonly else "ready", "reason": "response_prepared_without_independent_acceptance", "summary": last_text}
         raise RuntimeFailure("Исчерпан лимит попыток.")
 
-    async def run_turn(self, prompt, emit=None):
+    async def run_turn(self, prompt, emit=None, display_prompt=None):
         if self.busy:
             raise ValueError("Сначала дождитесь текущего хода или остановите его.")
         if not isinstance(prompt, str) or not prompt.strip() or len(prompt) > 20000:
@@ -545,7 +545,9 @@ class Session:
         prompt = clean(prompt.strip())
         result = None
         try:
-            self.emit("user", text=prompt)
+            # The full approved specification stays in request.json/history;
+            # the chat can show its short, user-facing title instead.
+            self.emit("user", text=clean(display_prompt) if display_prompt else prompt)
             self.phase("REQUEST", "done")
             write_json(turn_dir / "request.json", {"text": prompt, "workspace": str(self.workspace), "checks": self.checks,
                                                    "execution_mode": self.execution_mode, "jev_mode": self.jev_mode})

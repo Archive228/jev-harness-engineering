@@ -32,3 +32,6 @@ jobs:
       - name: Engine, process cancellation, mission and terminal pilot tests
         working-directory: terminal-agent
         run: python -B -m unittest discover -s tests -v
+      - name: Reproduce the saved guided calculator with independent CLI checks
+        working-directory: terminal-agent
+        run: python -B verification/guided/independent/check_cli.py verification/guided/live-session/workspace --output "$RUNNER_TEMP/guided-calculator-checks"
