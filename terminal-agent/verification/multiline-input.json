@@ -1,0 +1,7 @@
+{
+  "capture": "actual PTY, bracketed paste, F4, Ctrl+S",
+  "model_calls": 0,
+  "prompt": "Crypto Detective, 27 lines",
+  "screenshot": "screenshots/terminal-multiline.svg",
+  "tests": "full prompt preservation, explicit submit, Enter newline, expand/collapse, 80x24"
+}

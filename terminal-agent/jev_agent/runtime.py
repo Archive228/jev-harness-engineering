@@ -60,12 +60,21 @@ async def process(argv, *, cwd, cancel_event, timeout=240, input_text=None,
         start_new_session=True, limit=2_100_000)
     buffers = {"stdout": [], "stderr": []}
     used = {"bytes": 0}
+    group_terminated = False
 
     def kill():
+        nonlocal group_terminated
+        if group_terminated:
+            return
         try:
             os.killpg(child.pid, signal.SIGKILL)
         except ProcessLookupError:
             pass
+        # The waiter and both finally blocks share cleanup. Once SIGKILL was
+        # delivered (or the group was already gone), do not signal its old ID
+        # again: on macOS a reaped group may produce EPERM instead of ESRCH.
+        # A denied first signal still propagates and leaves cleanup retryable.
+        group_terminated = True
 
     async def read(pipe, stream):
         while True:

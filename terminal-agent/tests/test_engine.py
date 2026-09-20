@@ -149,6 +149,54 @@ class ProcessTests(unittest.IsolatedAsyncioTestCase):
             )
         self.assertLess(time.monotonic() - started, 0.8)
 
+    async def test_successful_group_kill_is_not_repeated_or_parser_error_masked(self):
+        real_killpg = os.killpg
+        calls = []
+
+        def kill_once(pid, sig):
+            calls.append((pid, sig))
+            if len(calls) > 1:
+                raise PermissionError("process group is no longer owned")
+            return real_killpg(pid, sig)
+
+        def rejected_line(stream, line):
+            raise RuntimeFailure("invalid provider event")
+
+        with patch("jev_agent.runtime.os.killpg", side_effect=kill_once):
+            with self.assertRaisesRegex(RuntimeFailure, "invalid provider event"):
+                await process(
+                    [sys.executable, "-c", "import time; print('bad event',flush=True); time.sleep(5)"],
+                    cwd=self.directory, cancel_event=asyncio.Event(), timeout=1,
+                    on_line=rejected_line,
+                )
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0][1], signal.SIGKILL)
+
+    async def test_failed_first_group_kill_propagates_and_cleanup_retries(self):
+        real_killpg = os.killpg
+        calls = []
+
+        def fail_first_kill(pid, sig):
+            calls.append((pid, sig))
+            if len(calls) == 1:
+                raise PermissionError("first group signal denied")
+            return real_killpg(pid, sig)
+
+        def rejected_line(stream, line):
+            raise RuntimeFailure("invalid provider event")
+
+        with patch("jev_agent.runtime.os.killpg", side_effect=fail_first_kill):
+            with self.assertRaisesRegex(PermissionError, "first group signal denied"):
+                await process(
+                    [sys.executable, "-c", "import time; print('bad event',flush=True); time.sleep(5)"],
+                    cwd=self.directory, cancel_event=asyncio.Event(), timeout=1,
+                    on_line=rejected_line,
+                )
+        # The second cleanup call really kills the child; no process is left
+        # behind, and the original permission failure is still observable.
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(calls[0], calls[1])
+
     async def test_cancellation_stops_descendant_process(self):
         heartbeat = self.directory / "heartbeat.txt"
         child_pid_file = self.directory / "child.pid"

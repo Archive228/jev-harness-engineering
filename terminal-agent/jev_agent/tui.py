@@ -16,7 +16,7 @@ from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.message import Message
 from textual.screen import ModalScreen
-from textual.widgets import Button, Footer, Input, RichLog, Static
+from textual.widgets import Button, Footer, RichLog, Static, TextArea
 
 PINK = "#fb9ec9"
 CREAM = "#f0eadf"
@@ -81,6 +81,15 @@ class EventArrived(Message):
         self.event = event
 
 
+class PromptEditor(TextArea):
+    """Multiline draft: pasted newlines are text, never submit events."""
+
+    def on_paste(self, event: events.Paste) -> None:
+        # TextArea still performs the insert; don't bubble the same paste back
+        # to App, where an unforwarded event can be sent to the editor again.
+        event.stop()
+
+
 class HelpScreen(ModalScreen):
     BINDINGS = [Binding("escape,f1", "dismiss", "Закрыть", show=False)]
     DEFAULT_CSS = """
@@ -95,13 +104,16 @@ class HelpScreen(ModalScreen):
         with VerticalScroll(id="help-box"):
             text = Text("JEV + HARNESS  /  агент в терминале\n\n", style=f"bold {PINK}")
             text.append(
-                "Напишите задачу и нажмите Enter. Исполнитель читает и меняет файлы; "
+                "Вставьте задачу целиком и нажмите Ctrl+D или кнопку «Отправить». "
+                "Enter добавляет строку. Исполнитель читает и меняет файлы; "
                 "Jev принимает структурированные решения в панели справа. "
                 "Граф показывает только фактически выполненные этапы.\n\n",
                 style=CREAM,
             )
             text.append("F2        Вставить пример задачи без запуска\n")
             text.append("F3        Переключить чат / журнал событий\n")
+            text.append("F4        Развернуть / свернуть редактор сообщения\n")
+            text.append("Ctrl+D    Отправить сообщение целиком\n")
             text.append("Ctrl+S    Сохранить текущий экран как SVG\n")
             text.append("Ctrl+C    Остановить задачу; в ожидании — выйти\n")
             text.append("Tab       Сменить фокус; PageUp / PageDown — листать\n\n")
@@ -126,9 +138,12 @@ class JevApp(App):
     SUB_TITLE = "Реальные решения · реальные инструменты · сохранённые доказательства"
     ENABLE_COMMAND_PALETTE = False
     BINDINGS = [
+        Binding("ctrl+d", "submit_prompt", "Отправить", priority=True),
+        Binding("ctrl+enter", "submit_prompt", "Отправить", priority=True, show=False),
         Binding("f1", "help", "Меню", priority=True),
         Binding("f2", "example", "Пример", priority=True),
         Binding("f3", "toggle_events", "Журнал", priority=True),
+        Binding("f4", "expand_input", "Развернуть ввод", priority=True),
         Binding("ctrl+s", "save_view", "Снимок", priority=True),
         Binding("ctrl+c", "stop_or_quit", "Стоп / выход", priority=True),
     ]
@@ -150,8 +165,14 @@ class JevApp(App):
     #decisions-scroll, #evidence-scroll { height: 1fr; scrollbar-size: 1 1; }
     #decisions, #evidence { height: auto; }
     #status { height: 2; padding: 0 2; color: #9693aa; }
-    #prompt { margin: 0 1; height: 3; border: round #fb9ec9; background: #181a2b; }
+    #composer { height: auto; margin: 0 1; }
+    #prompt { height: 5; border: round #fb9ec9; background: #181a2b; padding: 0 1; scrollbar-size: 1 1; }
     #prompt:focus { border: round #fb9ec9; }
+    #composer-actions { height: 3; align-vertical: middle; }
+    #prompt-meta { width: 1fr; height: 2; color: #9693aa; padding-left: 1; }
+    #send-prompt { width: 23; min-width: 20; height: 3; background: #30263e; color: #fb9ec9; border: round #48415e; }
+    Screen.input-expanded #body, Screen.input-expanded #status { display: none; }
+    Screen.input-expanded #composer { height: 1fr; }
     #hint { height: 1; padding: 0 2; color: #9693aa; }
     Footer { background: #181a2b; color: #9693aa; }
     Footer > .footer--key { background: #30263e; color: #fb9ec9; }
@@ -186,6 +207,7 @@ class JevApp(App):
         self._elapsed_ms = 0.0
         self._turn_started = None
         self._show_events = False
+        self._expanded_input = False
         self._seen_sequences = set()
         self._runner = None
         self._view = None
@@ -214,7 +236,11 @@ class JevApp(App):
                     with VerticalScroll(id="evidence-scroll"):
                         yield Static(id="evidence")
         yield Static(id="status")
-        yield Input(placeholder="Опишите задачу…  Enter — отправить  /help — команды", id="prompt")
+        with Vertical(id="composer"):
+            yield PromptEditor(id="prompt", soft_wrap=True, tab_behavior="focus")
+            with Horizontal(id="composer-actions"):
+                yield Static("Вставьте сообщение целиком\nEnter — новая строка · F4 — развернуть", id="prompt-meta")
+                yield Button("Отправить · Ctrl+D", id="send-prompt")
         yield Static("Jev решает · исполнитель действует · harness проверяет · события сохраняются", id="hint")
         yield Footer()
 
@@ -230,10 +256,12 @@ class JevApp(App):
             self._receive(event)
         if self.is_replay:
             self._chat("REPLAY", "Сохранённые события · инструменты и API не запускаются.", YELLOW)
-            self._view.query_one("#prompt", Input).placeholder = "Запись · /status, F3 журнал, Ctrl+S снимок, /quit"
-        self._view.query_one("#prompt", Input).focus()
+        editor = self._view.query_one("#prompt", PromptEditor)
+        editor.border_title = "СООБЩЕНИЕ · можно вставить несколько абзацев"
+        editor.focus()
         if self.initial_prompt and not self.is_replay:
-            self._view.query_one("#prompt", Input).value = self.initial_prompt
+            editor.load_text(self.initial_prompt)
+        self.call_after_refresh(self._resize_prompt)
 
     def _ui_active(self) -> bool:
         # Textual shuts the App message pump before pruning Screen children.
@@ -250,6 +278,7 @@ class JevApp(App):
 
     def on_resize(self, event: events.Resize) -> None:
         self._responsive(event.size.width, event.size.height)
+        self.call_after_refresh(self._resize_prompt)
 
     def _responsive(self, width: int, height: int) -> None:
         view = self._view if self._view is not None else self.screen
@@ -478,11 +507,46 @@ class JevApp(App):
         status.append("\n" + (self._detail or "Сессия " + str(self.session.id)), style=MUTED)
         self._view.query_one("#status", Static).update(status)
 
-    def on_input_submitted(self, event: Input.Submitted) -> None:
-        prompt = event.value.strip()
-        if not prompt:
+    def on_text_area_changed(self, event: TextArea.Changed) -> None:
+        if event.text_area.id == "prompt":
+            self.call_after_refresh(self._resize_prompt)
+
+    def _resize_prompt(self) -> None:
+        if not self._ui_active():
             return
-        event.input.value = ""
+        editor = self._view.query_one("#prompt", PromptEditor)
+        rows = max(1, editor.wrapped_document.height)
+        editor.styles.height = "1fr" if self._expanded_input else min(
+            max(5, rows + 2), max(5, self.size.height // 2 - 3))
+        lines = len(editor.text.split("\n")) if editor.text else 0
+        self._view.query_one("#prompt-meta", Static).update(
+            "{} строк · {} символов\nEnter — новая строка · F4 — {}".format(
+                lines, len(editor.text), "свернуть" if self._expanded_input else "развернуть"))
+
+    def action_expand_input(self) -> None:
+        if not self._ui_active() or self.screen is not self._view:
+            return
+        self._expanded_input = not self._expanded_input
+        self._view.set_class(self._expanded_input, "input-expanded")
+        self._resize_prompt()
+        self._view.query_one("#prompt", PromptEditor).focus()
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "send-prompt":
+            event.stop()
+            self.action_submit_prompt()
+
+    def action_submit_prompt(self) -> None:
+        if not self._ui_active() or self.screen is not self._view:
+            return
+        editor = self._view.query_one("#prompt", PromptEditor)
+        prompt = editor.text
+        if not prompt.strip():
+            return
+        editor.load_text("")
+        if self._expanded_input and not (self._busy or self.session.busy):
+            self.action_expand_input()
+        editor.focus()
         self._submit(prompt)
 
     def _submit(self, prompt: str) -> None:
@@ -514,7 +578,7 @@ class JevApp(App):
             self._chat("REPLAY", "Это просмотр записи. Для новой задачи запустите обычную сессию.", YELLOW)
             return
         if self._busy or self.session.busy:
-            self._view.query_one("#prompt", Input).value = prompt
+            self._view.query_one("#prompt", PromptEditor).load_text(prompt)
             self._chat("SYSTEM", "Задача выполняется. Следующее сообщение сохранено во вводе; /stop — остановить.", YELLOW)
             return
         self._busy = True
@@ -544,7 +608,7 @@ class JevApp(App):
             self._busy = False
             self._refresh_all()
             if self._ui_active():
-                self._view.query_one("#prompt", Input).focus()
+                self._view.query_one("#prompt", PromptEditor).focus()
 
     def _stop(self) -> None:
         if self._busy or self.session.busy:
@@ -564,13 +628,13 @@ class JevApp(App):
         if isinstance(self.screen, HelpScreen):
             self.pop_screen()
             return
-        self.push_screen(HelpScreen(), callback=lambda _: self._view.query_one("#prompt", Input).focus())
+        self.push_screen(HelpScreen(), callback=lambda _: self._view.query_one("#prompt", PromptEditor).focus())
 
     def action_example(self) -> None:
-        prompt = self._view.query_one("#prompt", Input)
+        prompt = self._view.query_one("#prompt", PromptEditor)
         example = getattr(self.session, "example_prompt", "") or EXAMPLE_PROMPT
-        prompt.value = example
-        prompt.cursor_position = len(example)
+        prompt.load_text(example)
+        prompt.move_cursor((0, 0))
         prompt.focus()
 
     def action_toggle_events(self) -> None:

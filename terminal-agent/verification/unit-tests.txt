@@ -1,8 +1,10 @@
 test_both_output_streams_and_exit_status_are_preserved (test_engine.ProcessTests) ... ok
 test_cancellation_stops_descendant_process (test_engine.ProcessTests) ... ok
+test_failed_first_group_kill_propagates_and_cleanup_retries (test_engine.ProcessTests) ... ok
 test_output_limit_is_detected_before_process_timeout (test_engine.ProcessTests) ... ok
 test_pre_cancelled_call_never_starts_a_process (test_engine.ProcessTests) ... ok
 test_stream_parser_error_stops_process_immediately (test_engine.ProcessTests) ... ok
+test_successful_group_kill_is_not_repeated_or_parser_error_masked (test_engine.ProcessTests) ... ok
 test_nested_secrets_and_terminal_control_sequences_are_removed (test_engine.RedactionTests) ... ok
 test_worker_does_not_inherit_provider_secrets (test_engine.RedactionTests) ... ok
 test_a_check_that_changes_its_snapshot_cannot_accept (test_engine.SessionTests) ... ok
@@ -31,20 +33,26 @@ test_report_artifacts_already_work_for_clean_input (test_mission.LoglabMissionTe
 test_unknown_check_is_a_tool_error (test_mission.LoglabMissionTests) ... ok
 test_unknown_mission_is_rejected_without_creating_workspace (test_mission.LoglabMissionTests) ... ok
 test_80_by_24_keeps_prompt_on_screen (test_tui.TerminalTests) ... ok
+test_80_by_24_long_draft_stays_accessible_and_inside_screen (test_tui.TerminalTests) ... ok
 test_clear_only_clears_view_and_unknown_command_not_sent (test_tui.TerminalTests) ... ok
 test_closing_active_app_stops_process_and_clock (test_tui.TerminalTests) ... ok
 test_end_meters_mark_incomplete_usage_without_standalone_event (test_tui.TerminalTests) ... ok
+test_enter_inserts_newline_without_submitting (test_tui.TerminalTests) ... ok
 test_event_toggle_menu_and_svg (test_tui.TerminalTests) ... ok
 test_external_text_is_literal_and_control_bytes_removed (test_tui.TerminalTests) ... ok
+test_f4_expands_and_collapses_editor_without_losing_draft (test_tui.TerminalTests) ... ok
 test_graph_shows_all_seven_observed_phases (test_tui.TerminalTests) ... ok
 test_initial_prompt_and_example_never_run_automatically (test_tui.TerminalTests) ... ok
 test_manual_submit_real_event_view_and_followup (test_tui.TerminalTests) ... ok
+test_multiline_paste_preserves_full_request_without_autosubmit (test_tui.TerminalTests) ... ok
 test_outcome_labels_distinguish_prepared_and_contract_checked (test_tui.TerminalTests) ... ok
 test_replay_is_read_only_and_duplicate_events_not_counted (test_tui.TerminalTests) ... ok
 test_restored_turn_resets_elapsed_and_meters (test_tui.TerminalTests) ... ok
+test_send_button_submits_entire_multiline_draft (test_tui.TerminalTests) ... ok
 test_stop_and_busy_input_preserve_followup (test_tui.TerminalTests) ... ok
+test_tab_moves_focus_without_inserting_into_draft (test_tui.TerminalTests) ... ok
 
 ----------------------------------------------------------------------
-Ran 45 tests in 5.231s
+Ran 53 tests in 8.124s
 
 OK

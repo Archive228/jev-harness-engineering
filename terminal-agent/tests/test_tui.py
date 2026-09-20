@@ -4,9 +4,24 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from textual.widgets import Input, RichLog, Static
+from textual import events
+from textual.widgets import RichLog, Static, TextArea
 
 from jev_agent.tui import EXAMPLE_PROMPT, HelpScreen, JevApp, plain, status_label
+
+
+CRYPTO_PROMPT = """Создай CLI «Crypto Detective» на Python без внешних библиотек.
+
+Он принимает CSV транзакций с полями:
+tx_hash, timestamp, from_address, to_address, token, amount.
+
+Построй граф переводов между кошельками.
+Найди цепочки до трёх переходов и круговые переводы.
+Покажи конкретные tx_hash; отделяй наблюдения от гипотез.
+Суммы считай через Decimal, разные токены не складывай.
+
+Создай демонстрационные данные, запусти тесты и анализ.
+Дай команду запуска для моего CSV."""
 
 
 class FakeSession:
@@ -80,9 +95,9 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
         app = JevApp(self.session)
         async with app.run_test(size=(140, 45)) as pilot:
             self.assertEqual(self.session.calls, [])
-            box = app.query_one("#prompt", Input)
-            box.value = "Fix the parser"
-            await pilot.press("enter")
+            box = app.query_one("#prompt", TextArea)
+            box.load_text("Fix the parser")
+            await pilot.press("ctrl+d")
             await pilot.pause(.15)
             self.assertEqual(self.session.calls, ["Fix the parser"])
             self.assertEqual(app._outcome, "complete")
@@ -93,22 +108,121 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn("Parser handles timestamps", app.query_one("#evidence", Static).renderable.plain)
             self.assertIn("Только сохранённый контракт", app.query_one("#evidence", Static).renderable.plain)
             self.assertIn("inspect", app.query_one("#graph", Static).renderable.plain)
-            box.value = "Now add a regression test"
-            await pilot.press("enter")
+            box.load_text("Now add a regression test")
+            await pilot.press("ctrl+d")
             await pilot.pause(.1)
             self.assertEqual(len(self.session.calls), 2)
 
     async def test_initial_prompt_and_example_never_run_automatically(self):
-        app = JevApp(self.session, initial_prompt="Do not execute this until Enter")
+        app = JevApp(self.session, initial_prompt="Do not execute this until Ctrl+D")
         async with app.run_test(size=(120, 40)) as pilot:
             await pilot.pause()
             self.assertEqual(self.session.calls, [])
-            self.assertEqual(app.query_one("#prompt", Input).value, "Do not execute this until Enter")
+            self.assertEqual(app.query_one("#prompt", TextArea).text, "Do not execute this until Ctrl+D")
             await pilot.press("f2")
-            self.assertEqual(app.query_one("#prompt", Input).value, EXAMPLE_PROMPT)
+            self.assertEqual(app.query_one("#prompt", TextArea).text, EXAMPLE_PROMPT)
             self.session.example_prompt = "Задача из выбранного проекта"
             await pilot.press("f2")
-            self.assertEqual(app.query_one("#prompt", Input).value, self.session.example_prompt)
+            self.assertEqual(app.query_one("#prompt", TextArea).text, self.session.example_prompt)
+            self.assertEqual(self.session.calls, [])
+
+    async def test_multiline_paste_preserves_full_request_without_autosubmit(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            prompt = app.query_one("#prompt", TextArea)
+            initial_height = prompt.region.height
+            # Send the same event the terminal driver emits for bracketed paste.
+            app.post_message(events.Paste(CRYPTO_PROMPT))
+            await pilot.pause()
+            self.assertEqual(prompt.text, CRYPTO_PROMPT)
+            self.assertEqual(self.session.calls, [])
+            self.assertTrue(prompt.soft_wrap)
+            self.assertGreater(prompt.region.height, initial_height)
+            await pilot.press("ctrl+d")
+            await pilot.pause(.15)
+            self.assertEqual(self.session.calls, [CRYPTO_PROMPT])
+            self.assertEqual(prompt.text, "")
+            self.assertEqual(
+                [event["data"]["text"] for event in self.session.recorded
+                 if event["type"] == "user"],
+                [CRYPTO_PROMPT],
+            )
+
+    async def test_enter_inserts_newline_without_submitting(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            prompt = app.query_one("#prompt", TextArea)
+            app.post_message(events.Paste("Первая строка"))
+            await pilot.pause()
+            await pilot.press("enter")
+            app.post_message(events.Paste("Вторая строка"))
+            await pilot.pause()
+            self.assertEqual(prompt.text, "Первая строка\nВторая строка")
+            self.assertEqual(self.session.calls, [])
+
+    async def test_send_button_submits_entire_multiline_draft(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            prompt = app.query_one("#prompt", TextArea)
+            prompt.load_text(CRYPTO_PROMPT)
+            await pilot.pause()
+            await pilot.click("#send-prompt")
+            await pilot.pause(.15)
+            self.assertEqual(self.session.calls, [CRYPTO_PROMPT])
+            self.assertEqual(prompt.text, "")
+
+    async def test_f4_expands_and_collapses_editor_without_losing_draft(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            prompt = app.query_one("#prompt", TextArea)
+            prompt.load_text(CRYPTO_PROMPT)
+            await pilot.pause()
+            compact_height = prompt.region.height
+            self.assertFalse(app._expanded_input)
+            await pilot.press("f4")
+            await pilot.pause()
+            self.assertTrue(app._expanded_input)
+            self.assertGreater(prompt.region.height, compact_height)
+            self.assertEqual(prompt.text, CRYPTO_PROMPT)
+            self.assertGreaterEqual(prompt.region.y, 0)
+            self.assertLessEqual(prompt.region.bottom, 40)
+            await pilot.press("f4")
+            await pilot.pause()
+            self.assertFalse(app._expanded_input)
+            self.assertEqual(prompt.region.height, compact_height)
+            self.assertEqual(prompt.text, CRYPTO_PROMPT)
+            self.assertEqual(self.session.calls, [])
+
+    async def test_80_by_24_long_draft_stays_accessible_and_inside_screen(self):
+        app = JevApp(self.session)
+        draft = "\n".join("Строка {}: {}".format(i, "проверь переводы " * 8)
+                          for i in range(30))
+        async with app.run_test(size=(80, 24)) as pilot:
+            prompt = app.query_one("#prompt", TextArea)
+            app.post_message(events.Paste(draft))
+            await pilot.pause()
+            self.assertEqual(prompt.text, draft)
+            self.assertGreater(prompt.region.height, 3)
+            self.assertGreaterEqual(prompt.region.y, 0)
+            self.assertLessEqual(prompt.region.bottom, 24)
+            self.assertEqual(prompt.cursor_location[0], 29)
+            # A short terminal scrolls the document, never clips away the draft.
+            self.assertGreater(prompt.scroll_y, 0)
+            await pilot.press("f4")
+            await pilot.pause()
+            self.assertEqual(prompt.text, draft)
+            self.assertLessEqual(prompt.region.bottom, 24)
+            self.assertGreaterEqual(prompt.region.y, 0)
+            self.assertEqual(self.session.calls, [])
+
+    async def test_tab_moves_focus_without_inserting_into_draft(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            prompt = app.query_one("#prompt", TextArea)
+            prompt.load_text("Сохрани этот текст")
+            await pilot.press("tab")
+            self.assertIsNot(app.focused, prompt)
+            self.assertEqual(prompt.text, "Сохрани этот текст")
             self.assertEqual(self.session.calls, [])
 
     async def test_event_toggle_menu_and_svg(self):
@@ -130,7 +244,7 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
         app = JevApp(self.session)
         async with app.run_test(size=(80, 24)) as pilot:
             await pilot.pause()
-            prompt = app.query_one("#prompt", Input)
+            prompt = app.query_one("#prompt", TextArea)
             self.assertFalse(app.query_one("#rail").display)
             self.assertGreater(prompt.region.width, 60)
             self.assertGreaterEqual(prompt.region.y, 0)
@@ -141,13 +255,13 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
         self.session.release = asyncio.Event()
         app = JevApp(self.session)
         async with app.run_test(size=(120, 40)) as pilot:
-            prompt = app.query_one("#prompt", Input)
-            prompt.value = "Long task"
-            await pilot.press("enter")
+            prompt = app.query_one("#prompt", TextArea)
+            prompt.load_text("Long task")
+            await pilot.press("ctrl+d")
             await pilot.pause(.1)
-            prompt.value = "Keep this follow-up"
-            await pilot.press("enter")
-            self.assertEqual(prompt.value, "Keep this follow-up")
+            prompt.load_text("Keep this follow-up")
+            await pilot.press("ctrl+d")
+            self.assertEqual(prompt.text, "Keep this follow-up")
             self.assertEqual(len(self.session.calls), 1)
             await pilot.press("ctrl+c")
             await pilot.pause(.1)
@@ -161,11 +275,11 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
         app = JevApp(self.session, replay_events=[event, event], initial_prompt="Never run")
         async with app.run_test(size=(120, 40)) as pilot:
             self.assertEqual(app._event_count, 1)
-            app.query_one("#prompt", Input).value = "Do work"
-            await pilot.press("enter")
+            app.query_one("#prompt", TextArea).load_text("Do work")
+            await pilot.press("ctrl+d")
             self.assertEqual(self.session.calls, [])
-            app.query_one("#prompt", Input).value = "/status"
-            await pilot.press("enter")
+            app.query_one("#prompt", TextArea).load_text("/status")
+            await pilot.press("ctrl+d")
             self.assertEqual(self.session.calls, [])
 
     async def test_clear_only_clears_view_and_unknown_command_not_sent(self):
@@ -173,12 +287,12 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
         self.session.recorded = [event]
         app = JevApp(self.session)
         async with app.run_test(size=(120, 40)) as pilot:
-            prompt = app.query_one("#prompt", Input)
-            prompt.value = "/clear"
-            await pilot.press("enter")
+            prompt = app.query_one("#prompt", TextArea)
+            prompt.load_text("/clear")
+            await pilot.press("ctrl+d")
             self.assertEqual(self.session.events(), [event])
-            prompt.value = "/oops"
-            await pilot.press("enter")
+            prompt.load_text("/oops")
+            await pilot.press("ctrl+d")
             self.assertEqual(self.session.calls, [])
 
     async def test_restored_turn_resets_elapsed_and_meters(self):
@@ -234,8 +348,8 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
         self.session.release = asyncio.Event()
         app = JevApp(self.session)
         async with app.run_test(size=(120, 40)) as pilot:
-            app.query_one("#prompt", Input).value = "Pending task"
-            await pilot.press("enter")
+            app.query_one("#prompt", TextArea).load_text("Pending task")
+            await pilot.press("ctrl+d")
             await pilot.pause(.3)
             self.assertTrue(app._busy)
             self.assertIsNotNone(app._clock)
