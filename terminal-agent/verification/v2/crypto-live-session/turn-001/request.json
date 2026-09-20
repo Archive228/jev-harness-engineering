@@ -1,0 +1,23 @@
+{
+  "text": "Исправь Crypto Ledger в этой рабочей папке и доведи до работающего CLI.\n\nПрочитай README.md, ledger.py, cryptoledger.py и tests/test_contract.py.\nНужен отчёт по синтетической истории сделок CSV: Decimal без float, комиссии в USDT,\nbuy уменьшает net_cashflow_usdt и увеличивает net_quantity; sell делает обратное.\nЭто денежный поток и остаток количества, а не PnL или рекомендация купить монету.\nДедупликация: первая валидная строка trade_id выигрывает. Время нормализуй в UTC,\nодинаковое время сортируй по trade_id. Битые строки пропускай с предупреждением\nи счётчиком rejected_rows; повторные валидные ID считай отдельно.\nNaN/Infinity, отрицательные величины, неизвестные стороны, наивные даты запрещены.\n\nНе меняй tests/ и jev-checks.json — это заранее заданный контракт.\nДобавь свои тесты отдельно, если нужны, и короткую понятную инструкцию.\nЗапусти unittest и реальную команду на examples/trades.csv, сохрани report.json.\nВ финале покажи результат и точную команду, которую могу повторить я.",
+  "workspace": "<checkout>/terminal-agent/.sessions/jev-crypto-v2-zmfwa9hv",
+  "checks": [
+    {
+      "id": "ledger-contract",
+      "title": "Pre-existing crypto ledger contract",
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "origin": "registered"
+    }
+  ],
+  "execution_mode": "auto",
+  "jev_mode": "assist"
+}

@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "ledger-contract",
+      "title": "Pre-existing crypto ledger contract",
+      "passed": true,
+      "exit_code": 0,
+      "output": "test_cli_synthetic_fixture (test_contract.LedgerContract) ... ok\ntest_decimal_cashflow_includes_fees (test_contract.LedgerContract) ... ok\ntest_empty (test_contract.LedgerContract) ... ok\ntest_first_valid_id_wins (test_contract.LedgerContract) ... ok\ntest_invalid_numbers_dates_and_shape (test_contract.LedgerContract) ... ok\ntest_symbols_stay_separate_and_normalized (test_contract.LedgerContract) ... ok\ntest_utc_order_and_ties (test_contract.LedgerContract) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.046s\n\nOK\n",
+      "elapsed_ms": 119.97,
+      "origin": "registered"
+    }
+  ],
+  "passed": 1,
+  "total": 1,
+  "snapshot": "685dee3e196cd5fe06871fef3beffe7ed9516855fcd2c0e504f18c27f86b7526",
+  "snapshot_after": "685dee3e196cd5fe06871fef3beffe7ed9516855fcd2c0e504f18c27f86b7526",
+  "fresh": true,
+  "registered": true,
+  "stage": "attempt-01"
+}

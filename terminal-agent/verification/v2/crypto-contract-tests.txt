@@ -1,0 +1,12 @@
+test_cli_synthetic_fixture (test_contract.LedgerContract) ... ok
+test_decimal_cashflow_includes_fees (test_contract.LedgerContract) ... ok
+test_empty (test_contract.LedgerContract) ... ok
+test_first_valid_id_wins (test_contract.LedgerContract) ... ok
+test_invalid_numbers_dates_and_shape (test_contract.LedgerContract) ... ok
+test_symbols_stay_separate_and_normalized (test_contract.LedgerContract) ... ok
+test_utc_order_and_ties (test_contract.LedgerContract) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.031s
+
+OK

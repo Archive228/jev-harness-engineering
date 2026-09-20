@@ -15,31 +15,20 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.message import Message
-from textual.screen import ModalScreen
-from textual.widgets import Button, Footer, RichLog, Static, TextArea
+from textual.widgets import Button, Footer, RichLog, Static, TabbedContent, TabPane, TextArea
 
-PINK = "#fb9ec9"
-CREAM = "#f0eadf"
-MUTED = "#9693aa"
-GREEN = "#9fdfb7"
-YELLOW = "#eed18c"
+from .ui_widgets import (AMBER, CREAM, MUTED, GREEN, RED, ArtifactScreen,
+                         ConversationCard, HelpScreen, PickerScreen, PromptEditor,
+                         ToolCard, plain)
+
+YELLOW = AMBER
+
 EXAMPLE_PROMPT = (
     "Создай CLI-анализатор инцидентов: читай JSONL, группируй ошибки по сервису и причине, "
     "убирай дубли event_id, правильно сравнивай часовые пояса и пропускай битые строки "
     "с предупреждением. Добавь пример данных, JSON- и Markdown-отчёт, тесты. "
     "Запусти тесты и покажи готовую команду запуска."
 )
-
-
-def plain(value: Any, limit: int = 14000) -> str:
-    """Literal, bounded data; external output is never Rich markup."""
-    if isinstance(value, str):
-        result = value
-    else:
-        result = json.dumps(value, ensure_ascii=False, default=str)
-    # Terminal controls must not become cursor movement or fake UI chrome.
-    result = "".join(ch for ch in result if ch in "\n\t" or (ord(ch) >= 32 and not 127 <= ord(ch) <= 159))
-    return result if len(result) <= limit else result[:limit] + "\n… полный вывод в events.jsonl сессии"
 
 
 def number(value: Any, default: float = 0.0) -> float:
@@ -63,7 +52,7 @@ def status_label(status: str) -> str:
 
 def reason_label(reason: str) -> str:
     return {
-        "response_prepared_without_independent_acceptance": "Результат подготовлен; выполненные проверки — в панели справа.",
+        "response_prepared_without_independent_acceptance": "Результат подготовлен; выполненные проверки — в деталях F6.",
         "registered_checks_passed": "Все проверки сохранённого контракта пройдены.",
         "checks_failed_or_no_progress": "Есть упавшие проверки или исправления больше не дают прогресса.",
         "iteration_limit_or_no_progress": "Достигнут лимит попыток или нет новых изменений.",
@@ -81,56 +70,6 @@ class EventArrived(Message):
         self.event = event
 
 
-class PromptEditor(TextArea):
-    """Multiline draft: pasted newlines are text, never submit events."""
-
-    def on_paste(self, event: events.Paste) -> None:
-        # TextArea still performs the insert; don't bubble the same paste back
-        # to App, where an unforwarded event can be sent to the editor again.
-        event.stop()
-
-
-class HelpScreen(ModalScreen):
-    BINDINGS = [Binding("escape,f1", "dismiss", "Закрыть", show=False)]
-    DEFAULT_CSS = """
-    HelpScreen { align: center middle; background: #070912 80%; }
-    #help-box { width: 72; max-width: 94%; height: auto; max-height: 92%;
-        padding: 1 3; background: #181a2b; border: round #fb9ec9; }
-    #help-copy { height: auto; margin-bottom: 1; }
-    #help-close { width: 100%; }
-    """
-
-    def compose(self) -> ComposeResult:
-        with VerticalScroll(id="help-box"):
-            text = Text("JEV + HARNESS  /  агент в терминале\n\n", style=f"bold {PINK}")
-            text.append(
-                "Вставьте задачу целиком и нажмите Ctrl+D или кнопку «Отправить». "
-                "Enter добавляет строку. Исполнитель читает и меняет файлы; "
-                "Jev принимает структурированные решения в панели справа. "
-                "Граф показывает только фактически выполненные этапы.\n\n",
-                style=CREAM,
-            )
-            text.append("F2        Вставить пример задачи без запуска\n")
-            text.append("F3        Переключить чат / журнал событий\n")
-            text.append("F4        Развернуть / свернуть редактор сообщения\n")
-            text.append("Ctrl+D    Отправить сообщение целиком\n")
-            text.append("Ctrl+S    Сохранить текущий экран как SVG\n")
-            text.append("Ctrl+C    Остановить задачу; в ожидании — выйти\n")
-            text.append("Tab       Сменить фокус; PageUp / PageDown — листать\n\n")
-            text.append("/help  /status  /stop  /clear  /example  /quit\n", style=GREEN)
-            text.append(
-                "\n/clear очищает только экран. События остаются на диске.\n"
-                "Следующее сообщение продолжит работу в той же папке.\n"
-                "Режим записи показывает сохранённые события без вызовов API.",
-                style=MUTED,
-            )
-            yield Static(text, id="help-copy")
-            yield Button("Вернуться к чату · Escape", id="help-close", variant="primary")
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        self.dismiss()
-
-
 class JevApp(App):
     """Live terminal conversation with an independently testable session."""
 
@@ -140,7 +79,8 @@ class JevApp(App):
     BINDINGS = [
         Binding("ctrl+d", "submit_prompt", "Отправить", priority=True),
         Binding("ctrl+enter", "submit_prompt", "Отправить", priority=True, show=False),
-        Binding("f1", "help", "Меню", priority=True),
+        Binding("f1,ctrl+p", "palette", "Команды", priority=True),
+        Binding("f6", "toggle_details", "Детали", priority=True),
         Binding("f2", "example", "Пример", priority=True),
         Binding("f3", "toggle_events", "Журнал", priority=True),
         Binding("f4", "expand_input", "Развернуть ввод", priority=True),
@@ -148,41 +88,63 @@ class JevApp(App):
         Binding("ctrl+c", "stop_or_quit", "Стоп / выход", priority=True),
     ]
     CSS = """
-    Screen { background: #0c0e19; color: #f0eadf; }
-    #masthead { height: 3; padding: 0 2; background: #181a2b; }
-    #body { height: 1fr; padding: 0 1; }
-    #main { width: 2fr; min-width: 30; }
-    #graph-box { height: auto; max-height: 13; border: round #48415e;
-        padding: 0 1; margin: 0 1 0 0; }
-    #graph { height: auto; }
-    #stream-box { height: 1fr; border: round #48415e; margin-right: 1; }
-    .section-title { height: 1; color: #fb9ec9; padding: 0 1; text-style: bold; }
-    #chat, #event-log { height: 1fr; padding: 0 1; scrollbar-size: 1 1; }
-    #event-log { display: none; }
-    #rail { width: 1fr; min-width: 30; max-width: 52; }
-    #decisions-box { height: 1fr; border: round #48415e; padding: 0 1; }
-    #evidence-box { height: 1fr; border: round #48415e; padding: 0 1; }
-    #decisions-scroll, #evidence-scroll { height: 1fr; scrollbar-size: 1 1; }
-    #decisions, #evidence { height: auto; }
-    #status { height: 2; padding: 0 2; color: #9693aa; }
-    #composer { height: auto; margin: 0 1; }
-    #prompt { height: 5; border: round #fb9ec9; background: #181a2b; padding: 0 1; scrollbar-size: 1 1; }
-    #prompt:focus { border: round #fb9ec9; }
+    Screen { background: #181b17; color: #e8e4da; }
+    #masthead { height: 3; padding: 0 3; background: #1f231d; border-bottom: solid #343b30; }
+    #body { height: 1fr; padding: 0 2; }
+    #main { width: 1fr; min-width: 24; }
+    #phase-strip { height: 1; margin: 1 1 0 1; color: #999b94; }
+    #chat { height: 1fr; padding: 0 2 1 1; scrollbar-size: 1 1; }
+    #welcome { height: auto; padding: 2 1; color: #999b94; }
+    .conversation-card { height: auto; margin-top: 1; padding: 0 1; }
+    .message-role { height: 1; margin-bottom: 1; }
+    .message-body { height: auto; }
+    .conversation-card.user { background: #24291f; border-left: thick #d8ad73; padding: 1 2; }
+    .conversation-card.notice { border-left: solid #47503e; }
+    .conversation-card.notice .message-role { margin-bottom: 0; }
+    .conversation-card.jev { border-left: solid #d8ad73; }
+    .conversation-card.jev .message-role { margin-bottom: 0; }
+    ToolCard { height: auto; margin-top: 1; padding: 0; border: none;
+        background: #20251d; color: #999b94; }
+    ToolCard CollapsibleTitle { width: 1fr; color: #b7bcae; padding: 0 1; background: #20251d; }
+    ToolCard CollapsibleTitle:focus { background: #343c2b; }
+    ToolCard.tool-failed CollapsibleTitle { color: #d99383; }
+    ToolCard.tool-done CollapsibleTitle { color: #a7b995; }
+    ToolCard Contents { padding: 1 2; }
+    .tool-output { height: auto; }
+    #rail { display: none; width: 46; min-width: 30; margin-left: 1;
+        border-left: solid #343b30; background: #1d211a; }
+    #drawer-title { height: 2; padding: 0 1; color: #d8ad73; }
+    #details-tabs { height: 1fr; }
+    #details-tabs TabPane { height: 1fr; padding: 0 1; }
+    .detail-scroll { height: 1fr; scrollbar-size: 1 1; }
+    #graph, #decisions, #evidence { height: auto; }
+    #graph { margin: 1 0; }
+    #event-log { height: 1fr; scrollbar-size: 1 1; padding: 0; }
+    Tabs { background: #1d211a; }
+    Tab { color: #999b94; }
+    Tab.-active { color: #d8ad73; }
+    Underline > .underline--bar { color: #d8ad73; background: #1d211a; }
+    #status { height: 1; padding: 0 3; color: #999b94; }
+    #composer { height: auto; margin: 0 2; }
+    #prompt { height: 5; border: round #555f49; background: #22271e;
+        padding: 0 1; scrollbar-size: 1 1; }
+    #prompt:focus { border: round #d8ad73; }
     #composer-actions { height: 3; align-vertical: middle; }
-    #prompt-meta { width: 1fr; height: 2; color: #9693aa; padding-left: 1; }
-    #send-prompt { width: 23; min-width: 20; height: 3; background: #30263e; color: #fb9ec9; border: round #48415e; }
+    #prompt-meta { width: 1fr; height: 2; color: #999b94; padding-left: 1; }
+    #send-prompt { width: 23; min-width: 20; height: 3;
+        background: #303b26; color: #e8e4da; border: round #555f49; }
+    #send-prompt:hover { background: #404f31; }
     Screen.input-expanded #body, Screen.input-expanded #status { display: none; }
     Screen.input-expanded #composer { height: 1fr; }
-    #hint { height: 1; padding: 0 2; color: #9693aa; }
-    Footer { background: #181a2b; color: #9693aa; }
-    Footer > .footer--key { background: #30263e; color: #fb9ec9; }
-    Screen.narrow #rail { display: none; }
-    Screen.narrow #graph-box { max-height: 8; margin-right: 0; }
-    Screen.narrow #stream-box { margin-right: 0; }
-    Screen.short #masthead { height: 2; }
-    Screen.short #graph-box { max-height: 6; }
-    Screen.short #hint { display: none; }
-    Screen.short #status { height: 1; }
+    Footer { background: #1f231d; color: #999b94; }
+    Footer > .footer--key { background: #30382a; color: #d8ad73; }
+    Screen.narrow #body { padding: 0 1; }
+    Screen.narrow #rail { width: 1fr; margin-left: 0; border-left: none; }
+    Screen.narrow.details-open #main { display: none; }
+    Screen.short #masthead { height: 2; border-bottom: none; }
+    Screen.short #phase-strip { margin-top: 0; }
+    Screen.short #composer { margin: 0 1; }
+    Screen.short #welcome { padding: 1; }
     """
 
     def __init__(self, session: Any, initial_prompt: Optional[str] = None,
@@ -198,6 +160,7 @@ class JevApp(App):
         self._phases: Dict[str, Dict[str, Any]] = {}
         self._steps = []
         self._latest_jev: Dict[str, Any] = {}
+        self._source_context: Dict[str, Any] = {}
         self._checks: Dict[str, Any] = {}
         self._acceptance_scope = ""
         self._files = []
@@ -207,6 +170,12 @@ class JevApp(App):
         self._elapsed_ms = 0.0
         self._turn_started = None
         self._show_events = False
+        self._show_details = False
+        self._tools = {}
+        self._restoring = False
+        self._draft_timer = None
+        self._latest_draft = ""
+        self._last_worker_text = ""
         self._expanded_input = False
         self._seen_sequences = set()
         self._runner = None
@@ -217,51 +186,61 @@ class JevApp(App):
         yield Static(id="masthead")
         with Horizontal(id="body"):
             with Vertical(id="main"):
-                with VerticalScroll(id="graph-box"):
-                    yield Static("ГРАФ ВЫПОЛНЕНИЯ", classes="section-title")
-                    yield Static(id="graph")
-                with Vertical(id="stream-box"):
-                    yield Static("ДИАЛОГ", id="stream-title", classes="section-title")
-                    yield RichLog(id="chat", markup=False, highlight=False,
-                                  wrap=True, min_width=20, max_lines=2500)
-                    yield RichLog(id="event-log", markup=False, highlight=False,
-                                  wrap=True, min_width=20, max_lines=4000)
+                yield Static(id="phase-strip")
+                with VerticalScroll(id="chat"):
+                    yield Static(Text("Начните с задачи.\n\nСоздать инструмент, разобраться в проекте, проверить гипотезу.\n"
+                                      "Здесь появятся ответы, решения Jev и реальные действия.\n\n"
+                                      "F2 — пример запроса     F1 — все команды", style=MUTED), id="welcome")
             with Vertical(id="rail"):
-                with Vertical(id="decisions-box"):
-                    yield Static("JEV · РЕШЕНИЕ", classes="section-title")
-                    with VerticalScroll(id="decisions-scroll"):
-                        yield Static(id="decisions")
-                with Vertical(id="evidence-box"):
-                    yield Static("ПРОВЕРКИ И ФАЙЛЫ", classes="section-title")
-                    with VerticalScroll(id="evidence-scroll"):
-                        yield Static(id="evidence")
+                yield Static("НАБЛЮДЕНИЕ  /  F6 закрыть", id="drawer-title")
+                with TabbedContent(id="details-tabs"):
+                    with TabPane("Jev", id="decision-tab"):
+                        with VerticalScroll(classes="detail-scroll"):
+                            yield Static(id="graph")
+                            yield Static(id="decisions")
+                    with TabPane("Проверки", id="evidence-tab"):
+                        with VerticalScroll(classes="detail-scroll"):
+                            yield Static(id="evidence")
+                    with TabPane("События", id="events-tab"):
+                        yield RichLog(id="event-log", markup=False, highlight=False,
+                                      wrap=True, min_width=20, max_lines=4000)
         yield Static(id="status")
         with Vertical(id="composer"):
             yield PromptEditor(id="prompt", soft_wrap=True, tab_behavior="focus")
             with Horizontal(id="composer-actions"):
-                yield Static("Вставьте сообщение целиком\nEnter — новая строка · F4 — развернуть", id="prompt-meta")
+                yield Static(id="prompt-meta")
                 yield Button("Отправить · Ctrl+D", id="send-prompt")
-        yield Static("Jev решает · исполнитель действует · harness проверяет · события сохраняются", id="hint")
         yield Footer()
 
     def on_mount(self) -> None:
         self._view = self.screen
         self._responsive(self.size.width, self.size.height)
         self._clock = self.set_interval(0.25, self._refresh_status)
-        self._refresh_all()
-        self._chat("SYSTEM", "Jev + Harness\n" + str(self.session.workspace) +
-                   "\nНапишите задачу или нажмите F2, чтобы вставить пример.", MUTED)
+        self._restore_history()
+        editor = self._view.query_one("#prompt", PromptEditor)
+        editor.border_title = " Сообщение "
+        editor.focus()
+        if not self.is_replay:
+            from .catalog import load_draft
+            editor.load_text(self.initial_prompt if self.initial_prompt is not None else load_draft(self.session))
+        self.call_after_refresh(self._resize_prompt)
+
+    def _restore_history(self) -> None:
+        self._restoring = True
         prior = self.replay_events if self.is_replay else self.session.events()
         for event in prior or []:
             self._receive(event)
         if self.is_replay:
             self._chat("REPLAY", "Сохранённые события · инструменты и API не запускаются.", YELLOW)
-        editor = self._view.query_one("#prompt", PromptEditor)
-        editor.border_title = "СООБЩЕНИЕ · можно вставить несколько абзацев"
-        editor.focus()
-        if self.initial_prompt and not self.is_replay:
-            editor.load_text(self.initial_prompt)
-        self.call_after_refresh(self._resize_prompt)
+        elif prior:
+            self._chat("SYSTEM", "История восстановлена. Новое сообщение продолжит эту сессию.", MUTED)
+        self._restoring = False
+        self._refresh_all()
+        self.call_after_refresh(self._scroll_chat)
+
+    def _scroll_chat(self) -> None:
+        if self._ui_active():
+            self._view.query_one("#chat", VerticalScroll).scroll_end(animate=False)
 
     def _ui_active(self) -> bool:
         # Textual shuts the App message pump before pruning Screen children.
@@ -270,6 +249,9 @@ class JevApp(App):
                     and self._view.is_running)
 
     def on_unmount(self) -> None:
+        self._persist_draft()
+        if self._draft_timer is not None:
+            self._draft_timer.stop()
         if self._clock is not None:
             self._clock.stop()
             self._clock = None
@@ -288,13 +270,40 @@ class JevApp(App):
     def _chat(self, role: str, text: Any, color: str = CREAM) -> None:
         if not self._ui_active():
             return
+        original = role
         role = {"SYSTEM": "СИСТЕМА", "YOU": "ВЫ", "PLAN": "ПЛАН",
-                "CHECKS": "ПРОВЕРКИ", "ERROR": "ОШИБКА", "WORKER": "ИСПОЛНИТЕЛЬ",
-                "SESSION STATUS": "СОСТОЯНИЕ СЕССИИ", "LATEST JEV": "ПОСЛЕДНИЙ ОТВЕТ JEV",
+                "CHECKS": "ПРОВЕРКИ", "ERROR": "ОШИБКА", "WORKER": "АГЕНТ",
+                "ASSISTANT": "АГЕНТ", "SESSION STATUS": "СЕССИЯ", "LATEST JEV": "ПОСЛЕДНИЙ ОТВЕТ JEV",
                 "SCREENSHOT SAVED": "СНИМОК СОХРАНЁН", "REPLAY": "ЗАПИСЬ"}.get(role, role)
-        line = Text("\n" + role + "\n", style=f"bold {color}")
-        line.append(plain(text), style=CREAM)
-        self._view.query_one("#chat", RichLog).write(line)
+        self._hide_welcome()
+        kind = "user" if original == "YOU" else "jev" if original == "JEV" else "message" if original in ("WORKER", "ASSISTANT") else "notice"
+        card = ConversationCard(role, plain(text), color, markdown=original in ("WORKER", "ASSISTANT"), kind=kind)
+        chat = self._view.query_one("#chat", VerticalScroll)
+        follow = chat.is_vertical_scroll_end or original == "YOU"
+        chat.mount(card)
+        if not self._restoring and follow:
+            self.call_after_refresh(self._scroll_chat)
+
+    def _hide_welcome(self) -> None:
+        for widget in self._view.query("#welcome"):
+            widget.display = False
+
+    def _tool(self, event: Dict[str, Any], data: Dict[str, Any]) -> None:
+        self._hide_welcome()
+        # call_id identifies an attempt/check; item_id identifies a provider tool.
+        # Missing identities must never merge unrelated legacy log events.
+        identity = data.get("call_id") or "turn-{}".format(event.get("turn", "legacy"))
+        item = data.get("item_id") or "event-{}".format(event.get("seq", self._event_count))
+        key = (identity, item)
+        chat = self._view.query_one("#chat", VerticalScroll)
+        follow = chat.is_vertical_scroll_end
+        if key not in self._tools:
+            self._tools[key] = ToolCard(data)
+            chat.mount(self._tools[key])
+        else:
+            self._tools[key].update_event(data)
+        if not self._restoring and follow:
+            self.call_after_refresh(self._scroll_chat)
 
     def emit(self, event: Dict[str, Any]) -> None:
         self.post_message(EventArrived(event))
@@ -321,10 +330,11 @@ class JevApp(App):
         self._elapsed_ms = max(self._elapsed_ms, number(event.get("elapsed_ms")))
         stamp = "#{} {:7.2f}s {}".format(seq if seq is not None else self._event_count,
                                         number(event.get("elapsed_ms")) / 1000, kind.upper())
-        log = Text(stamp + "\n", style=f"bold {PINK}")
+        log = Text(stamp + "\n", style=f"bold {AMBER}")
         log.append(plain(data), style=MUTED)
         self._view.query_one("#event-log", RichLog).write(log)
         if kind == "user":
+            self._last_worker_text = ""
             self._elapsed_ms = number(event.get("elapsed_ms"))
             self._meters = {}
             self._phases = {}
@@ -334,8 +344,9 @@ class JevApp(App):
             self._files = []
             self._detail = ""
             self._latest_jev = {}
+            self._source_context = {}
             self._outcome = "running" if not self.is_replay else "replay"
-            self._chat("YOU", data.get("text", ""), PINK)
+            self._chat("YOU", data.get("text", ""), AMBER)
         elif kind == "phase":
             name = str(data.get("name", "phase"))
             self._phases[name] = data
@@ -353,13 +364,27 @@ class JevApp(App):
                     brief += "\n{} → {}".format(qid, value)
                     if answer.get("confidence") is not None:
                         brief += " · confidence {:.2f}".format(number(answer["confidence"]))
-            self._chat("JEV", brief, PINK)
+            if data.get("applied") is False:
+                brief += "\nНаблюдение · решение не применяется"
+            self._chat("JEV", brief, AMBER)
         elif kind == "tool":
-            command = plain(data.get("command", data.get("kind", "tool")), 700)
-            state = str(data.get("status", ""))
-            output = plain(data.get("output", ""), 2200)
-            self._chat("ИНСТРУМЕНТ · " + state.upper(), command + ("\n" + output if output else ""), MUTED)
+            self._tool(event, data)
+        elif kind == "context":
+            self._source_context = data
+            paths = data.get("selected") or []
+            brief = "{} фрагментов · {} · {} файлов просмотрено".format(
+                len(paths), data.get("selection", "context"), data.get("files_scanned", "?"))
+            if paths:
+                brief += "\n" + ", ".join(plain(item, 140) for item in paths[:8])
+            if data.get("partial"):
+                brief += " · выборка ограничена"
+            self._chat("КОНТЕКСТ", brief, MUTED)
+        elif kind == "triage":
+            self._chat("РАЗБОР ПРОВЕРКИ", data.get("summary") or data, YELLOW)
+        elif kind == "policy":
+            self._chat("РЕЖИМ", data.get("summary") or data.get("message") or data, MUTED)
         elif kind == "message":
+            self._last_worker_text = str(data.get("text", ""))
             self._chat(str(data.get("role", "worker")).upper(), data.get("text", ""), GREEN)
         elif kind == "checks":
             self._checks = data
@@ -375,16 +400,27 @@ class JevApp(App):
             if isinstance(final_meters, dict):
                 self._meters.update(final_meters)
             self._outcome = str(data.get("status", "ended"))
+            interrupted = self._outcome in ("cancelled", "stopped", "error", "failed")
+            for card in self._tools.values():
+                if not card.is_terminal:
+                    card.update_event({"status": "stopped" if interrupted else "unknown"})
             self._detail = plain(reason_label(str(data.get("reason", ""))), 200)
             self._acceptance_scope = plain(data.get("acceptance_scope", ""), 2000)
-            self._chat(status_label(self._outcome).upper(), data.get("summary") or self._detail or "Ход завершён.",
+            summary = data.get("summary")
+            if summary == self._last_worker_text:
+                summary = self._detail
+            self._chat(status_label(self._outcome).upper(), summary or self._detail or "Ход завершён.",
                        GREEN if self._outcome in ("complete", "completed", "success", "accepted", "ready", "answered") else YELLOW)
             if self._acceptance_scope:
                 self._chat("ГРАНИЦЫ ПРИЁМКИ", self._acceptance_scope, YELLOW)
         elif kind == "error":
             self._outcome = "error"
+            for card in self._tools.values():
+                if not card.is_terminal:
+                    card.update_event({"status": "stopped"})
             self._chat("ERROR", data.get("message", "Неизвестная ошибка"), YELLOW)
-        self._refresh_all()
+        if not self._restoring:
+            self._refresh_all()
 
     def _refresh_all(self) -> None:
         if not self._ui_active():
@@ -399,14 +435,14 @@ class JevApp(App):
         if not self._phases and not self._steps:
             graph.append("○  Ожидаю задачу\n", style=MUTED)
             graph.append("   Здесь появятся реальные этапы.", style=MUTED)
-        phase_limit = 3 if self.size.height < 32 or self.size.width < 100 else 8
+        phase_limit = 12
         visible_phases = list(self._phases.items())[-phase_limit:]
         for i, (name, phase) in enumerate(visible_phases):
             state = str(phase.get("status", ""))
             done = state in ("done", "complete", "completed", "success", "passed")
             bad = state in ("failed", "error", "stopped", "cancelled")
             symbol = "✓" if done else "×" if bad else "●" if state in ("running", "active", "started") else "○"
-            color = GREEN if done else YELLOW if bad else PINK
+            color = GREEN if done else YELLOW if bad else AMBER
             connector = "└─▶ " if i == len(visible_phases) - 1 else "├─▶ "
             graph.append(connector + symbol + "  " + name, style=f"bold {color}")
             graph.append("  " + state + "\n", style=MUTED)
@@ -416,6 +452,19 @@ class JevApp(App):
                 if isinstance(step, dict):
                     graph.append("  · {}  {}\n".format(step.get("id", ""), plain(step.get("title", ""), 180)), style=CREAM)
         self._view.query_one("#graph", Static).update(graph)
+        ribbon = Text()
+        for i, (name, phase) in enumerate(list(self._phases.items())[-4:]):
+            if i:
+                ribbon.append("  →  ", style=MUTED)
+            state = phase.get("status")
+            done = state in ("done", "complete", "completed", "success", "passed")
+            bad = state in ("failed", "error", "stopped", "cancelled")
+            active = state in ("running", "active", "started")
+            symbol = "✓ " if done else "× " if bad else "● " if active else "○ "
+            ribbon.append(symbol + plain(name, 32), style=GREEN if done else AMBER if bad or active else MUTED)
+        if not self._phases:
+            ribbon.append("○  Готов к задаче   ·   действия появятся после отправки", style=MUTED)
+        self._view.query_one("#phase-strip", Static).update(ribbon)
 
     def _render_decisions(self) -> None:
         data = self._latest_jev
@@ -430,9 +479,21 @@ class JevApp(App):
             for qid, answer in (data.get("answers") or {}).items():
                 if not isinstance(answer, dict):
                     continue
-                out.append("\n" + str(qid) + "\n", style=f"bold {PINK}")
+                label = plain(qid, 100)
+                if data.get("purpose") == "context":
+                    candidate = next((item for item in (self._source_context.get("candidates") or [])
+                                      if isinstance(item, dict) and item.get("id") == qid), None)
+                    if candidate and candidate.get("path"):
+                        label = plain(candidate["path"], 180)
+                        first, last = candidate.get("start_line"), candidate.get("end_line")
+                        if isinstance(first, int) and not isinstance(first, bool) and first > 0:
+                            label += ":" + str(first)
+                            if isinstance(last, int) and not isinstance(last, bool) and last > first:
+                                label += "–" + str(last)
+                        label += " ({})".format(plain(qid, 100))
+                out.append("\n" + label + "\n", style=f"bold {AMBER}")
                 value = answer.get("choice", answer.get("noul", answer.get("score", "—")))
-                out.append(str(value), style=f"bold {CREAM}")
+                out.append(("Noul " if "noul" in answer else "") + str(value), style=f"bold {CREAM}")
                 if answer.get("confidence") is not None:
                     out.append("  confidence {:.2f}".format(number(answer["confidence"])), style=MUTED)
                 out.append("\n")
@@ -443,8 +504,8 @@ class JevApp(App):
                         width = 13
                         filled = round(p * width)
                         out.append(plain(option, 35) + "\n", style=CREAM)
-                        out.append("█" * filled, style=PINK)
-                        out.append("░" * (width - filled), style="#393447")
+                        out.append("█" * filled, style=AMBER)
+                        out.append("░" * (width - filled), style="#3d4535")
                         out.append(" {:5.1f}%\n".format(p * 100), style=MUTED)
             out.append("\nConfidence — поле ответа; полоски показывают распределение.", style=MUTED)
         self._view.query_one("#decisions", Static).update(out)
@@ -467,7 +528,7 @@ class JevApp(App):
         if self._acceptance_scope:
             out.append("\nГраницы приёмки\n", style=f"bold {YELLOW}")
             out.append(self._acceptance_scope + "\n", style=YELLOW)
-        out.append("\nИзменённые файлы\n", style=f"bold {PINK}")
+        out.append("\nИзменённые файлы\n", style=f"bold {AMBER}")
         if self._files:
             for filename in self._files[:30]:
                 out.append("  " + plain(filename, 180) + "\n", style=CREAM)
@@ -475,7 +536,7 @@ class JevApp(App):
                 out.append("  +{} ещё в журнале\n".format(len(self._files) - 30), style=MUTED)
         else:
             out.append("  Изменений пока нет.\n", style=MUTED)
-        out.append("\nАртефакты\n", style=f"bold {PINK}")
+        out.append("\nАртефакты\n", style=f"bold {AMBER}")
         out.append(str(self.session.directory), style=MUTED)
         self._view.query_one("#evidence", Static).update(out)
 
@@ -485,31 +546,50 @@ class JevApp(App):
         elapsed = self._elapsed_ms / 1000
         if self._busy and self._turn_started is not None:
             elapsed = max(elapsed, time.monotonic() - self._turn_started)
-        mode = "ЗАПИСЬ" if self.is_replay else "LIVE"
-        top = Text("JEV", style=f"bold {PINK}")
-        top.append(" + HARNESS", style=f"bold {CREAM}")
-        top.append("   /   " + mode + "   /   " + ("РАБОТАЕТ" if self._busy else status_label(self._outcome).upper()), style=MUTED)
-        top.append("\n" + str(self.session.workspace), style=MUTED)
+        mode = "ЗАПИСЬ" if self.is_replay else "РАБОТАЕТ" if self._busy else "ОЖИДАНИЕ"
+        execution_mode = getattr(self.session, "execution_mode", "auto")
+        jev_mode = getattr(self.session, "jev_mode", "assist")
+        top = Text("JEV", style=f"bold {AMBER}")
+        top.append(" / HARNESS", style=f"bold {CREAM}")
+        top.append("   " + mode + "   ·   " + execution_mode + "   ·   jev " + jev_mode, style=MUTED)
+        if not self._busy:
+            top.append("   ·   " + status_label(self._outcome).lower(), style=GREEN)
+        if self.size.height >= 32:
+            top.append("\n" + plain(str(self.session.workspace), 180), style=MUTED)
         self._view.query_one("#masthead", Static).update(top)
-        status = Text("● " if self._busy else "○ ", style=PINK if self._busy else MUTED)
+        status = Text("● " if self._busy else "○ ", style=AMBER if self._busy else MUTED)
         status.append("{:5.1f}s  ".format(elapsed), style=CREAM)
         if self._meters.get("usage_complete") is False:
             status.append("usage неполный · ", style=f"bold {YELLOW}")
         status.append("Jev {}  ·  worker {}  ·  проверок {}  ·  событий {}".format(
             self._meters.get("jev_calls", 0), self._meters.get("worker_calls", 0),
             self._meters.get("checks", 0), self._event_count), style=MUTED)
-        tokens = self._meters.get("jev_tokens")
-        if tokens is not None:
-            status.append("  ·  Jev tokens " + plain(tokens, 100), style=MUTED)
-        worker_tokens = self._meters.get("worker_tokens")
-        if worker_tokens is not None:
-            status.append("  ·  worker tokens " + plain(worker_tokens, 100), style=MUTED)
-        status.append("\n" + (self._detail or "Сессия " + str(self.session.id)), style=MUTED)
+        if self.size.width >= 110 and self._detail:
+            status.append("  /  " + plain(self._detail, 70), style=MUTED)
         self._view.query_one("#status", Static).update(status)
 
     def on_text_area_changed(self, event: TextArea.Changed) -> None:
         if event.text_area.id == "prompt":
+            self._latest_draft = event.text_area.text
             self.call_after_refresh(self._resize_prompt)
+            if not self.is_replay:
+                if self._draft_timer is not None:
+                    self._draft_timer.stop()
+                self._draft_timer = self.set_timer(.3, self._persist_draft)
+
+    def _persist_draft(self) -> None:
+        if self.is_replay or self._view is None:
+            return
+        from .catalog import save_draft
+        # Keep the last known draft even during Textual's shutdown pruning.
+        editors = list(self._view.query("#prompt"))
+        if editors:
+            self._latest_draft = editors[0].text
+        try:
+            save_draft(self.session, self._latest_draft)
+        except (OSError, ValueError):
+            if self._ui_active():
+                self.notify("Черновик не сохранён на диск · лимит 20 000 символов", severity="warning")
 
     def _resize_prompt(self) -> None:
         if not self._ui_active():
@@ -520,7 +600,7 @@ class JevApp(App):
             max(5, rows + 2), max(5, self.size.height // 2 - 3))
         lines = len(editor.text.split("\n")) if editor.text else 0
         self._view.query_one("#prompt-meta", Static).update(
-            "{} строк · {} символов\nEnter — новая строка · F4 — {}".format(
+            "{} строк · {} / 20 000 символов\nEnter — новая строка · F4 — {}".format(
                 lines, len(editor.text), "свернуть" if self._expanded_input else "развернуть"))
 
     def action_expand_input(self) -> None:
@@ -543,6 +623,9 @@ class JevApp(App):
         prompt = editor.text
         if not prompt.strip():
             return
+        if len(prompt) > 20000:
+            self.notify("Сообщение длиннее 20 000 символов. Сократите его; текст остаётся в редакторе.", severity="warning")
+            return
         editor.load_text("")
         if self._expanded_input and not (self._busy or self.session.busy):
             self.action_expand_input()
@@ -557,19 +640,40 @@ class JevApp(App):
             elif command == "/example":
                 self.action_example()
             elif command == "/status":
-                self._chat("SESSION STATUS", self.session.status(), MUTED)
-                self._chat("LATEST JEV", self._latest_jev or "Ответа пока нет", PINK)
+                status = self.session.status()
+                if not (self._busy or self.session.busy):
+                    status.update(self._meters)
+                self._chat("SESSION STATUS", status, MUTED)
+                self._chat("LATEST JEV", self._latest_jev or "Ответа пока нет", AMBER)
+            elif command in ("/details", "/events"):
+                self.action_toggle_events() if command == "/events" else self.action_toggle_details()
+            elif command == "/sessions":
+                self.action_sessions()
+            elif command == "/files":
+                self.action_files()
+            elif command == "/export":
+                self.action_export()
+            elif command in ("/mode", "/jev"):
+                parts = prompt.split()
+                if len(parts) == 2:
+                    self._configure("execution_mode" if command == "/mode" else "jev_mode", parts[1])
+                else:
+                    self._chat("SYSTEM", "/mode auto|plan   /jev assist|observe|off", MUTED)
             elif command == "/stop":
                 self._stop()
             elif command == "/clear":
-                self._view.query_one("#chat", RichLog).clear()
+                self._view.query_one("#chat", VerticalScroll).remove_children()
+                self._tools = {}
                 self._view.query_one("#event-log", RichLog).clear()
                 self._chat("SYSTEM", "Экран очищен. События сохранены на диске.", MUTED)
+            elif command == "/bottom":
+                self._scroll_chat()
             elif command in ("/quit", "/exit"):
                 if self._busy:
                     self._stop()
                     self._chat("SYSTEM", "Останавливаю. Повторите /quit после завершения задачи.", MUTED)
                 else:
+                    self._persist_draft()
                     self.exit()
             else:
                 self._chat("SYSTEM", "Неизвестная команда. Список команд: /help.", YELLOW)
@@ -622,6 +726,7 @@ class JevApp(App):
         if self._busy or self.session.busy:
             self._stop()
         else:
+            self._persist_draft()
             self.exit()
 
     def action_help(self) -> None:
@@ -637,12 +742,134 @@ class JevApp(App):
         prompt.move_cursor((0, 0))
         prompt.focus()
 
+    def _details(self, show: bool, tab: Optional[str] = None) -> None:
+        self._show_details = show
+        self._view.query_one("#rail").display = show
+        self._view.set_class(show, "details-open")
+        if tab:
+            self._view.query_one("#details-tabs", TabbedContent).active = tab
+        self._show_events = show and self._view.query_one("#details-tabs", TabbedContent).active == "events-tab"
+
+    def action_toggle_details(self) -> None:
+        if self.screen is self._view:
+            self._details(not self._show_details)
+
     def action_toggle_events(self) -> None:
-        self._show_events = not self._show_events
-        self._view.query_one("#chat", RichLog).display = not self._show_events
-        self._view.query_one("#event-log", RichLog).display = self._show_events
-        self._view.query_one("#stream-title", Static).update(
-            "ЖУРНАЛ СОБЫТИЙ · СОХРАНЁН НА ДИСКЕ" if self._show_events else "ДИАЛОГ")
+        if self.screen is self._view:
+            active = self._view.query_one("#details-tabs", TabbedContent).active
+            self._details(not (self._show_details and active == "events-tab"), "events-tab")
+
+    def _focus_editor(self) -> None:
+        if self._ui_active():
+            self._view.query_one("#prompt", PromptEditor).focus()
+
+    def action_palette(self) -> None:
+        if isinstance(self.screen, PickerScreen):
+            self.pop_screen()
+            return
+        if self.screen is not self._view:
+            return
+        choices = [
+            {"title": "Детали Jev и граф", "description": "F6 · вероятности, проверки и файлы", "value": "/details"},
+            {"title": "Журнал событий", "description": "F3 · точные сохранённые данные", "value": "/events"},
+            {"title": "Продолжить сессию", "description": "/sessions · поиск по предыдущим задачам", "value": "/sessions"},
+            {"title": "Файлы и изменения", "description": "/files · исходный текст и diff", "value": "/files"},
+            {"title": "Экспорт разговора", "description": "/export · Markdown в папке сессии", "value": "/export"},
+            {"title": "Режим: план", "description": "/mode plan · только чтение", "value": "/mode plan"},
+            {"title": "Режим: выполнение", "description": "/mode auto · работа с файлами", "value": "/mode auto"},
+            {"title": "Jev: помощь", "description": "/jev assist · применять решения", "value": "/jev assist"},
+            {"title": "Jev: наблюдение", "description": "/jev observe · оценивать без управления", "value": "/jev observe"},
+            {"title": "Jev: выключить", "description": "/jev off · без вызовов Jev", "value": "/jev off"},
+            {"title": "Пример задачи", "description": "F2 · вставить, не запускать", "value": "/example"},
+            {"title": "Помощь и сочетания клавиш", "description": "/help", "value": "/help"},
+            {"title": "Состояние сессии", "description": "/status", "value": "/status"},
+        ]
+        self.push_screen(PickerScreen("Команды", choices), self._palette_selected)
+
+    def _palette_selected(self, value: Optional[str]) -> None:
+        self._focus_editor()
+        if value:
+            self._submit(value)
+
+    def _configure(self, name: str, value: str) -> None:
+        if self.is_replay or self._busy or self.session.busy:
+            self._chat("SYSTEM", "Режим можно изменить только в живой сессии, когда задача завершена.", YELLOW)
+            return
+        try:
+            self.session.configure(**{name: value})
+        except (ValueError, RuntimeError) as exc:
+            self._chat("ERROR", str(exc), YELLOW)
+            return
+        self._chat("РЕЖИМ", "{} → {}".format("Исполнение" if name == "execution_mode" else "Jev", value), AMBER)
+        self._refresh_status()
+
+    def action_sessions(self) -> None:
+        if self.is_replay or self._busy or self.session.busy:
+            self._chat("SYSTEM", "Сессию можно сменить после завершения текущей задачи.", YELLOW)
+            return
+        from .catalog import list_sessions
+        choices = [{"title": item["title"],
+                    "description": "{} · {} · {} ходов".format(item["id"], item.get("status", ""), item.get("turns", 0)),
+                    "value": item["directory"]} for item in list_sessions(Path(self.session.directory).parent)]
+        self.push_screen(PickerScreen("Сессии", choices, "Найти задачу…"), self._session_selected)
+
+    async def _session_selected(self, directory: Optional[str]) -> None:
+        if not directory:
+            self._focus_editor()
+            return
+        if self._busy or self.session.busy:
+            return
+        from .core import Session
+        from .catalog import load_draft
+        self._persist_draft()
+        try:
+            replacement = Session.load(Path(directory))
+        except (OSError, ValueError, KeyError) as exc:
+            self._chat("ERROR", "Не удалось открыть сессию: " + str(exc), YELLOW)
+            return
+        self.session = replacement
+        self._seen_sequences.clear()
+        self._event_count = 0
+        self._event_types = []
+        self._tools = {}
+        self._phases, self._latest_jev, self._checks, self._meters = {}, {}, {}, {}
+        self._source_context = {}
+        self._steps, self._files = [], []
+        self._acceptance_scope, self._detail = "", ""
+        self._outcome, self._elapsed_ms, self._turn_started = "idle", 0.0, None
+        self._last_worker_text = ""
+        await self._view.query_one("#chat", VerticalScroll).remove_children()
+        self._view.query_one("#event-log", RichLog).clear()
+        self._restore_history()
+        self._view.query_one("#prompt", PromptEditor).load_text(load_draft(self.session))
+        self._focus_editor()
+
+    def action_files(self) -> None:
+        from .catalog import list_artifacts
+        choices = [{"title": item["path"], "description": item.get("status", ""), "value": item["path"]}
+                   for item in list_artifacts(self.session)]
+        self.push_screen(PickerScreen("Файлы сессии", choices, "Найти файл…"), self._file_selected)
+
+    def _file_selected(self, path: Optional[str]) -> None:
+        if not path:
+            self._focus_editor()
+            return
+        from .catalog import read_artifact
+        try:
+            artifact = read_artifact(self.session, path)
+        except (OSError, ValueError) as exc:
+            self._chat("ERROR", str(exc), YELLOW)
+            return
+        self.push_screen(ArtifactScreen(artifact), lambda _: self._focus_editor())
+
+    def action_export(self) -> None:
+        from .catalog import export_session
+        try:
+            path = export_session(self.session)
+        except (OSError, ValueError) as exc:
+            self._chat("ERROR", str(exc), YELLOW)
+            return
+        self._chat("ЭКСПОРТ", str(path), GREEN)
 
     def action_save_view(self) -> None:
         directory = Path(self.session.directory) / "screenshots"

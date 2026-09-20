@@ -8,15 +8,20 @@ MISSION_ROOT = Path(__file__).resolve().parents[1] / "missions"
 
 
 def prepare_mission(name: str, workspace: Path) -> dict:
-    if name != "loglab":
-        raise ValueError("Unknown mission: %s. Available: loglab" % name)
+    if name not in ("loglab", "cryptolab"):
+        raise ValueError("Unknown mission: %s. Available: loglab, cryptolab" % name)
     workspace = Path(workspace).expanduser().absolute()
     if workspace.is_symlink():
         raise ValueError("Mission workspace must not be a symlink")
     if workspace.exists() and (not workspace.is_dir() or any(workspace.iterdir())):
         raise ValueError("Mission workspace must be empty; existing files are never overwritten")
-    source = MISSION_ROOT / "loglab"
+    source = (MISSION_ROOT.parent / "examples" / "crypto-ledger") if name == "cryptolab" else MISSION_ROOT / "loglab"
     shutil.copytree(source / "seed", workspace, dirs_exist_ok=True)
+    if name == "cryptolab":
+        return {"prompt": (source / "task.txt").read_text(encoding="utf-8"),
+                "checks": [{"id": "ledger-contract", "title": "Crypto Ledger: семь заранее заданных тестов",
+                            "argv": [sys.executable, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"]}],
+                "protected": []}
     oracle = source / "oracle.py"
     checks = [
         ("timestamps", "UTC ordering and timezone normalization"),

@@ -1,0 +1,46 @@
+{
+  "model": "jev-1.13.0",
+  "state": {
+    "user_request": "Дополни только README.md разделом «Как читать отчёт Crypto Ledger». По ledger.py, cryptoledger.py и report.json объясни net_cashflow_usdt, net_quantity и fees_usdt на точных числах BTC из примера. Отдельно поясни, почему денежный поток не равен PnL. Дай одну команду запуска CLI. Код и tests/ не меняй. Достаточно 10–15 строк документации, затем запусти существующие тесты.",
+    "mode": "implement",
+    "worker_claim": "Изменён только [README.md](<checkout>/terminal-agent/.sessions/jev-crypto-v2-zmfwa9hv/README.md): добавлен раздел «Как читать отчёт Crypto Ledger» на 15 строк с точными расчётами BTC, пояснением комиссий и отличия денежного потока от PnL.\n\nПрошли все 19 существующих тестов. Код и тесты не изменены.\n\nКоманда CLI:\n```bash\npython3 -B cryptoledger.py examples/trades.csv --json report.json\n```\n\nПовторить тесты:\n```bash\npython3 -B -m unittest discover -s tests -v\npython3 -B -m unittest discover -s regression_tests -v\n```",
+    "changed_files": [
+      "README.md"
+    ],
+    "observed_checks": {
+      "items": [
+        {
+          "id": "ledger-contract",
+          "title": "Pre-existing crypto ledger contract",
+          "passed": true,
+          "exit_code": 0,
+          "output": "test_cli_synthetic_fixture (test_contract.LedgerContract) ... ok\ntest_decimal_cashflow_includes_fees (test_contract.LedgerContract) ... ok\ntest_empty (test_contract.LedgerContract) ... ok\ntest_first_valid_id_wins (test_contract.LedgerContract) ... ok\ntest_invalid_numbers_dates_and_shape (test_contract.LedgerContract) ... ok\ntest_symbols_stay_separate_and_normalized (test_contract.LedgerContract) ... ok\ntest_utc_order_and_ties (test_contract.LedgerContract) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.046s\n\nOK\n",
+          "elapsed_ms": 119.97,
+          "origin": "registered"
+        }
+      ],
+      "passed": 1,
+      "total": 1,
+      "snapshot": "685dee3e196cd5fe06871fef3beffe7ed9516855fcd2c0e504f18c27f86b7526",
+      "snapshot_after": "685dee3e196cd5fe06871fef3beffe7ed9516855fcd2c0e504f18c27f86b7526",
+      "fresh": true,
+      "registered": true,
+      "stage": "attempt-01"
+    }
+  },
+  "questions": {
+    "next_action": {
+      "type": "choice",
+      "instructions": "Select what to do after this worker attempt, using the user's request and observed results. A worker's final message is a claim, not independent proof. Do not invent failures or demand tests for a simple explanation. If registered checks fail and the worker can repair them, choose improve. The program, not this answer, determines acceptance.",
+      "criteria": {
+        "finish": "The requested response/artifact is prepared and no concrete remaining defect is apparent.",
+        "improve": "A concrete unresolved defect can be addressed with another worker attempt.",
+        "ask_user": "Essential missing information or access requires the user's answer."
+      }
+    },
+    "addresses_request": {
+      "type": "noul",
+      "instructions": "Does the observed work and final response address the current user's requested deliverable? Assess correspondence to the request, not general correctness or hidden test coverage."
+    }
+  }
+}

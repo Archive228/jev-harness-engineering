@@ -1,0 +1,11 @@
+{
+  "digest": "b77c8cf226d99d249f1130154bef1b185aea622d4b131420716fef5f77d8437e",
+  "files": {
+    "README.md": "214c8ea5149fdf8ea0ab8c0593e5e92d1914d681ddb516513a65c8304fec0851",
+    "cryptoledger.py": "5d9a84c36b6b5108a3af6fdb63bd9bb372657d683844debd44e667be6219790f",
+    "jev-checks.json": "b16be75e3fb973d2ca68f5d0e5e392b2402bd13d03639f89e735ccae57253bd7",
+    "ledger.py": "927487e1741045e2c50a68fa43e52205f0bb0231ad186eb1d851815274bb7957",
+    "examples/trades.csv": "9920b1359d9abdb77c9d5e206fda9ef684fb60912b41ae22e0a46e861da46162",
+    "tests/test_contract.py": "7c574c8386ccd20fdd3df011a84b462c296524d0791a0a4c0ff2d1fcd4c3c2e7"
+  }
+}

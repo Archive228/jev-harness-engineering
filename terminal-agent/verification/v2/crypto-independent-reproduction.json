@@ -1,0 +1,45 @@
+{
+  "results": [
+    {
+      "check": "crypto-contract-tests",
+      "exit_code": 0,
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ]
+    },
+    {
+      "check": "crypto-generated-tests",
+      "exit_code": 0,
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "regression_tests",
+        "-v"
+      ]
+    },
+    {
+      "check": "crypto-cli",
+      "exit_code": 0,
+      "argv": [
+        "python3",
+        "-B",
+        "cryptoledger.py",
+        "examples/trades.csv",
+        "--json",
+        "<checkout>/terminal-agent/verification/v2/reproduced-report.json"
+      ]
+    }
+  ],
+  "original_contract_unchanged": true
+}

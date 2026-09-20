@@ -1,13 +1,18 @@
 """Headless terminal interaction checks. Fake calls occur only in this test file."""
 import asyncio
+import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+from rich.markdown import Markdown
 from textual import events
-from textual.widgets import RichLog, Static, TextArea
+from textual.containers import VerticalScroll
+from textual.widgets import Input, OptionList, RichLog, Static, TabbedContent, TextArea
 
 from jev_agent.tui import EXAMPLE_PROMPT, HelpScreen, JevApp, plain, status_label
+from jev_agent.ui_widgets import ArtifactScreen, ConversationCard, PickerScreen, ToolCard
 
 
 CRYPTO_PROMPT = """Создай CLI «Crypto Detective» на Python без внешних библиотек.
@@ -37,6 +42,16 @@ class FakeSession:
         self.calls = []
         self.recorded = []
         self.release = None
+        self.execution_mode = "auto"
+        self.jev_mode = "assist"
+
+    def configure(self, **values):
+        if self.busy:
+            raise RuntimeError("busy")
+        for name, value in values.items():
+            if value not in {"execution_mode": ("auto", "plan"), "jev_mode": ("assist", "observe", "off")}[name]:
+                raise ValueError("invalid mode")
+            setattr(self, name, value)
 
     def status(self):
         return {"id": self.id, "busy": self.busy, "turns": len(self.calls)}
@@ -230,9 +245,10 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
         async with app.run_test(size=(120, 40)) as pilot:
             await pilot.press("f3")
             self.assertTrue(app.query_one("#event-log", RichLog).display)
-            self.assertFalse(app.query_one("#chat", RichLog).display)
+            self.assertTrue(app.query_one("#chat", VerticalScroll).display)
+            self.assertEqual(app.query_one("#details-tabs", TabbedContent).active, "events-tab")
             await pilot.press("f1")
-            self.assertIsInstance(app.screen, HelpScreen)
+            self.assertIsInstance(app.screen, PickerScreen)
             await pilot.pause(.4)
             await pilot.press("escape")
             await pilot.press("ctrl+s")
@@ -358,6 +374,261 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
         # Already queued status callbacks cannot access removed screen children.
         app._refresh_status()
         app._refresh_all()
+
+    async def test_details_start_hidden_and_narrow_drawer_preserves_editor(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(80, 24)) as pilot:
+            self.assertFalse(app.query_one("#rail").display)
+            app.query_one("#prompt", TextArea).load_text("Не потерять черновик")
+            await pilot.press("f6")
+            await pilot.pause()
+            self.assertTrue(app.query_one("#rail").display)
+            self.assertFalse(app.query_one("#main").display)
+            self.assertLessEqual(app.query_one("#prompt").region.bottom, 24)
+            await pilot.press("f6")
+            self.assertTrue(app.query_one("#main").display)
+            self.assertEqual(app.query_one("#prompt", TextArea).text, "Не потерять черновик")
+
+    async def test_tool_lifecycle_coalesces_and_does_not_merge_attempts(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            records = [
+                {"call_id": "attempt-1", "item_id": "tool-1", "command": "python test.py", "status": "running"},
+                {"call_id": "attempt-1", "item_id": "tool-1", "status": "done", "output": "[red]literal[/red]", "exit_code": 0},
+                {"call_id": "attempt-2", "item_id": "tool-1", "command": "python test.py", "status": "running"},
+            ]
+            for i, data in enumerate(records):
+                app.emit({"seq": i + 1, "type": "tool", "data": data})
+            await pilot.pause()
+            cards = list(app.query(ToolCard))
+            self.assertEqual(len(cards), 2)
+            first = cards[0]
+            self.assertTrue(first.collapsed)
+            self.assertEqual(first.data["exit_code"], 0)
+            self.assertIn("[red]literal[/red]", first.output_view.renderable.plain)
+            first.collapsed = False
+            await pilot.pause()
+            self.assertGreater(first.output_view.region.height, 0)
+            self.assertEqual(app._event_count, 3)
+
+    async def test_assistant_markdown_user_literal_and_no_duplicate_final(self):
+        answer = "### Готово\n\nЗапусти `python run.py`."
+        app = JevApp(self.session, replay_events=[
+            {"seq": 1, "type": "user", "data": {"text": "[red]User[/red]"}},
+            {"seq": 2, "type": "message", "data": {"role": "worker", "text": answer}},
+            {"seq": 3, "type": "end", "data": {"status": "ready", "summary": answer, "reason": "registered_checks_passed"}},
+        ])
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            cards = list(app.query(ConversationCard))
+            user = next(card for card in cards if card.role == "ВЫ")
+            worker = next(card for card in cards if card.role == "АГЕНТ")
+            self.assertEqual(user.content, "[red]User[/red]")
+            self.assertFalse(user.markdown)
+            self.assertIsInstance(worker.query_one(".message-body", Static).renderable, Markdown)
+            self.assertEqual(sum(card.content == answer for card in cards), 1)
+
+    async def test_palette_filters_and_changes_mode_without_sending_prompt(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.press("ctrl+p")
+            self.assertIsInstance(app.screen, PickerScreen)
+            app.screen.query_one(Input).value = "режим план"
+            await pilot.pause()
+            self.assertEqual(app.screen.query_one(OptionList).option_count, 1)
+            await pilot.press("enter")
+            await pilot.pause()
+            self.assertEqual(self.session.execution_mode, "plan")
+            self.assertEqual(self.session.calls, [])
+            self.assertIs(app.screen, app._view)
+
+    async def test_small_terminal_palette_scrolls_inside_dialog(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(80, 24)) as pilot:
+            await pilot.press("f1")
+            await pilot.pause()
+            listing = app.screen.query_one(OptionList)
+            hint = app.screen.query_one("#picker-hint")
+            self.assertLessEqual(listing.region.bottom, hint.region.y)
+            self.assertLessEqual(hint.region.bottom, 24)
+            for _ in range(10):
+                await pilot.press("down")
+            self.assertEqual(listing.highlighted, 10)
+            self.assertGreater(listing.scroll_y, 0)
+
+    async def test_busy_session_cannot_change_mode_or_switch_session(self):
+        self.session.release = asyncio.Event()
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            app._submit("Long task")
+            await pilot.pause(.1)
+            app._submit("/mode plan")
+            app._submit("/jev off")
+            app._submit("/sessions")
+            self.assertEqual(self.session.execution_mode, "auto")
+            self.assertEqual(self.session.jev_mode, "assist")
+            self.assertIs(app.screen, app._view)
+            app._stop()
+            await pilot.pause(.1)
+
+    async def test_draft_persists_and_restores_without_submission(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            app.query_one("#prompt", TextArea).load_text(CRYPTO_PROMPT)
+            await pilot.pause(.4)
+            self.assertEqual((self.session.directory / "draft.txt").read_text(), CRYPTO_PROMPT)
+        resumed = JevApp(self.session)
+        async with resumed.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            self.assertEqual(resumed.query_one("#prompt", TextArea).text, CRYPTO_PROMPT)
+            self.assertEqual(self.session.calls, [])
+
+    async def test_oversized_request_stays_in_editor_and_does_not_run(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            draft = "x" * 20001
+            app.query_one("#prompt", TextArea).load_text(draft)
+            await pilot.press("ctrl+d")
+            self.assertEqual(app.query_one("#prompt", TextArea).text, draft)
+            self.assertEqual(self.session.calls, [])
+
+    async def test_immediate_exit_saves_draft_before_debounce(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            app.query_one("#prompt", TextArea).load_text("Быстрый выход")
+            app.action_stop_or_quit()
+        self.assertEqual((self.session.directory / "draft.txt").read_text(), "Быстрый выход")
+
+    async def test_artifact_picker_opens_file_and_diff_without_execution(self):
+        (self.session.workspace / "answer.py").write_text("print('hello')\n")
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            app._submit("/files")
+            await pilot.pause()
+            self.assertIsInstance(app.screen, PickerScreen)
+            app.screen.query_one(Input).value = "answer.py"
+            await pilot.pause()
+            await pilot.press("enter")
+            await pilot.pause()
+            self.assertIsInstance(app.screen, ArtifactScreen)
+            self.assertIn("print('hello')", app.screen.artifact["text"])
+            self.assertEqual(self.session.calls, [])
+            await pilot.press("escape")
+            self.assertIs(app.screen, app._view)
+
+    async def test_context_and_observe_decision_remain_visible_in_history(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            app.emit({"seq": 1, "type": "context", "data": {"selection": "lexical", "selected": ["src/a.py"], "files_scanned": 3}})
+            app.emit({"seq": 2, "type": "jev", "data": {"purpose": "route", "applied": False,
+                      "answers": {"route": {"choice": "implement", "confidence": .9}}}})
+            await pilot.pause()
+            text = "\n".join(card.content for card in app.query(ConversationCard))
+            self.assertIn("src/a.py", text)
+            self.assertIn("решение не применяется", text)
+            self.assertEqual(self.session.calls, [])
+
+    async def test_context_decision_ids_resolve_to_real_file_lines_and_reset_next_turn(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            answer = {"purpose": "context", "applied": False, "answers": {"c0": {"type": "noul", "noul": .91}}}
+            app.emit({"seq": 1, "type": "jev", "data": answer})
+            await pilot.pause()
+            self.assertIn("c0", app.query_one("#decisions", Static).renderable.plain)
+            app.emit({"seq": 2, "type": "context", "data": {
+                "selection": "lexical", "selected": ["README.md"], "files_scanned": 3,
+                "candidates": [{"id": "c0", "path": "README.md", "start_line": 42, "end_line": 50}],
+            }})
+            await pilot.pause()
+            view = app.query_one("#decisions", Static).renderable.plain
+            self.assertIn("README.md:42–50 (c0)", view)
+            self.assertIn("Noul 0.91", view)
+            self.assertFalse(app._latest_jev["applied"])
+            app.emit({"seq": 3, "type": "user", "data": {"text": "New task"}})
+            app.emit({"seq": 4, "type": "jev", "data": answer})
+            await pilot.pause()
+            self.assertEqual(app._source_context, {})
+            self.assertNotIn("README.md", app.query_one("#decisions", Static).renderable.plain)
+
+    async def test_compact_phase_rail_marks_failures_and_cancellation(self):
+        self.session.recorded = [
+            {"seq": 1, "type": "phase", "data": {"name": "CODEX", "status": "error"}},
+            {"seq": 2, "type": "phase", "data": {"name": "CHECKS", "status": "cancelled"}},
+            {"seq": 3, "type": "phase", "data": {"name": "RESULT", "status": "stopped"}},
+        ]
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)):
+            ribbon = app.query_one("#phase-strip", Static).renderable.plain
+            self.assertIn("× CODEX", ribbon)
+            self.assertIn("× CHECKS", ribbon)
+            self.assertIn("× RESULT", ribbon)
+            self.assertNotIn("●", ribbon)
+
+    async def test_restored_status_uses_same_saved_meters_as_header(self):
+        self.session.recorded = [{"seq": 1, "type": "end", "elapsed_ms": 7000,
+            "data": {"status": "ready", "meters": {"jev_calls": 3, "worker_calls": 2,
+                     "jev_tokens": 210, "usage_complete": False}}}]
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            app._submit("/status")
+            await pilot.pause()
+            card = next(item for item in app.query(ConversationCard) if item.role == "СЕССИЯ")
+            report = json.loads(card.content)
+            self.assertEqual(report["jev_calls"], 3)
+            self.assertEqual(report["worker_calls"], 2)
+            self.assertEqual(report["jev_tokens"], 210)
+            self.assertFalse(report["usage_complete"])
+
+    async def test_switch_session_restores_target_draft_and_resets_event_ids(self):
+        replacement_dir = Path(self.temp.name) / "replacement"
+        replacement_dir.mkdir()
+        replacement = FakeSession(replacement_dir)
+        replacement.id = "other-session"
+        replacement.recorded = [{"seq": 1, "type": "message", "data": {"text": "Other session"}}]
+        (replacement.directory / "draft.txt").write_text("Other draft")
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            app.query_one("#prompt", TextArea).load_text("Old draft")
+            app._receive({"seq": 1, "type": "message", "data": {"text": "Old session"}})
+            with patch("jev_agent.core.Session.load", return_value=replacement):
+                await app._session_selected(str(replacement.directory))
+            await pilot.pause()
+            self.assertIs(app.session, replacement)
+            self.assertEqual(app._event_count, 1)
+            self.assertEqual(app.query_one("#prompt", TextArea).text, "Other draft")
+            self.assertEqual((self.session.directory / "draft.txt").read_text(), "Old draft")
+            self.assertEqual(replacement.calls, [])
+
+    async def test_tool_finished_lifecycle_and_interruption_are_truthful(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            app.emit({"seq": 1, "type": "tool", "data": {"item_id": "read", "status": "finished", "lifecycle": "completed", "kind": "read"}})
+            app.emit({"seq": 2, "type": "tool", "data": {"item_id": "run", "status": "running", "command": "slow task"}})
+            app.emit({"seq": 3, "type": "end", "data": {"status": "cancelled"}})
+            await pilot.pause()
+            cards = list(app.query(ToolCard))
+            self.assertTrue(cards[0].is_terminal)
+            self.assertTrue(cards[0].has_class("tool-done"))
+            self.assertTrue(cards[1].is_terminal)
+            self.assertIn("остановлено", cards[1].title)
+            self.assertFalse(cards[1].has_class("tool-done"))
+
+    async def test_legacy_unmatched_tool_not_left_running_in_restored_history(self):
+        self.session.recorded = [
+            {"seq": 1, "type": "tool", "data": {"command": "legacy", "status": "running"}},
+            {"seq": 2, "type": "end", "data": {"status": "ready"}},
+        ]
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            card = app.query_one(ToolCard)
+            self.assertTrue(card.is_terminal)
+            self.assertIn("статус неизвестен", card.title)
+            self.assertNotIn("●", card.title)
+            self.assertFalse(card.has_class("tool-done"))
+            header = app.query_one("#masthead", Static).renderable.plain
+            self.assertIn("ОЖИДАНИЕ", header)
+            self.assertNotIn("LIVE", header)
 
     def test_outcome_labels_distinguish_prepared_and_contract_checked(self):
         self.assertEqual(status_label("ready"), "Результат подготовлен")

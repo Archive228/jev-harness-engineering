@@ -1,0 +1,17 @@
+{
+  "status": "accepted",
+  "reason": "registered_checks_passed",
+  "acceptance_scope": "Только сохранённый контракт. Новое требование может выходить за его пределы.",
+  "summary": "CLI исправлен: расчёты через `Decimal`, комиссии в USDT, проверка строк, первая валидная запись ID, нормализация и сортировка UTC. Добавлены инструкция в README и отдельные регрессионные тесты.\n\nСохранён [report.json](<checkout>/terminal-agent/.sessions/jev-crypto-v2-zmfwa9hv/report.json): **3 принятые сделки, 1 дубликат, 1 отклонённая строка**.\n\n- BTC: остаток **0.06**, денежный поток **−3524.24 USDT**, комиссии **4.24 USDT**.\n- ETH: остаток **1.5**, денежный поток **−3001.5 USDT**, комиссии **1.5 USDT**.\n\nЭто денежный поток и остаток количества, не PnL.\n\nПрошли **7 контрактных и 12 дополнительных тестов**. `tests/` и `jev-checks.json` не изменены — проверено по SHA-256.\n\nПовторить из рабочей папки:\n\n```bash\npython3 -B cryptoledger.py examples/trades.csv --json report.json\npython3 -B -m unittest discover -s tests -v\npython3 -B -m unittest discover -s regression_tests -v\n```",
+  "elapsed_ms": 227819.63,
+  "meters": {
+    "jev_calls": 2,
+    "worker_calls": 1,
+    "checks": 2,
+    "jev_tokens": 3101,
+    "worker_tokens": 251373,
+    "usage_complete": true
+  },
+  "workspace": "<checkout>/terminal-agent/.sessions/jev-crypto-v2-zmfwa9hv",
+  "turn": 1
+}

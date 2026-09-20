@@ -1,0 +1,6 @@
+trade_id,timestamp,symbol,side,quantity,price_usdt,fee_usdt
+btc-buy,2026-09-20T12:00:00+03:00,BTC,buy,0.10,60000,3
+eth-buy,2026-09-20T09:05:00Z,ETH,buy,1.5,2000,1.5
+btc-sell,2026-09-20T05:10:00-04:00,BTC,sell,0.04,62000,1.24
+btc-buy,2026-09-20T09:20:00Z,BTC,buy,9,1,0
+bad-row,2026-09-20T09:15:00Z,ETH,buy,NaN,2000,0

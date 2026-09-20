@@ -1,0 +1,18 @@
+CLI исправлен: расчёты через `Decimal`, комиссии в USDT, проверка строк, первая валидная запись ID, нормализация и сортировка UTC. Добавлены инструкция в README и отдельные регрессионные тесты.
+
+Сохранён [report.json](<checkout>/terminal-agent/.sessions/jev-crypto-v2-zmfwa9hv/report.json): **3 принятые сделки, 1 дубликат, 1 отклонённая строка**.
+
+- BTC: остаток **0.06**, денежный поток **−3524.24 USDT**, комиссии **4.24 USDT**.
+- ETH: остаток **1.5**, денежный поток **−3001.5 USDT**, комиссии **1.5 USDT**.
+
+Это денежный поток и остаток количества, не PnL.
+
+Прошли **7 контрактных и 12 дополнительных тестов**. `tests/` и `jev-checks.json` не изменены — проверено по SHA-256.
+
+Повторить из рабочей папки:
+
+```bash
+python3 -B cryptoledger.py examples/trades.csv --json report.json
+python3 -B -m unittest discover -s tests -v
+python3 -B -m unittest discover -s regression_tests -v
+```

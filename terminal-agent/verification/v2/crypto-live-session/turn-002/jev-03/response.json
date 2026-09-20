@@ -1,0 +1,23 @@
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "next_action": {
+      "type": "choice",
+      "choice": "finish",
+      "confidence": 0.79,
+      "probabilities": {
+        "ask_user": 0.04,
+        "finish": 0.86,
+        "improve": 0.1
+      }
+    },
+    "addresses_request": {
+      "type": "noul",
+      "noul": 0.66
+    }
+  },
+  "usage": {
+    "input_tokens": 1368,
+    "output_tokens": 59
+  }
+}

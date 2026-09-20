@@ -1,0 +1,23 @@
+{
+  "text": "Дополни только README.md разделом «Как читать отчёт Crypto Ledger». По ledger.py, cryptoledger.py и report.json объясни net_cashflow_usdt, net_quantity и fees_usdt на точных числах BTC из примера. Отдельно поясни, почему денежный поток не равен PnL. Дай одну команду запуска CLI. Код и tests/ не меняй. Достаточно 10–15 строк документации, затем запусти существующие тесты.",
+  "workspace": "<checkout>/terminal-agent/.sessions/jev-crypto-v2-zmfwa9hv",
+  "checks": [
+    {
+      "id": "ledger-contract",
+      "title": "Pre-existing crypto ledger contract",
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "origin": "registered"
+    }
+  ],
+  "execution_mode": "auto",
+  "jev_mode": "assist"
+}

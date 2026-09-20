@@ -1,0 +1,4 @@
+{
+  "checks": [{"id": "ledger-contract", "title": "Pre-existing crypto ledger contract",
+              "argv": ["python3", "-B", "-m", "unittest", "discover", "-s", "tests", "-v"]}]
+}

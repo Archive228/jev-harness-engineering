@@ -1,0 +1,33 @@
+{
+  "session_id": "20260921-003736-ab8721",
+  "turns": [
+    {
+      "turn": 1,
+      "status": "accepted",
+      "elapsed_ms": 227819.63,
+      "meters": {
+        "jev_calls": 2,
+        "worker_calls": 1,
+        "checks": 2,
+        "jev_tokens": 3101,
+        "worker_tokens": 251373,
+        "usage_complete": true
+      }
+    },
+    {
+      "turn": 2,
+      "status": "accepted",
+      "elapsed_ms": 89413.09,
+      "meters": {
+        "jev_calls": 3,
+        "worker_calls": 1,
+        "checks": 2,
+        "jev_tokens": 5532,
+        "worker_tokens": 175390,
+        "usage_complete": true
+      }
+    }
+  ],
+  "source_root_replaced_with": "<checkout>",
+  "workspace_source_code_unchanged": true
+}

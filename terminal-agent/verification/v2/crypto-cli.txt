@@ -1,0 +1,2 @@
+Сохранён <checkout>/terminal-agent/verification/v2/reproduced-report.json: accepted_rows=3, duplicate_rows=1, rejected_rows=1
+Предупреждение: Строка данных 5: quantity: число должно быть конечным

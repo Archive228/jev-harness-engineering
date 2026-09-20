@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 
 from .core import Session
+from .catalog import export_session, list_sessions
 from .runtime import clean, codex_binary
 
 
@@ -26,19 +27,30 @@ def load_local_key():
                 return
 
 
-def main():
+def main(argv=None):
     os.umask(0o077)
     parser = argparse.ArgumentParser(description="Jev Terminal — настоящий чат, действия Codex и наблюдаемый harness")
     parser.add_argument("--project", type=Path, help="Рабочий проект: агент сможет изменять файлы здесь")
-    parser.add_argument("--mission", choices=["loglab"], help="Создать новую копию учебного проекта; запрос отправляете вы")
+    parser.add_argument("--mission", choices=["loglab", "cryptolab"], help="Создать новую копию учебного проекта; запрос отправляете вы")
     parser.add_argument("--resume", metavar="SESSION", help="Продолжить сессию: last, ID или путь")
     parser.add_argument("--sessions", type=Path, default=ROOT / ".sessions", help="Где сохранять историю и протоколы")
     parser.add_argument("--prompt", help="Только заполнить поле; не запускает агента автоматически")
     parser.add_argument("--run", metavar="TEXT", help="Явно запустить один запрос без TUI; JSONL для интеграций")
+    parser.add_argument("--mode", choices=["auto", "plan"], help="auto: выполнение; plan: только чтение и план")
+    parser.add_argument("--jev-mode", choices=["assist", "observe", "off"], help="Как применять решения Jev; по умолчанию assist")
+    parser.add_argument("--list", action="store_true", help="Список сохранённых сессий в JSON; без моделей")
+    parser.add_argument("--export", action="store_true", help="Сохранить --resume SESSION в Markdown; без моделей")
     parser.add_argument("--doctor", action="store_true", help="Проверить зависимости и наличие ключа, не вызывая модели")
-    args = parser.parse_args()
-    load_local_key()
+    args = parser.parse_args(argv)
+    if args.list:
+        print(json.dumps(list_sessions(args.sessions), ensure_ascii=False, indent=2))
+        return 0
+    if args.export and not args.resume:
+        parser.error("--export требует --resume SESSION (или last)")
+    if args.export and (args.run or args.mode or args.jev_mode or args.prompt):
+        parser.error("--export не сочетается с запросом или изменением режима")
     if args.doctor:
+        load_local_key()
         import textual
         try:
             binary = codex_binary()
@@ -55,9 +67,15 @@ def main():
             name = ((args.sessions / "last-session.txt").read_text().strip()
                     if args.resume == "last" else args.resume)
             directory = Path(name) if Path(name).is_absolute() else args.sessions / name
-            session = Session.load(directory)
+            session = Session.load(directory, activate=not args.export)
         else:
             session = Session.create(args.sessions, project=args.project, mission=args.mission)
+        if args.export:
+            print(export_session(session))
+            return 0
+        session.configure(execution_mode=args.mode, jev_mode=args.jev_mode)
+        if session.jev_mode != "off":
+            load_local_key()
         if args.run:
             try:
                 result = asyncio.run(session.run_turn(args.run, lambda e: print(json.dumps(e, ensure_ascii=False), flush=True)))

@@ -183,7 +183,9 @@ class CodexRunner:
                     emit("tool", kind=item_kind, command=item.get("command", item.get("tool", "")),
                          status=item.get("status", "running" if kind == "item.started" else "finished"),
                          output=item.get("aggregated_output", ""), exit_code=item.get("exit_code"),
-                         files=item.get("changes", []))
+                         files=item.get("changes", []), item_id=item.get("id"),
+                         call_id=("%s:%s:%s" % (directory.parent.name, directory.name, item["id"])) if item.get("id") else None,
+                         lifecycle=kind.split(".", 1)[1])
 
         result = await process(argv, cwd=workspace, input_text=prompt,
                                environment=worker_environment(), cancel_event=cancel_event,

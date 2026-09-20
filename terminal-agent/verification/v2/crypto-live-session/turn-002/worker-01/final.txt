@@ -1,0 +1,14 @@
+Изменён только [README.md](<checkout>/terminal-agent/.sessions/jev-crypto-v2-zmfwa9hv/README.md): добавлен раздел «Как читать отчёт Crypto Ledger» на 15 строк с точными расчётами BTC, пояснением комиссий и отличия денежного потока от PnL.
+
+Прошли все 19 существующих тестов. Код и тесты не изменены.
+
+Команда CLI:
+```bash
+python3 -B cryptoledger.py examples/trades.csv --json report.json
+```
+
+Повторить тесты:
+```bash
+python3 -B -m unittest discover -s tests -v
+python3 -B -m unittest discover -s regression_tests -v
+```

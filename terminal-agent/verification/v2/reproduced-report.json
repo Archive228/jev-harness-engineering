@@ -1,0 +1,34 @@
+{
+  "accepted_rows": 3,
+  "duplicate_rows": 1,
+  "rejected_rows": 1,
+  "warnings": [
+    "Строка данных 5: quantity: число должно быть конечным"
+  ],
+  "timeline": [
+    {
+      "trade_id": "btc-buy",
+      "timestamp": "2026-09-20T09:00:00.000000Z"
+    },
+    {
+      "trade_id": "eth-buy",
+      "timestamp": "2026-09-20T09:05:00.000000Z"
+    },
+    {
+      "trade_id": "btc-sell",
+      "timestamp": "2026-09-20T09:10:00.000000Z"
+    }
+  ],
+  "symbols": {
+    "BTC": {
+      "net_quantity": "0.06",
+      "net_cashflow_usdt": "-3524.24",
+      "fees_usdt": "4.24"
+    },
+    "ETH": {
+      "net_quantity": "1.5",
+      "net_cashflow_usdt": "-3001.5",
+      "fees_usdt": "1.5"
+    }
+  }
+}

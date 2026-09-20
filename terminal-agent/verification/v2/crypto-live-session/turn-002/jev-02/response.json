@@ -1,0 +1,29 @@
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "c0": {
+      "type": "noul",
+      "noul": 0.86
+    },
+    "c1": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "c2": {
+      "type": "noul",
+      "noul": 0.25
+    },
+    "c3": {
+      "type": "noul",
+      "noul": 0.46
+    },
+    "c4": {
+      "type": "noul",
+      "noul": 0.73
+    }
+  },
+  "usage": {
+    "input_tokens": 2211,
+    "output_tokens": 89
+  }
+}

@@ -1,6 +1,7 @@
 """Boundary checks for real child processes and persisted agent data."""
 import asyncio
 import contextlib
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -12,7 +13,7 @@ import time
 import unittest
 from unittest.mock import patch
 
-from jev_agent.runtime import RuntimeFailure, clean, process, worker_environment
+from jev_agent.runtime import CodexRunner, RuntimeFailure, clean, process, worker_environment
 from jev_agent.core import Session
 
 
@@ -30,7 +31,7 @@ class FixtureJudge:
             if question["type"] == "noul":
                 answers[key] = {"type": "noul", "noul": 1.0}
             else:
-                selected = self.route if key == "route" else self.action
+                selected = self.route if key == "route" else "code" if key == "category" else self.action
                 answers[key] = {"type": "choice", "choice": selected,
                                 "confidence": 1.0,
                                 "probabilities": {k: float(k == selected) for k in question["criteria"]}}
@@ -423,6 +424,8 @@ class SessionTests(unittest.IsolatedAsyncioTestCase):
         await asyncio.wait_for(runner.started.wait(), timeout=1)
         try:
             self.assertTrue(self.session.busy)
+            meters = [event["data"] for event in self.session.events() if event["type"] == "meters"]
+            self.assertEqual(meters[-1]["worker_calls"], 1, "a running attempt is visible before it completes")
             with self.assertRaises(ValueError):
                 await self.session.run_turn("Overlapping request.")
             self.session.cancel()
@@ -474,6 +477,193 @@ class SessionTests(unittest.IsolatedAsyncioTestCase):
                 with self.assertRaises(ValueError):
                     await self.session.run_turn(prompt)
                 self.assertFalse(self.session.busy)
+
+    async def test_settings_are_validated_atomic_persisted_and_idle_only(self):
+        self.session.configure(execution_mode="plan", jev_mode="off")
+        restored = Session.load(self.session.directory)
+        self.assertEqual(restored.status()["execution_mode"], "plan")
+        self.assertEqual(restored.status()["jev_mode"], "off")
+        with self.assertRaises(ValueError):
+            self.session.configure(execution_mode="auto", jev_mode="bogus")
+        self.assertEqual(self.session.execution_mode, "plan")
+        self.session.busy = True
+        with self.assertRaises(ValueError):
+            self.session.configure(jev_mode="assist")
+        self.session.busy = False
+
+    async def test_resume_activates_selected_session_but_readonly_load_does_not(self):
+        second = Session.create(self.base / "sessions")
+        pointer = self.base / "sessions" / "last-session.txt"
+        self.assertEqual(pointer.read_text(), second.id)
+        Session.load(self.session.directory, activate=False)
+        self.assertEqual(pointer.read_text(), second.id)
+        Session.load(self.session.directory)
+        self.assertEqual(pointer.read_text(), self.session.id)
+        renamed = self.session.directory.with_name("portable-copy")
+        self.session.directory.rename(renamed)
+        Session.load(renamed)
+        self.assertEqual(pointer.read_text(), "portable-copy")
+        self.assertEqual(Session.load(pointer.parent / pointer.read_text()).id, self.session.id)
+
+    async def test_malformed_event_shapes_are_skipped_without_lock_or_duplicate_sequence(self):
+        rows = [42, None, [], {"seq": 100, "turn": "bad", "type": "bad", "data": {}},
+                {"seq": 10, "turn": 2, "type": "message", "data": {"text": "Saved"}}]
+        (self.session.directory / "events.jsonl").write_text("\n".join(json.dumps(row) for row in rows) + "\n{")
+        resumed = Session.load(self.session.directory)
+        resumed.runner, resumed.judge = FixtureRunner(), FixtureJudge()
+        result = await resumed.run_turn("Create a tool.")
+        self.assertEqual(result["status"], "ready")
+        self.assertFalse(resumed.busy)
+        self.assertEqual(result["turn"], 3)
+        self.assertEqual(resumed.events()[1]["seq"], 11)
+
+    async def test_existing_orphan_turn_directory_recovers_without_lock(self):
+        (self.session.directory / "turn-001").mkdir()
+        result = await self.session.run_turn("Create a tool.")
+        self.assertEqual(result["status"], "ready")
+        self.assertEqual(result["turn"], 2)
+        self.assertFalse(self.session.busy)
+
+    async def test_plan_forces_readonly_in_every_jev_mode_and_does_not_run_checks(self):
+        self.session.checks = [{"id": "unsafe-for-plan", "argv": [sys.executable, "-c", "raise SystemExit(1)"]}]
+        for mode in ("assist", "observe", "off"):
+            self.session.configure(execution_mode="plan", jev_mode=mode)
+            result = await self.session.run_turn("Create files now.")
+            self.assertEqual(result["status"], "answered")
+            self.assertTrue(self.session.runner.calls[-1]["readonly"])
+            self.assertEqual(result["meters"]["checks"], 0)
+
+    async def test_plan_detects_mutation_even_if_injected_worker_ignores_readonly(self):
+        self.session.configure(execution_mode="plan", jev_mode="off")
+        self.session.runner.action = lambda workspace: (workspace / "app.py").write_text("changed")
+        result = await self.session.run_turn("Plan a change.")
+        self.assertEqual(result["status"], "error")
+        self.assertIn("режиме чтения", result["summary"])
+
+    async def test_off_calls_no_judge_and_failed_checks_still_block_completion(self):
+        self.session.configure(jev_mode="off")
+        self.session.checks = [{"id": "failure", "title": "failure", "argv": [sys.executable, "-c", "raise SystemExit(1)"]}]
+        result = await self.session.run_turn("Fix the problem.")
+        self.assertEqual(result["status"], "stopped")
+        self.assertEqual(self.session.judge.calls, [])
+        self.assertEqual(result["meters"]["jev_calls"], 0)
+        self.assertTrue(any("Jev off" in e["data"].get("text", "") for e in self.session.events()))
+
+    async def test_observe_records_but_does_not_use_route_or_review(self):
+        self.session.configure(jev_mode="observe")
+        self.session.judge = FixtureJudge(route="answer", action="ask_user")
+        result = await self.session.run_turn("Create a tool.")
+        self.assertEqual(result["status"], "ready")
+        self.assertFalse(self.session.runner.calls[0]["readonly"])
+        self.assertEqual(len(self.session.judge.calls), 2)
+        decisions = [e for e in self.session.events() if e["type"] == "jev"]
+        self.assertTrue(all(not e["data"]["applied"] for e in decisions))
+
+    async def test_observe_provider_failure_falls_back_with_incomplete_usage(self):
+        class UnavailableJudge:
+            async def ask(self, *args, **kwargs):
+                raise RuntimeFailure("unavailable")
+        self.session.configure(jev_mode="observe")
+        self.session.judge = UnavailableJudge()
+        result = await self.session.run_turn("Create a tool.")
+        self.assertEqual(result["status"], "ready")
+        self.assertFalse(result["meters"]["usage_complete"])
+        self.assertEqual(result["meters"]["jev_calls"], 2)
+
+    async def test_failed_attempt_triage_reaches_next_worker_without_overriding_checks(self):
+        (self.session.workspace / "value.txt").write_text("broken")
+        self.session.checks = [{"id": "value", "title": "value", "argv": [sys.executable, "-c",
+                                "from pathlib import Path; assert Path('value.txt').read_text() == 'fixed'"]}]
+        calls = []
+        def change(workspace):
+            calls.append(True)
+            (workspace / "value.txt").write_text("still broken" if len(calls) == 1 else "fixed")
+        self.session.runner.action = change
+        result = await self.session.run_turn("Repair value.")
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(len(self.session.runner.calls), 2)
+        context = json.loads(self.session.runner.calls[1]["prompt"].split("\n\n", 1)[1])
+        self.assertEqual(context["failure_triage"]["category"], "code")
+        self.assertFalse(context["failure_triage"]["verified_root_cause"])
+        self.assertEqual(context["verification"]["passed"], 0)
+        snippet = next(item for item in context["source_snippets"] if item["path"] == "value.txt")
+        self.assertEqual(snippet["excerpt"].strip(), "still broken")
+        self.assertEqual(snippet["sha256"], hashlib.sha256(b"still broken").hexdigest())
+        first_context = json.loads((self.session.directory / "turn-001" / "attempt-01-context.json").read_text())
+        second_context = json.loads((self.session.directory / "turn-001" / "attempt-02-context.json").read_text())
+        self.assertEqual(first_context["attempt"], 1)
+        self.assertEqual(second_context["attempt"], 2)
+        self.assertNotEqual(first_context["candidates"][0]["sha256"], second_context["candidates"][0]["sha256"])
+        self.assertTrue(any(e["type"] == "jev" and e["data"]["purpose"] == "triage" for e in self.session.events()))
+
+    async def test_failed_worker_attempt_is_counted_with_unknown_usage(self):
+        class FailedRunner(FixtureRunner):
+            async def run(self, *args, **kwargs):
+                raise RuntimeFailure("worker unavailable")
+        self.session.runner = FailedRunner()
+        result = await self.session.run_turn("Create a tool.")
+        self.assertEqual(result["status"], "error")
+        self.assertEqual(result["meters"]["worker_calls"], 1)
+        self.assertFalse(result["meters"]["usage_complete"])
+        start = next(e for e in self.session.events() if e["type"] == "meters" and e["data"]["worker_calls"] == 1)
+        failure = next(e for e in self.session.events() if e["type"] == "error")
+        self.assertLess(start["seq"], failure["seq"])
+
+    async def test_context_ranking_applies_only_in_assist(self):
+        class RankJudge(FixtureJudge):
+            async def ask(self, state, questions, *args):
+                result = await super().ask(state, questions, *args)
+                if "candidates" in state:
+                    for key in result["answers"]:
+                        result["answers"][key]["noul"] = 0.9 if state["candidates"][key]["path"] == "z.py" else 0.1
+                return result
+        for name in ("a.py", "z.py"):
+            (self.session.workspace / name).write_text("needle = 1\n")
+        self.session.judge = RankJudge()
+        for mode, expected in (("assist", "z.py"), ("observe", "a.py"), ("off", "a.py")):
+            self.session.configure(jev_mode=mode)
+            result = await self.session.run_turn("Inspect needle.")
+            self.assertNotEqual(result["status"], "error")
+            context = json.loads(self.session.runner.calls[-1]["prompt"].split("\n\n", 1)[1])
+            self.assertEqual(context["source_snippets"][0]["path"], expected)
+            self.assertEqual("relevance" in context["source_snippets"][0], mode == "assist")
+
+    async def test_low_confidence_triage_is_recorded_as_unapplied(self):
+        class LowConfidenceJudge(FixtureJudge):
+            async def ask(self, state, questions, *args):
+                result = await super().ask(state, questions, *args)
+                result["answers"]["category"]["confidence"] = 0.2
+                return result
+        self.session.judge = LowConfidenceJudge()
+        report = {"items": [{"id": "broken", "passed": False, "exit_code": 1, "output": "Assertion failed"}], "fresh": True}
+        advice = await self.session.triage_failure("Repair this.", report, self.session.directory)
+        self.assertIsNone(advice)
+        decision = next(e for e in self.session.events() if e["type"] == "jev")
+        self.assertFalse(decision["data"]["applied"])
+
+    async def test_check_and_provider_lifecycle_use_stable_real_ids(self):
+        self.session.checks = [{"id": "ok", "title": "ok", "argv": [sys.executable, "-c", "print('pass')"]}]
+        await self.session.run_turn("Implement this.")
+        events = [e["data"] for e in self.session.events() if e["type"] == "tool"]
+        self.assertEqual(events[0]["call_id"], events[1]["call_id"])
+        self.assertNotEqual(events[0]["call_id"], events[2]["call_id"])
+        self.assertEqual(events[0]["lifecycle"], "started")
+        self.assertEqual(events[1]["lifecycle"], "completed")
+        observed = []
+        async def fake_process(argv, **kwargs):
+            for kind, status in (("item.started", "in_progress"), ("item.completed", "completed")):
+                kwargs["on_line"]("stdout", json.dumps({"type": kind, "item": {
+                    "type": "command_execution", "id": "item_7", "command": "python app.py", "status": status}}))
+            kwargs["on_line"]("stdout", json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": "Done."}}))
+            kwargs["on_line"]("stdout", json.dumps({"type": "turn.completed", "usage": {"input_tokens": 1, "output_tokens": 1}}))
+            return {"exit_code": 0, "stderr": ""}
+        with patch("jev_agent.runtime.process", fake_process), patch("jev_agent.runtime.codex_binary", return_value="codex"):
+            await CodexRunner().run("test", self.session.workspace, self.session.directory / "worker-01",
+                                    lambda event_type, **data: observed.append((event_type, data)), asyncio.Event())
+        tools = [data for kind, data in observed if kind == "tool"]
+        self.assertEqual(tools[0]["item_id"], "item_7")
+        self.assertEqual(tools[0]["call_id"], tools[1]["call_id"])
+        self.assertEqual([e["lifecycle"] for e in tools], ["started", "completed"])
 
 
 if __name__ == "__main__":

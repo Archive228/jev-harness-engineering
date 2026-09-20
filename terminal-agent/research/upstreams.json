@@ -1,0 +1,37 @@
+{
+  "review_date": "2026-09-21",
+  "upstreams": [
+    {
+      "name": "PiJev",
+      "repository": "https://github.com/tonyzdev/pijev",
+      "commit": "0b67ff916fb9c6cadd4d939b8a7a14976252efef",
+      "license": "MIT",
+      "license_path": "licenses/pijev-LICENSE.txt",
+      "usage": "Interaction and architecture reference; independent Python implementation; upstream source code not bundled"
+    },
+    {
+      "name": "Pi",
+      "repository": "https://github.com/earendil-works/pi",
+      "commit": "f5c946480c575604c50d810adc88b11679d6aecb",
+      "license": "MIT",
+      "license_path": "licenses/pi-LICENSE.txt",
+      "usage": "Interaction and architecture reference; independent Python implementation; upstream source code not bundled"
+    },
+    {
+      "name": "OpenCode",
+      "repository": "https://github.com/anomalyco/opencode",
+      "commit": "d870e22c70f27103016dcd479edcfebf86136d93",
+      "license": "MIT",
+      "license_path": "licenses/opencode-LICENSE.txt",
+      "usage": "Interaction and architecture reference; independent Python implementation; upstream source code not bundled"
+    },
+    {
+      "name": "Crush",
+      "repository": "https://github.com/charmbracelet/crush",
+      "commit": "afb55f03c5f510bebeb04197ee05fbe540384db8",
+      "license": "FSL-1.1-MIT",
+      "license_path": "licenses/crush-LICENSE.txt",
+      "usage": "Interaction and architecture reference; independent Python implementation; upstream source code not bundled"
+    }
+  ]
+}

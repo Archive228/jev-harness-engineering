@@ -1,0 +1,17 @@
+test_csv_bom_short_extra_and_broken_records (test_ledger.CLIRegressions) ... ok
+test_empty_file_and_header_only_produce_empty_report (test_ledger.CLIRegressions) ... ok
+test_input_cannot_be_overwritten (test_ledger.CLIRegressions) ... ok
+test_invalid_headers_and_missing_file_fail_without_traceback (test_ledger.CLIRegressions) ... ok
+test_output_failure_has_clear_error (test_ledger.CLIRegressions) ... ok
+test_bad_shapes_are_rejected_without_stopping_iteration (test_ledger.LedgerRegressions) ... ok
+test_decimal_precision_is_exact_and_context_is_preserved (test_ledger.LedgerRegressions) ... ok
+test_every_numeric_field_rejects_nonfinite_and_invalid_values (test_ledger.LedgerRegressions) ... ok
+test_first_valid_means_input_order_before_timestamp_sorting (test_ledger.LedgerRegressions) ... ok
+test_fractional_utc_time_crosses_day_boundary (test_ledger.LedgerRegressions) ... ok
+test_invalid_duplicate_is_rejected_and_does_not_change_totals (test_ledger.LedgerRegressions) ... ok
+test_sell_without_opening_balance_and_fee_above_proceeds (test_ledger.LedgerRegressions) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.244s
+
+OK
