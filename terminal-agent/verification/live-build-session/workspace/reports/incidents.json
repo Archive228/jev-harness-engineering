@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "source": "examples/related_failures.jsonl",
+  "settings": {
+    "window_seconds": 120,
+    "since": null,
+    "until": null
+  },
+  "statistics": {
+    "total_lines": 12,
+    "blank_lines": 0,
+    "invalid_lines": 2,
+    "duplicate_events": 2,
+    "conflicting_duplicates": 1,
+    "unique_events": 8,
+    "events_outside_period": 0,
+    "non_error_events_in_period": 1,
+    "analyzed_errors": 7
+  },
+  "warnings": [
+    {
+      "line": 10,
+      "kind": "invalid_line",
+      "message": "Expecting property name enclosed in double quotes: line 1 column 23 (char 22)"
+    },
+    {
+      "line": 11,
+      "kind": "invalid_line",
+      "message": "timestamp должен содержать дату, время и часовой пояс (Z или ±HH:MM)"
+    },
+    {
+      "line": 12,
+      "kind": "conflicting_duplicate",
+      "event_id": "api-001",
+      "message": "конфликтующий дубль event_id=api-001; сохранена первая валидная запись"
+    }
+  ],
+  "facts": {
+    "scope": "Наблюдения из принятых записей журнала; достоверность источника отдельно не проверялась.",
+    "events": [
+      {
+        "event_id": "noise-001",
+        "timestamp": "2026-09-19T08:59:59Z",
+        "service": "telemetry",
+        "level": "ERROR",
+        "reason": "DNS lookup failed",
+        "trace_id": "monitor-77",
+        "upstream_service": "dns"
+      },
+      {
+        "event_id": "db-001",
+        "timestamp": "2026-09-19T09:00:00Z",
+        "service": "database",
+        "level": "ERROR",
+        "reason": "Connection pool exhausted",
+        "trace_id": "checkout-42"
+      },
+      {
+        "event_id": "api-001",
+        "timestamp": "2026-09-19T09:00:02Z",
+        "service": "api",
+        "level": "ERROR",
+        "reason": "Database timeout",
+        "trace_id": "checkout-42",
+        "upstream_service": "database"
+      },
+      {
+        "event_id": "web-001",
+        "timestamp": "2026-09-19T09:00:04Z",
+        "service": "web",
+        "level": "ERROR",
+        "reason": "Checkout unavailable",
+        "trace_id": "checkout-42",
+        "upstream_service": "api"
+      },
+      {
+        "event_id": "db-002",
+        "timestamp": "2026-09-19T09:01:00Z",
+        "service": "database",
+        "level": "CRITICAL",
+        "reason": "connection   pool exhausted",
+        "trace_id": "checkout-43"
+      },
+      {
+        "event_id": "api-002",
+        "timestamp": "2026-09-19T09:01:02Z",
+        "service": "api",
+        "level": "ERROR",
+        "reason": "Database timeout",
+        "trace_id": "checkout-43",
+        "upstream_service": "database"
+      },
+      {
+        "event_id": "web-002",
+        "timestamp": "2026-09-19T09:01:04Z",
+        "service": "web",
+        "level": "ERROR",
+        "reason": "Checkout unavailable",
+        "trace_id": "checkout-43",
+        "upstream_service": "api"
+      }
+    ],
+    "groups": [
+      {
+        "service": "api",
+        "reason": "database timeout",
+        "count": 2,
+        "first_seen": "2026-09-19T09:00:02Z",
+        "last_seen": "2026-09-19T09:01:02Z",
+        "event_ids": [
+          "api-001",
+          "api-002"
+        ]
+      },
+      {
+        "service": "database",
+        "reason": "connection pool exhausted",
+        "count": 2,
+        "first_seen": "2026-09-19T09:00:00Z",
+        "last_seen": "2026-09-19T09:01:00Z",
+        "event_ids": [
+          "db-001",
+          "db-002"
+        ]
+      },
+      {
+        "service": "telemetry",
+        "reason": "dns lookup failed",
+        "count": 1,
+        "first_seen": "2026-09-19T08:59:59Z",
+        "last_seen": "2026-09-19T08:59:59Z",
+        "event_ids": [
+          "noise-001"
+        ]
+      },
+      {
+        "service": "web",
+        "reason": "checkout unavailable",
+        "count": 2,
+        "first_seen": "2026-09-19T09:00:04Z",
+        "last_seen": "2026-09-19T09:01:04Z",
+        "event_ids": [
+          "web-001",
+          "web-002"
+        ]
+      }
+    ],
+    "unlinked_event_ids": [
+      "noise-001"
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H001",
+      "status": "hypothesis",
+      "upstream_service": "api",
+      "upstream_reason": "database timeout",
+      "downstream_service": "web",
+      "downstream_reason": "checkout unavailable",
+      "statement": "Сбой api (database timeout) мог способствовать сбою web (checkout unavailable).",
+      "evidence_event_ids": [
+        "api-001",
+        "web-001",
+        "api-002",
+        "web-002"
+      ],
+      "observed_links": [
+        {
+          "upstream_event_id": "api-001",
+          "downstream_event_id": "web-001",
+          "trace_id": "checkout-42",
+          "delay_seconds": 2.0
+        },
+        {
+          "upstream_event_id": "api-002",
+          "downstream_event_id": "web-002",
+          "trace_id": "checkout-43",
+          "delay_seconds": 2.0
+        }
+      ],
+      "limitations": [
+        "Совпали trace_id, заявленный upstream_service и временное окно; причинность не доказана.",
+        "Порядок основан на часах источников; рассинхронизация часов и общая внешняя причина не исключены."
+      ],
+      "verification_steps": [
+        "Проверить spans этой трассы и фактический вызов upstream-сервиса.",
+        "Сопоставить метрики и журналы upstream-сервиса, проверить альтернативные причины."
+      ]
+    },
+    {
+      "id": "H002",
+      "status": "hypothesis",
+      "upstream_service": "database",
+      "upstream_reason": "connection pool exhausted",
+      "downstream_service": "api",
+      "downstream_reason": "database timeout",
+      "statement": "Сбой database (connection pool exhausted) мог способствовать сбою api (database timeout).",
+      "evidence_event_ids": [
+        "db-001",
+        "api-001",
+        "db-002",
+        "api-002"
+      ],
+      "observed_links": [
+        {
+          "upstream_event_id": "db-001",
+          "downstream_event_id": "api-001",
+          "trace_id": "checkout-42",
+          "delay_seconds": 2.0
+        },
+        {
+          "upstream_event_id": "db-002",
+          "downstream_event_id": "api-002",
+          "trace_id": "checkout-43",
+          "delay_seconds": 2.0
+        }
+      ],
+      "limitations": [
+        "Совпали trace_id, заявленный upstream_service и временное окно; причинность не доказана.",
+        "Порядок основан на часах источников; рассинхронизация часов и общая внешняя причина не исключены."
+      ],
+      "verification_steps": [
+        "Проверить spans этой трассы и фактический вызов upstream-сервиса.",
+        "Сопоставить метрики и журналы upstream-сервиса, проверить альтернативные причины."
+      ]
+    }
+  ],
+  "root_cause": {
+    "established": false,
+    "explanation": "Первопричина не доказана: диагностическая причина в логе и корреляция не устанавливают причинность."
+  }
+}

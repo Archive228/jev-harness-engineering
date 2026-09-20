@@ -1,0 +1,50 @@
+test_both_output_streams_and_exit_status_are_preserved (test_engine.ProcessTests) ... ok
+test_cancellation_stops_descendant_process (test_engine.ProcessTests) ... ok
+test_output_limit_is_detected_before_process_timeout (test_engine.ProcessTests) ... ok
+test_pre_cancelled_call_never_starts_a_process (test_engine.ProcessTests) ... ok
+test_stream_parser_error_stops_process_immediately (test_engine.ProcessTests) ... ok
+test_nested_secrets_and_terminal_control_sequences_are_removed (test_engine.RedactionTests) ... ok
+test_worker_does_not_inherit_provider_secrets (test_engine.RedactionTests) ... ok
+test_a_check_that_changes_its_snapshot_cannot_accept (test_engine.SessionTests) ... ok
+test_bad_display_callback_cannot_lock_session (test_engine.SessionTests) ... ok
+test_concurrent_turn_rejected_and_cancelled_turn_is_persisted (test_engine.SessionTests) ... ok
+test_conversation_uses_readonly_worker_and_resumes_after_relocation (test_engine.SessionTests) ... ok
+test_custom_runner_secret_is_not_returned_or_kept_in_history (test_engine.SessionTests) ... ok
+test_failed_registered_check_overrides_confident_finish (test_engine.SessionTests) ... ok
+test_invalid_worker_usage_does_not_create_false_counters (test_engine.SessionTests) ... ok
+test_malformed_jev_response_is_an_error_not_a_worker_run (test_engine.SessionTests) ... ok
+test_mission_checks_follow_a_relocated_session_workspace (test_engine.SessionTests) ... ok
+test_no_tests_found_is_not_a_passing_check (test_engine.SessionTests) ... ok
+test_oversized_or_empty_input_leaves_session_idle (test_engine.SessionTests) ... ok
+test_provider_error_is_redacted_and_next_turn_can_run (test_engine.SessionTests) ... ok
+test_registered_check_really_runs_again_after_file_change (test_engine.SessionTests) ... ok
+test_root_level_generated_tests_are_executed_but_not_independent (test_engine.SessionTests) ... ok
+test_worker_cannot_weaken_registered_check_to_gain_acceptance (test_engine.SessionTests) ... ok
+test_worker_claim_is_not_independent_acceptance (test_engine.SessionTests) ... ok
+test_worker_generated_tests_cannot_become_independent_acceptance (test_engine.SessionTests) ... ok
+test_combined_incident_fails_until_repaired (test_mission.LoglabMissionTests) ... ok
+test_four_seeded_defects_are_detected (test_mission.LoglabMissionTests) ... ok
+test_mission_contract_is_external_and_complete (test_mission.LoglabMissionTests) ... ok
+test_never_overwrites_user_files (test_mission.LoglabMissionTests) ... ok
+test_rejects_workspace_symlink (test_mission.LoglabMissionTests) ... ok
+test_report_artifacts_already_work_for_clean_input (test_mission.LoglabMissionTests) ... ok
+test_unknown_check_is_a_tool_error (test_mission.LoglabMissionTests) ... ok
+test_unknown_mission_is_rejected_without_creating_workspace (test_mission.LoglabMissionTests) ... ok
+test_80_by_24_keeps_prompt_on_screen (test_tui.TerminalTests) ... ok
+test_clear_only_clears_view_and_unknown_command_not_sent (test_tui.TerminalTests) ... ok
+test_closing_active_app_stops_process_and_clock (test_tui.TerminalTests) ... ok
+test_end_meters_mark_incomplete_usage_without_standalone_event (test_tui.TerminalTests) ... ok
+test_event_toggle_menu_and_svg (test_tui.TerminalTests) ... ok
+test_external_text_is_literal_and_control_bytes_removed (test_tui.TerminalTests) ... ok
+test_graph_shows_all_seven_observed_phases (test_tui.TerminalTests) ... ok
+test_initial_prompt_and_example_never_run_automatically (test_tui.TerminalTests) ... ok
+test_manual_submit_real_event_view_and_followup (test_tui.TerminalTests) ... ok
+test_outcome_labels_distinguish_prepared_and_contract_checked (test_tui.TerminalTests) ... ok
+test_replay_is_read_only_and_duplicate_events_not_counted (test_tui.TerminalTests) ... ok
+test_restored_turn_resets_elapsed_and_meters (test_tui.TerminalTests) ... ok
+test_stop_and_busy_input_preserve_followup (test_tui.TerminalTests) ... ok
+
+----------------------------------------------------------------------
+Ran 45 tests in 5.231s
+
+OK

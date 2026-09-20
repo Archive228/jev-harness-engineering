@@ -1,0 +1,12 @@
+{
+  "digest": "01c2519bf82075cd8f5d212c6c299220abce871f82744829c86ce26584cd6bc8",
+  "files": {
+    ".gitignore": "708a5a6e27cd5b7316f6f619c995688a31c2af42457356865b5f26a60b20b791",
+    "README.md": "350ad994e31ef378fe1d31f340fbf005d30b28757f1e310d5ea907de85f2aa38",
+    "incident_analyzer.py": "67b172255059cfdf0398bc8028f52bf188e40e6405e8ec153bb4cc1e475d585c",
+    "test_incident_analyzer.py": "4113c23a7128080fc559c37ecc8f28d175a19cbe1053ebc4b9d861e185607281",
+    "examples/related_failures.jsonl": "9219b6ce7fb7f6b2d9f02c6fe965cd999717f86520a3b725d6b3a097974fee4e",
+    "reports/incidents.json": "a65ad57c0ace41da5c0801ae2c2513928766b296265c1ce2087d1ee23dc4ec8c",
+    "reports/incidents.md": "dc221a498fbe0206fabc7a7cb818f3eb3f2f2446dfdec645a83db3282ba53ece"
+  }
+}

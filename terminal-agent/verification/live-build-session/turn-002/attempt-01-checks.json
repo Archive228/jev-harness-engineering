@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "generated-tests",
+      "title": "Тесты проекта (могли быть созданы worker)",
+      "passed": true,
+      "exit_code": 0,
+      "output": "test_bad_arguments_missing_file_and_io_failure (test_incident_analyzer.CliTests) ... ok\ntest_cli_writes_both_reports_and_emits_warnings (test_incident_analyzer.CliTests) ... ok\ntest_empty_and_all_invalid_files_still_create_reports (test_incident_analyzer.CliTests) ... ok\ntest_failed_staging_preserves_previous_report (test_incident_analyzer.CliTests) ... ok\ntest_output_cannot_overwrite_input_or_other_report (test_incident_analyzer.CliTests) ... ok\ntest_stdin_custom_paths_and_period (test_incident_analyzer.CliTests) ... ok\ntest_surrogates_in_warnings_do_not_prevent_reports (test_incident_analyzer.CliTests) ... ok\ntest_all_same_timestamp_candidates_preserve_evidence (test_incident_analyzer.CorrelationTests) ... ok\ntest_earliest_supported_datetime_does_not_overflow (test_incident_analyzer.CorrelationTests) ... ok\ntest_markdown_escapes_untrusted_log_content (test_incident_analyzer.CorrelationTests) ... ok\ntest_output_is_deterministic_without_duplicates (test_incident_analyzer.CorrelationTests) ... ok\ntest_pair_has_evidence_but_no_proven_cause (test_incident_analyzer.CorrelationTests) ... ok\ntest_same_service_cannot_link_to_itself (test_incident_analyzer.CorrelationTests) ... ok\ntest_sample_related_failures_and_false_lead (test_incident_analyzer.CorrelationTests) ... ok\ntest_time_proximity_alone_does_not_link_errors (test_incident_analyzer.CorrelationTests) ... ok\ntest_window_boundary_and_simultaneous_events (test_incident_analyzer.CorrelationTests) ... ok\ntest_bom_blank_lines_and_empty_input (test_incident_analyzer.InputTests) ... ok\ntest_broken_json_schema_and_encoding_do_not_stop_reading (test_incident_analyzer.InputTests) ... ok\ntest_deduplication_precedes_period_and_level_filters (test_incident_analyzer.InputTests) ... ok\ntest_grouping_uses_service_and_normalized_reason (test_incident_analyzer.InputTests) ... ok\ntest_identical_and_conflicting_duplicates_first_valid_wins (test_incident_analyzer.InputTests) ... ok\ntest_invalid_record_does_not_reserve_id (test_incident_analyzer.InputTests) ... ok\ntest_invalid_settings (test_incident_analyzer.InputTests) ... ok\ntest_only_error_levels_are_grouped (test_incident_analyzer.InputTests) ... ok\ntest_period_is_inclusive_and_compares_utc (test_incident_analyzer.InputTests) ... ok\ntest_equal_instants_with_different_offsets (test_incident_analyzer.TimestampTests) ... ok\ntest_invalid_or_ambiguous_timestamp (test_incident_analyzer.TimestampTests) ... ok\ntest_repeated_local_hour_has_distinct_instants (test_incident_analyzer.TimestampTests) ... ok\ntest_utc_order_across_midnight_and_microseconds (test_incident_analyzer.TimestampTests) ... ok\n\n----------------------------------------------------------------------\nRan 29 tests in 0.538s\n\nOK\n",
+      "elapsed_ms": 577.61,
+      "origin": "worker_generated"
+    }
+  ],
+  "passed": 1,
+  "total": 1,
+  "snapshot": "267a5b5ddb53f99b7eec7373b27f4ab15c4559d1272ecc7661dffcb692e9ce19",
+  "snapshot_after": "267a5b5ddb53f99b7eec7373b27f4ab15c4559d1272ecc7661dffcb692e9ce19",
+  "fresh": true,
+  "registered": false,
+  "stage": "attempt-01"
+}

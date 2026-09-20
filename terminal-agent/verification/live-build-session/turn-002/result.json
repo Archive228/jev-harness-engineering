@@ -1,0 +1,16 @@
+{
+  "status": "ready",
+  "reason": "response_prepared_without_independent_acceptance",
+  "summary": "Исправил Unicode в предупреждениях: одиночные суррогаты экранируются и больше не мешают записи отчётов. Добавил регрессионный тест и сократил README.\n\nВсе **29 тестов прошли**. Пример CLI выполнен успешно: 7 ошибок, 4 группы, 2 гипотезы; JSON- и Markdown-отчёты сохранены.\n\nКоманды для повторного запуска:\n\n```sh\npython3 -m unittest discover -v\npython3 incident_analyzer.py examples/related_failures.jsonl --json-report reports/incidents.json --markdown-report reports/incidents.md\n```",
+  "elapsed_ms": 72684.89,
+  "meters": {
+    "jev_calls": 2,
+    "worker_calls": 1,
+    "checks": 1,
+    "jev_tokens": 3202,
+    "worker_tokens": 160552,
+    "usage_complete": true
+  },
+  "workspace": "<checkout>/terminal-agent/.sessions/20260920-215112-02c688/workspace",
+  "turn": 2
+}

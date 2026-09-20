@@ -1,0 +1,16 @@
+{
+  "status": "error",
+  "reason": "RuntimeFailure",
+  "summary": "Процесс превысил лимит 300 секунд.",
+  "elapsed_ms": 301051.44,
+  "meters": {
+    "jev_calls": 1,
+    "worker_calls": 1,
+    "checks": 0,
+    "jev_tokens": 777,
+    "worker_tokens": 0,
+    "usage_complete": false
+  },
+  "workspace": "<checkout>/terminal-agent/.sessions/20260920-215112-02c688/workspace",
+  "turn": 1
+}

@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+JEV_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+if [ ! -x "$JEV_ROOT/.venv/bin/python" ]; then
+  printf '%s\n' 'Сначала выполните ./setup.sh в каталоге terminal-agent.' >&2
+  exit 1
+fi
+cd "$JEV_ROOT"
+exec "$JEV_ROOT/.venv/bin/python" -m jev_agent "$@"

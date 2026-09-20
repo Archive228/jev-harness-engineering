@@ -1,0 +1,12 @@
+{"event_id":"web-001","timestamp":"2026-09-19T09:00:04Z","service":"web","level":"ERROR","reason":"Checkout unavailable","trace_id":"checkout-42","upstream_service":"api"}
+{"event_id":"noise-001","timestamp":"2026-09-19T11:59:59+03:00","service":"telemetry","level":"ERROR","reason":"DNS lookup failed","trace_id":"monitor-77","upstream_service":"dns"}
+{"event_id":"db-001","timestamp":"2026-09-19T12:00:00+03:00","service":"database","level":"ERROR","reason":"Connection pool exhausted","trace_id":"checkout-42"}
+{"event_id":"api-001","timestamp":"2026-09-19T05:00:02-04:00","service":"api","level":"ERROR","reason":"Database timeout","trace_id":"checkout-42","upstream_service":"database"}
+{"event_id":"api-001","timestamp":"2026-09-19T09:00:02Z","service":"api","level":"ERROR","reason":"Database timeout","trace_id":"checkout-42","upstream_service":"database"}
+{"event_id":"deploy-001","timestamp":"2026-09-19T08:55:00Z","service":"web","level":"INFO","reason":"Deployment completed","trace_id":"ops-10"}
+{"event_id":"db-002","timestamp":"2026-09-19T09:01:00Z","service":"database","level":"CRITICAL","reason":"connection   pool exhausted","trace_id":"checkout-43"}
+{"event_id":"api-002","timestamp":"2026-09-19T09:01:02Z","service":"api","level":"ERROR","reason":"Database timeout","trace_id":"checkout-43","upstream_service":"database"}
+{"event_id":"web-002","timestamp":"2026-09-19T12:01:04+03:00","service":"web","level":"ERROR","reason":"Checkout unavailable","trace_id":"checkout-43","upstream_service":"api"}
+{"event_id":"broken", this is not JSON}
+{"event_id":"naive-001","timestamp":"2026-09-19T09:00:01","service":"database","level":"ERROR","reason":"Clock timezone missing"}
+{"event_id":"api-001","timestamp":"2026-09-19T09:00:02Z","service":"api","level":"ERROR","reason":"DNS lookup failed","trace_id":"checkout-42","upstream_service":"dns"}

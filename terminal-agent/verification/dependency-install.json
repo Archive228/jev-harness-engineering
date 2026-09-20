@@ -1,0 +1,191 @@
+{
+  "source": "https://pypi.org",
+  "download_method": "curl; verified size and SHA256 against official per-release JSON before local pip --no-index install",
+  "python": "3.9.6",
+  "pip_check": "No broken requirements found.",
+  "packages": [
+    {
+      "package": "textual",
+      "version": "0.89.1",
+      "sha256": "0a5d214df6e951b4a2c421e13d0b608482882471c1e34ea74a3631adede8054f",
+      "filename": "textual-0.89.1-py3-none-any.whl",
+      "size": 656019,
+      "requires_python": "<4.0.0,>=3.8.1",
+      "requires_dist": [
+        "markdown-it-py[linkify,plugins]>=2.1.0",
+        "rich>=13.3.3",
+        "typing-extensions<5.0.0,>=4.4.0",
+        "platformdirs<5,>=3.6.0",
+        "tree-sitter>=0.23.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-python>=0.23.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-markdown>=0.3.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-json>=0.24.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-toml>=0.6.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-yaml>=0.6.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-html>=0.23.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-css>=0.23.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-javascript>=0.23.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-rust>=0.23.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-go>=0.23.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-regex>=0.24.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-xml>=0.7.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-sql>=0.3.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-java>=0.23.0; python_version >= \"3.9\" and extra == \"syntax\"",
+        "tree-sitter-bash>=0.23.0; python_version >= \"3.9\" and extra == \"syntax\""
+      ]
+    },
+    {
+      "package": "rich",
+      "version": "13.9.4",
+      "sha256": "6049d5e6ec054bf2779ab3358186963bac2ea89175919d699e378b99738c2a90",
+      "filename": "rich-13.9.4-py3-none-any.whl",
+      "size": 242424,
+      "requires_python": ">=3.8.0",
+      "requires_dist": [
+        "typing-extensions<5.0,>=4.0.0; python_version < \"3.11\"",
+        "pygments<3.0.0,>=2.13.0",
+        "ipywidgets<9,>=7.5.1; extra == \"jupyter\"",
+        "markdown-it-py>=2.2.0"
+      ]
+    },
+    {
+      "package": "markdown-it-py",
+      "version": "3.0.0",
+      "sha256": "355216845c60bd96232cd8d8c40e8f9765cc86f46880e43a8fd22dc1a1a8cab1",
+      "filename": "markdown_it_py-3.0.0-py3-none-any.whl",
+      "size": 87528,
+      "requires_python": ">=3.8",
+      "requires_dist": [
+        "mdurl~=0.1",
+        "psutil ; extra == \"benchmarking\"",
+        "pytest ; extra == \"benchmarking\"",
+        "pytest-benchmark ; extra == \"benchmarking\"",
+        "pre-commit~=3.0 ; extra == \"code_style\"",
+        "commonmark~=0.9 ; extra == \"compare\"",
+        "markdown~=3.4 ; extra == \"compare\"",
+        "mistletoe~=1.0 ; extra == \"compare\"",
+        "mistune~=2.0 ; extra == \"compare\"",
+        "panflute~=2.3 ; extra == \"compare\"",
+        "linkify-it-py>=1,<3 ; extra == \"linkify\"",
+        "mdit-py-plugins ; extra == \"plugins\"",
+        "gprof2dot ; extra == \"profiling\"",
+        "mdit-py-plugins ; extra == \"rtd\"",
+        "myst-parser ; extra == \"rtd\"",
+        "pyyaml ; extra == \"rtd\"",
+        "sphinx ; extra == \"rtd\"",
+        "sphinx-copybutton ; extra == \"rtd\"",
+        "sphinx-design ; extra == \"rtd\"",
+        "sphinx_book_theme ; extra == \"rtd\"",
+        "jupyter_sphinx ; extra == \"rtd\"",
+        "coverage ; extra == \"testing\"",
+        "pytest ; extra == \"testing\"",
+        "pytest-cov ; extra == \"testing\"",
+        "pytest-regressions ; extra == \"testing\""
+      ]
+    },
+    {
+      "package": "typing-extensions",
+      "version": "4.15.0",
+      "sha256": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
+      "filename": "typing_extensions-4.15.0-py3-none-any.whl",
+      "size": 44614,
+      "requires_python": ">=3.9",
+      "requires_dist": null
+    },
+    {
+      "package": "platformdirs",
+      "version": "4.4.0",
+      "sha256": "abd01743f24e5287cd7a5db3752faf1a2d65353f38ec26d98e25a6db65958c85",
+      "filename": "platformdirs-4.4.0-py3-none-any.whl",
+      "size": 18654,
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "furo>=2024.8.6; extra == \"docs\"",
+        "proselint>=0.14; extra == \"docs\"",
+        "sphinx-autodoc-typehints>=3; extra == \"docs\"",
+        "sphinx>=8.1.3; extra == \"docs\"",
+        "appdirs==1.4.4; extra == \"test\"",
+        "covdefaults>=2.3; extra == \"test\"",
+        "pytest-cov>=6; extra == \"test\"",
+        "pytest-mock>=3.14; extra == \"test\"",
+        "pytest>=8.3.4; extra == \"test\"",
+        "mypy>=1.14.1; extra == \"type\""
+      ]
+    },
+    {
+      "package": "pygments",
+      "version": "2.19.2",
+      "sha256": "86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b",
+      "filename": "pygments-2.19.2-py3-none-any.whl",
+      "size": 1225217,
+      "requires_python": ">=3.8",
+      "requires_dist": [
+        "colorama>=0.4.6; extra == \"windows-terminal\""
+      ]
+    },
+    {
+      "package": "mdurl",
+      "version": "0.1.2",
+      "sha256": "84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8",
+      "filename": "mdurl-0.1.2-py3-none-any.whl",
+      "size": 9979,
+      "requires_python": ">=3.7",
+      "requires_dist": null
+    },
+    {
+      "package": "linkify-it-py",
+      "version": "2.0.3",
+      "sha256": "6bcbc417b0ac14323382aef5c5192c0075bf8a9d6b41820a2b66371eac6b6d79",
+      "filename": "linkify_it_py-2.0.3-py3-none-any.whl",
+      "size": 19820,
+      "requires_python": ">=3.7",
+      "requires_dist": [
+        "uc-micro-py",
+        "pytest ; extra == 'benchmark'",
+        "pytest-benchmark ; extra == 'benchmark'",
+        "pre-commit ; extra == 'dev'",
+        "isort ; extra == 'dev'",
+        "flake8 ; extra == 'dev'",
+        "black ; extra == 'dev'",
+        "pyproject-flake8 ; extra == 'dev'",
+        "sphinx ; extra == 'doc'",
+        "sphinx-book-theme ; extra == 'doc'",
+        "myst-parser ; extra == 'doc'",
+        "pytest ; extra == 'test'",
+        "coverage ; extra == 'test'",
+        "pytest-cov ; extra == 'test'"
+      ]
+    },
+    {
+      "package": "mdit-py-plugins",
+      "version": "0.4.2",
+      "sha256": "0c673c3f889399a33b95e88d2f0d111b4447bdfea7f237dab2d488f459835636",
+      "filename": "mdit_py_plugins-0.4.2-py3-none-any.whl",
+      "size": 55316,
+      "requires_python": ">=3.8",
+      "requires_dist": [
+        "markdown-it-py<4.0.0,>=1.0.0",
+        "pre-commit; extra == \"code-style\"",
+        "myst-parser; extra == \"rtd\"",
+        "sphinx-book-theme; extra == \"rtd\"",
+        "coverage; extra == \"testing\"",
+        "pytest; extra == \"testing\"",
+        "pytest-cov; extra == \"testing\"",
+        "pytest-regressions; extra == \"testing\""
+      ]
+    },
+    {
+      "package": "uc-micro-py",
+      "version": "1.0.3",
+      "sha256": "db1dffff340817673d7b466ec86114a9dc0e9d4d9b5ba229d9d60e5c12600cd5",
+      "filename": "uc_micro_py-1.0.3-py3-none-any.whl",
+      "size": 6229,
+      "requires_python": ">=3.7",
+      "requires_dist": [
+        "pytest ; extra == 'test'",
+        "coverage ; extra == 'test'",
+        "pytest-cov ; extra == 'test'"
+      ]
+    }
+  ]
+}

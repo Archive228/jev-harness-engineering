@@ -1,0 +1,9 @@
+{"event_id":"edge-001","timestamp":"2026-09-20T11:01:00+02:00","service":"edge","severity":"INFO","message":"Traffic started"}
+{"event_id":"db-002","timestamp":"2026-09-20T09:02:00Z","service":"database","severity":"error","message":"Connection pool exhausted"}
+{"event_id":"api-003","timestamp":"2026-09-20T04:03:00-05:00","service":"api","severity":"warning","message":"Request latency above SLO"}
+this line was truncated during log rotation
+{"event_id":"db-002","timestamp":"2026-09-20T09:02:00Z","service":"database","severity":"error","message":"Connection pool exhausted"}
+{"event_id":"db-004","timestamp":"2026-09-20T09:04:00.250Z","service":"database","severity":"FATAL","message":"Primary unavailable | reconnecting"}
+{"event_id":"api-005","timestamp":"2026-09-20T09:05:00Z","service":"api","severity":"ERR","message":"Health probe failed"}
+{"event_id":"edge-006","timestamp":"2026-09-20T09:06:00Z","service":"edge","severity":"info","message":"Traffic drained"}
+{"event_id":"bad-007","timestamp":"not-a-date","service":"api","severity":"INFO","message":"Invalid timestamp"}

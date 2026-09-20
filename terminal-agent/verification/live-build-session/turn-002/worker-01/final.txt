@@ -1,0 +1,10 @@
+Исправил Unicode в предупреждениях: одиночные суррогаты экранируются и больше не мешают записи отчётов. Добавил регрессионный тест и сократил README.
+
+Все **29 тестов прошли**. Пример CLI выполнен успешно: 7 ошибок, 4 группы, 2 гипотезы; JSON- и Markdown-отчёты сохранены.
+
+Команды для повторного запуска:
+
+```sh
+python3 -m unittest discover -v
+python3 incident_analyzer.py examples/related_failures.jsonl --json-report reports/incidents.json --markdown-report reports/incidents.md
+```
