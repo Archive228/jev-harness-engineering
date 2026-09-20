@@ -74,8 +74,8 @@ class EventArrived(Message):
 class JevApp(App):
     """Live terminal conversation with an independently testable session."""
 
-    TITLE = "Jev + Harness"
-    SUB_TITLE = "Реальные решения · реальные инструменты · сохранённые доказательства"
+    TITLE = "JEVIS"
+    SUB_TITLE = "терминальный агент · идея → план → работа"
     ENABLE_COMMAND_PALETTE = False
     BINDINGS = [
         Binding("ctrl+d", "submit_prompt", "Отправить", priority=True, show=False),
@@ -133,9 +133,10 @@ class JevApp(App):
     ToolCard.tool-done CollapsibleTitle { color: #a6ccad; }
     ToolCard Contents { padding: 1 2; }
     .tool-output { height: auto; }
-    #rail { display: none; width: 46; min-width: 30; margin-left: 1;
+    #rail { display: block; width: 38; min-width: 30; margin-left: 1;
         border-left: solid #3b2d46; background: #211a28; }
     #drawer-title { height: 2; padding: 0 1; color: #f2a0cc; }
+    #live-log-help { height: 2; padding: 0 1; color: #aaa0b2; background: #241d2c; }
     #details-tabs { height: 1fr; }
     #details-tabs TabPane { height: 1fr; padding: 0 1; }
     .detail-scroll { height: 1fr; scrollbar-size: 1 1; }
@@ -161,7 +162,7 @@ class JevApp(App):
     #prompt:focus { border: round #f2a0cc; }
     #composer-actions { height: 1; align-vertical: middle; }
     #prompt-meta { width: 1fr; height: 1; color: #aaa0b2; padding-left: 1; }
-    #expand-prompt, #mode-picker, #jev-picker { height: 1; width: auto; min-width: 5; border: none;
+    #guided-picker, #expand-prompt, #mode-picker, #jev-picker { height: 1; width: auto; min-width: 5; border: none;
         padding: 0 1; background: #2e2435; color: #c9bdd2; margin-right: 1; }
     #send-prompt, #stop-run { width: 18; min-width: 14; height: 1;
         background: #55344e; color: #eee8f1; border: none; }
@@ -183,7 +184,8 @@ class JevApp(App):
     Screen.short #navigation { padding: 0 1; }
     Screen.short #navigation Button { padding: 0 1; margin-right: 0; }
     Screen.short #prompt-meta { width: 1fr; }
-    Screen.short #mode-picker, Screen.short #jev-picker { display: none; }
+    Screen.short #guided-picker, Screen.short #mode-picker, Screen.short #jev-picker { display: none; }
+    Screen.narrow #rail { display: none; }
     Screen.narrow #result-summary { display: none; }
     """
 
@@ -241,20 +243,28 @@ class JevApp(App):
             yield Button("Задача", id="nav-brief")
             yield Button("Сессии", id="nav-sessions")
             yield Button("Файлы", id="nav-files")
-            yield Button("Jev", id="nav-jev")
+            yield Button("JEVIS", id="nav-jev")
             yield Button("Логи", id="nav-logs")
             yield Button("Меню", id="nav-menu")
         with Horizontal(id="body"):
             with Vertical(id="main"):
                 yield Static(id="phase-strip")
                 with VerticalScroll(id="chat"):
-                    yield Static(Text("Что хотите сделать?\n\nМожно начать с одной фразы.\n"
-                                      "Уточним детали → подготовим план → выполним.\n\n"
-                                      "Вы описываете идею. Агент помогает превратить её в задачу.", style=MUTED), id="welcome")
+                    yield Static(Text(
+                        "JEVIS — агент для работы из терминала\n\n"
+                        "1  Опишите идею обычными словами.\n"
+                        "2  JEVIS задаст короткие вопросы, если результата пока не видно.\n"
+                        "3  Проверьте цель, файлы и критерии в плане.\n"
+                        "4  Нажмите «Начать работу»: Codex изменит проект, а JEVIS покажет решения и проверки.\n\n"
+                        "По умолчанию включено обсуждение → план → выполнение.\n"
+                        "Если план уже написан, внизу выберите «Прямо к задаче».\n\n"
+                        "Enter  отправить   Ctrl+J  новая строка   ⌘⌫  удалить строку\n"
+                        "F3  логи   F5  вопросы и план   F6  решения JEVIS", style=MUTED), id="welcome")
                     yield Button("Вставить пример задачи", id="welcome-example")
             with Vertical(id="rail"):
-                yield Static("НАБЛЮДЕНИЕ  /  F6 закрыть", id="drawer-title")
-                with TabbedContent(id="details-tabs"):
+                yield Static("JEVIS · ЖИВЫЕ ЛОГИ", id="drawer-title")
+                yield Static("Этапы и команды появляются здесь сразу", id="live-log-help")
+                with TabbedContent(initial="events-tab", id="details-tabs"):
                     with TabPane("Jev", id="decision-tab"):
                         with VerticalScroll(classes="detail-scroll"):
                             yield Static(id="graph")
@@ -279,6 +289,7 @@ class JevApp(App):
             yield PromptEditor(id="prompt", soft_wrap=True, tab_behavior="focus")
             with Horizontal(id="composer-actions"):
                 yield Static(id="prompt-meta")
+                yield Button("Обсуждение ▾", id="guided-picker")
                 yield Button("Выполнение ▾", id="mode-picker")
                 yield Button("Jev ▾", id="jev-picker")
                 yield Button("↕", id="expand-prompt")
@@ -289,6 +300,7 @@ class JevApp(App):
     def on_mount(self) -> None:
         self._view = self.screen
         self._responsive(self.size.width, self.size.height)
+        self._details(not self._view.has_class("narrow"), "events-tab")
         self._clock = self.set_interval(0.25, self._refresh_status)
         self._restore_history()
         editor = self._view.query_one("#prompt", PromptEditor)
@@ -710,7 +722,7 @@ class JevApp(App):
         mode = "Запись" if self.is_replay else "Разбираю задачу" if self._preparing else "Работаю" if self._busy else "Готов к сообщению"
         execution_mode = getattr(self.session, "execution_mode", "auto")
         jev_mode = getattr(self.session, "jev_mode", "assist")
-        top = Text("JEV", style=f"bold {AMBER}")
+        top = Text("JEVIS", style=f"bold {AMBER}")
         top.append(" / HARNESS", style=f"bold {CREAM}")
         top.append("   ·   " + mode, style=MUTED)
         if self.guided:
@@ -735,6 +747,7 @@ class JevApp(App):
             self._view.query_one("#" + name, Button).disabled = active or self.is_replay
         self._view.query_one("#mode-picker", Button).label = "План ▾" if execution_mode == "plan" else "Выполнение ▾"
         self._view.query_one("#jev-picker", Button).label = {"assist": "Jev: помощь ▾", "observe": "Jev: наблюдение ▾", "off": "Jev: выкл ▾"}.get(jev_mode, "Jev ▾")
+        self._view.query_one("#guided-picker", Button).label = "Обсуждение ▾" if self.guided else "Прямо к задаче ▾"
         self._view.query_one("#result-actions").display = bool(self._last_answer) and not active and not self._expanded_input
         brief = status_label(self._outcome)
         if self._files:
@@ -796,7 +809,8 @@ class JevApp(App):
                    "nav-sessions": self.action_sessions, "nav-files": self.action_files,
                    "nav-jev": self.action_toggle_details, "nav-logs": self.action_toggle_events,
                    "nav-menu": self.action_palette, "welcome-example": self.action_example,
-                   "expand-prompt": self.action_expand_input, "mode-picker": self.action_mode_picker,
+                   "expand-prompt": self.action_expand_input, "guided-picker": self.action_guided_picker,
+                   "mode-picker": self.action_mode_picker,
                    "jev-picker": self.action_jev_picker, "result-answer": self.action_latest_answer,
                    "result-files": self.action_files, "result-copy": self.action_copy_answer,
                    "result-export": self.action_export, "nav-brief": self.action_open_brief,
@@ -1081,6 +1095,13 @@ class JevApp(App):
             {"title": "Только план", "description": "Изучить проект без изменения файлов", "value": "/mode plan"},
         ]), self._palette_selected)
 
+    def action_guided_picker(self) -> None:
+        """Choose the conversation gate independently from file permissions."""
+        self.push_screen(PickerScreen("Как начать задачу", [
+            {"title": "Обсуждение и план", "description": "Рекомендуется · вопросы, затем явное принятие плана", "value": "/guided"},
+            {"title": "Прямо к задаче", "description": "План уже написан · следующий запрос сразу исполнителю", "value": "/direct"},
+        ]), self._palette_selected)
+
     def action_jev_picker(self) -> None:
         self.push_screen(PickerScreen("Роль Jev", [
             {"title": "Помогает", "description": "Решения Jev влияют на работу", "value": "/jev assist"},
@@ -1102,20 +1123,25 @@ class JevApp(App):
 
     def _details(self, show: bool, tab: Optional[str] = None) -> None:
         self._show_details = show
-        self._view.query_one("#rail").display = show
-        self._view.set_class(show, "details-open")
+        narrow = self._view.has_class("narrow")
+        # Wide terminals keep a compact live-log rail mounted all the time.
+        # In a narrow terminal it becomes an on-demand drawer so the editor
+        # remains usable.
+        self._view.query_one("#rail").display = show if narrow else True
+        self._view.set_class(show and narrow, "details-open")
         if tab:
             self._view.query_one("#details-tabs", TabbedContent).active = tab
         self._show_events = show and self._view.query_one("#details-tabs", TabbedContent).active == "events-tab"
 
     def action_toggle_details(self) -> None:
         if self.screen is self._view:
-            self._details(not self._show_details)
+            self._details(not self._show_details if self._view.has_class("narrow") else True, "decision-tab")
 
     def action_toggle_events(self) -> None:
         if self.screen is self._view:
             active = self._view.query_one("#details-tabs", TabbedContent).active
-            self._details(not (self._show_details and active == "events-tab"), "events-tab")
+            show = not (self._show_details and active == "events-tab") if self._view.has_class("narrow") else True
+            self._details(show, "events-tab")
 
     def _focus_editor(self) -> None:
         if self._ui_active():
@@ -1223,7 +1249,11 @@ class JevApp(App):
             self._chat("ERROR", self.intake.state["last_error"], YELLOW, activity=False)
         if not self.session.events():
             await self._view.query_one("#chat", VerticalScroll).mount(
-                Static(Text("Новая задача\n\nНапишите запрос или начните с примера.", style=MUTED), id="welcome"),
+                Static(Text(
+                    "JEVIS — агент для работы из терминала\n\n"
+                    "Опишите идею → ответьте на вопросы → проверьте план → нажмите «Начать работу».\n"
+                    "По умолчанию включено обсуждение. Если план уже есть, внизу выберите «Прямо к задаче».\n"
+                    "Enter отправляет · Ctrl+J переносит строку · ⌘⌫ удаляет текущую строку.", style=MUTED), id="welcome"),
                 Button("Вставить пример задачи", id="welcome-example"))
         self._focus_editor()
         if self.intake and self.intake.state.get("status") in {"questions", "plan"}:
@@ -1260,5 +1290,5 @@ class JevApp(App):
         directory = Path(self.session.directory) / "screenshots"
         directory.mkdir(parents=True, exist_ok=True)
         filename = directory / ("terminal-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f") + ".svg")
-        filename.write_text(self.export_screenshot(title="Jev + Harness · " + str(self.session.id)), encoding="utf-8")
+        filename.write_text(self.export_screenshot(title="JEVIS · " + str(self.session.id)), encoding="utf-8")
         self.notify("Снимок терминала SVG сохранён", timeout=3)

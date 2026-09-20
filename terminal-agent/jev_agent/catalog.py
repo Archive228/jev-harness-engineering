@@ -252,7 +252,7 @@ def _fenced(text, language="text"):
 
 def export_session(session):
     """Export the conversation plus typed decisions and actual tools as Markdown."""
-    lines = ["# Jev + Harness — сессия " + str(session.id),
+    lines = ["# JEVIS — сессия " + str(session.id),
              "", "Рабочая папка: " + str(session.workspace),
              "", "## Разговор", ""]
     for entry in session.history:

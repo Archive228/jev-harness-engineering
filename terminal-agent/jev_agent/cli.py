@@ -29,7 +29,7 @@ def load_local_key():
 
 def main(argv=None):
     os.umask(0o077)
-    parser = argparse.ArgumentParser(description="Jev Terminal — настоящий чат, действия Codex и наблюдаемый harness")
+    parser = argparse.ArgumentParser(description="JEVIS — терминальный агент: идея, план, работа и наблюдаемые проверки")
     parser.add_argument("--project", type=Path, help="Рабочий проект: агент сможет изменять файлы здесь")
     parser.add_argument("--mission", choices=["loglab", "cryptolab"], help="Создать новую копию учебного проекта; запрос отправляете вы")
     parser.add_argument("--resume", metavar="SESSION", help="Продолжить сессию: last, ID или путь")

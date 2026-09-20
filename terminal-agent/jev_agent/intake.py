@@ -91,7 +91,18 @@ def validate_response(value):
     kind = value["kind"]
     if kind not in _ACTIVE_STATUSES:
         raise ValueError("Неизвестный вид ответа планировщика.")
-    result = {"kind": kind, "message": _text(value["message"], "message", 2000),
+    # A blank provider summary is not a user mistake. Keep the structured
+    # branch usable and give the UI a short explanation instead of surfacing an
+    # implementation-level validation error (the old screen showed this as
+    # «нужен текст без пустой строки»).
+    message = _text(value["message"], "message", 2000, required=False)
+    if not message:
+        message = {
+            "questions": "Уточним несколько деталей, чтобы составить точный план.",
+            "plan": "План готов к проверке перед запуском.",
+            "answer": "Ответ готов.",
+        }[kind]
+    result = {"kind": kind, "message": message,
               "questions": [], "plan": None,
               "answer": _text(value["answer"], "answer", 16000, required=False)}
     questions = value["questions"]

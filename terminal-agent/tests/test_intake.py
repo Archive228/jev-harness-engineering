@@ -94,6 +94,22 @@ class IntakeValidationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_response(response)
 
+    def test_blank_provider_summary_gets_safe_branch_specific_fallback(self):
+        for kind, expected in (("questions", "Уточним несколько деталей"),
+                               ("plan", "План готов"),
+                               ("answer", "Ответ готов")):
+            response = question_response() if kind == "questions" else plan_response() if kind == "plan" else answer_response()
+            response["kind"] = kind
+            response["message"] = " \n "
+            if kind == "questions":
+                response["plan"] = None
+            elif kind == "plan":
+                response["questions"] = []
+            else:
+                response["questions"] = []
+                response["plan"] = None
+            self.assertIn(expected, validate_response(response)["message"])
+
 
 class IntakeFlowTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):

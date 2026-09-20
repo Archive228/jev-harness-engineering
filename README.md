@@ -1,4 +1,4 @@
-# Jev + Harness Engineering
+# JEVIS + Harness Engineering
 
 [![Test harness](https://github.com/Archive228/jev-harness-engineering/actions/workflows/tests.yml/badge.svg)](https://github.com/Archive228/jev-harness-engineering/actions/workflows/tests.yml)
 

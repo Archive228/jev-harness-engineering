@@ -256,6 +256,27 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(len(screenshots), 1)
             self.assertIn("<svg", screenshots[0].read_text())
 
+    async def test_wide_terminal_keeps_compact_live_logs_visible(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            rail = app.query_one("#rail")
+            self.assertTrue(rail.display)
+            self.assertEqual(app.query_one("#details-tabs", TabbedContent).active, "events-tab")
+            self.assertIn("ЖИВЫЕ ЛОГИ", str(app.query_one("#drawer-title").renderable))
+            self.assertTrue(app.query_one("#event-log", RichLog).display)
+
+    async def test_command_delete_removes_current_line_and_keeps_other_lines(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            prompt = app.query_one("#prompt", TextArea)
+            prompt.load_text("первая строка\nудалить эту строку\nтретья строка")
+            prompt.move_cursor((1, 5))
+            await pilot.press("meta+delete")
+            await pilot.pause()
+            self.assertEqual(prompt.text, "первая строка\nтретья строка")
+            self.assertEqual(self.session.calls, [])
+
     async def test_80_by_24_keeps_prompt_on_screen(self):
         app = JevApp(self.session)
         async with app.run_test(size=(80, 24)) as pilot:

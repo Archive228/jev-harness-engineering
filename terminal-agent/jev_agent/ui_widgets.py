@@ -36,7 +36,11 @@ def plain(value: Any, limit: int = 14000) -> str:
 
 class PromptEditor(TextArea):
     BINDINGS = [Binding("enter", "submit", "Отправить", show=False, priority=True),
-                Binding("ctrl+j,shift+enter", "newline", "Новая строка", show=False, priority=True)]
+                Binding("ctrl+j,shift+enter", "newline", "Новая строка", show=False, priority=True),
+                # Textual exposes macOS Command as ``meta``. Keep Ctrl+U as a
+                # terminal-friendly fallback for clients that don't forward
+                # the Command modifier.
+                Binding("meta+delete,ctrl+u", "delete_line", "Удалить строку", show=False, priority=True)]
 
     class Submitted(Message):
         def __init__(self, editor: "PromptEditor") -> None:
@@ -268,7 +272,7 @@ class HelpScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         with VerticalScroll(id="help-box"):
-            yield Static(Text("JEV / HARNESS\n", style="bold " + AMBER))
+            yield Static(Text("JEVIS / HARNESS\n", style="bold " + AMBER))
             yield Static(Text(
                 "Пишите обычную задачу. Jev выбирает ограниченные решения; исполнитель "
                 "создаёт ответ и файлы; harness проверяет фактический результат.\n\n"

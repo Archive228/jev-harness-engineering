@@ -60,7 +60,7 @@ python3 -B verification/guided/independent/check_cli.py \
 
 ## Проверки самого агента
 
-**186 автоматических тестов прошли на Python 3.9.6.**
+**190 автоматических тестов прошли на Python 3.9.6.**
 [Вывод](./unit-tests.txt), [метаданные запуска](./unit-tests.json).
 Они проверяют реальные переходы Session + IntakeController + Textual; ответы
 моделей в тестах явно заменены тестовыми. Вызовы сервисов проверены отдельным
@@ -79,6 +79,8 @@ CLI-проверки сохранённого калькулятора. CI не 
 
 ## Скриншоты, источники и протоколы
 
+- [Стартовый экран JEVIS](../screenshots/jevis-start-screen.svg) с объяснением этапов,
+  постоянной правой панелью логов и нижним переключателем режима.
 - [Вопрос](../screenshots/guided-questions-browser.png) / [SVG](../screenshots/guided-questions.svg).
 - [Проверка выбранного ответа](../screenshots/guided-answers.svg).
 - [План после восстановления](../screenshots/guided-plan-browser.png) / [SVG](../screenshots/guided-plan.svg).

@@ -140,6 +140,18 @@ class ConvenientChatTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(prompt.text, CRYPTO_PROMPT)
             self.assertEqual(self.session.calls, [])
 
+    async def test_guided_picker_explains_default_and_direct_bypass(self):
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.click("#guided-picker")
+            await pilot.pause()
+            self.assertIsInstance(app.screen, PickerScreen)
+            text = "\n".join(str(item) for item in app.screen.choices)
+            self.assertIn("Обсуждение и план", text)
+            self.assertIn("Прямо к задаче", text)
+            await pilot.press("escape")
+            self.assertEqual(self.session.calls, [])
+
     async def test_new_chat_keeps_previous_draft_and_returns_to_blank_editor(self):
         first = Session.create(Path(self.temp.name) / "real-sessions")
         app = JevApp(first)
