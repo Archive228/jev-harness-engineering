@@ -20,6 +20,7 @@ from textual.widgets import Button, Footer, RichLog, Static, TabbedContent, TabP
 from .ui_widgets import (AMBER, CREAM, MUTED, GREEN, RED, ArtifactScreen,
                          ConversationCard, HelpScreen, PickerScreen, PromptEditor,
                          ToolCard, plain)
+from .activity import ActivityGroup
 
 YELLOW = AMBER
 
@@ -77,67 +78,96 @@ class JevApp(App):
     SUB_TITLE = "Реальные решения · реальные инструменты · сохранённые доказательства"
     ENABLE_COMMAND_PALETTE = False
     BINDINGS = [
-        Binding("ctrl+d", "submit_prompt", "Отправить", priority=True),
+        Binding("ctrl+d", "submit_prompt", "Отправить", priority=True, show=False),
         Binding("ctrl+enter", "submit_prompt", "Отправить", priority=True, show=False),
         Binding("f1,ctrl+p", "palette", "Команды", priority=True),
-        Binding("f6", "toggle_details", "Детали", priority=True),
-        Binding("f2", "example", "Пример", priority=True),
-        Binding("f3", "toggle_events", "Журнал", priority=True),
-        Binding("f4", "expand_input", "Развернуть ввод", priority=True),
-        Binding("ctrl+s", "save_view", "Снимок", priority=True),
-        Binding("ctrl+c", "stop_or_quit", "Стоп / выход", priority=True),
+        Binding("f6", "toggle_details", "Jev", priority=True, show=False),
+        Binding("f2", "example", "Пример", priority=True, show=False),
+        Binding("f3", "toggle_events", "Журнал", priority=True, show=False),
+        Binding("f4", "expand_input", "Развернуть ввод", priority=True, show=False),
+        Binding("ctrl+s", "save_view", "Снимок", priority=True, show=False),
+        Binding("ctrl+c", "stop_or_quit", "Стоп / выход", priority=True, show=False),
+        Binding("ctrl+o", "toggle_activity", "Ход работы", priority=True),
+        Binding("ctrl+n", "new_session", "Новый чат", priority=True, show=False),
+        Binding("ctrl+l", "focus_prompt", "К вводу", priority=True),
+        Binding("pageup", "chat_page(-1)", "Выше", priority=True, show=False),
+        Binding("pagedown", "chat_page(1)", "Ниже", priority=True, show=False),
+        Binding("ctrl+end", "latest_answer", "К ответу", priority=True, show=False),
+        Binding("escape", "back_to_chat", "К чату", show=False),
     ]
     CSS = """
-    Screen { background: #181b17; color: #e8e4da; }
-    #masthead { height: 3; padding: 0 3; background: #1f231d; border-bottom: solid #343b30; }
+    * { scrollbar-color: #684763; scrollbar-color-hover: #a76e98;
+        scrollbar-color-active: #f2a0cc; scrollbar-background: #211a28; }
+    Screen { background: #18151d; color: #eee8f1; }
+    #masthead { height: 3; padding: 0 3; background: #201a27; border-bottom: solid #3b2d46; }
+    #navigation { height: 3; padding: 0 2; background: #201a27; }
+    #navigation Button { min-width: 8; width: auto; height: 3; border: none; padding: 0 2;
+        margin-right: 1; background: #2e2435; color: #c9bdd2; }
+    #navigation Button:hover, #navigation Button:focus { background: #49324c; color: #f2a0cc; }
+    #navigation #nav-new { color: #f2a0cc; }
     #body { height: 1fr; padding: 0 2; }
     #main { width: 1fr; min-width: 24; }
-    #phase-strip { height: 1; margin: 1 1 0 1; color: #999b94; }
+    #phase-strip { height: 1; margin: 1 1 0 1; color: #aaa0b2; }
     #chat { height: 1fr; padding: 0 2 1 1; scrollbar-size: 1 1; }
-    #welcome { height: auto; padding: 2 1; color: #999b94; }
+    #welcome { height: auto; padding: 2 1; color: #aaa0b2; }
+    #welcome-example { margin: 0 1 1 1; width: auto; border: none; background: #49324c; color: #f2a0cc; }
     .conversation-card { height: auto; margin-top: 1; padding: 0 1; }
     .message-role { height: 1; margin-bottom: 1; }
     .message-body { height: auto; }
-    .conversation-card.user { background: #24291f; border-left: thick #d8ad73; padding: 1 2; }
-    .conversation-card.notice { border-left: solid #47503e; }
+    .conversation-card.user { background: #2a2031; border-left: thick #f2a0cc; padding: 1 2; }
+    .conversation-card.notice { border-left: solid #4f3b5c; }
     .conversation-card.notice .message-role { margin-bottom: 0; }
-    .conversation-card.jev { border-left: solid #d8ad73; }
+    .conversation-card.jev { border-left: solid #f2a0cc; }
     .conversation-card.jev .message-role { margin-bottom: 0; }
+    .conversation-card.answer { border-left: thick #f2a0cc; padding: 1 2; }
+    .activity-group { height: auto; margin: 1 0; border: none; padding: 0; background: #211a28; }
+    .activity-group > CollapsibleTitle { color: #c9a1c3; padding: 0 1; background: #2a2031; }
+    .activity-group > Contents { padding: 0 1 1 1; }
+    .activity-body { height: auto; }
     ToolCard { height: auto; margin-top: 1; padding: 0; border: none;
-        background: #20251d; color: #999b94; }
-    ToolCard CollapsibleTitle { width: 1fr; color: #b7bcae; padding: 0 1; background: #20251d; }
-    ToolCard CollapsibleTitle:focus { background: #343c2b; }
-    ToolCard.tool-failed CollapsibleTitle { color: #d99383; }
-    ToolCard.tool-done CollapsibleTitle { color: #a7b995; }
+        background: #221c29; color: #aaa0b2; }
+    ToolCard CollapsibleTitle { width: 1fr; color: #c9bdd2; padding: 0 1; background: #221c29; }
+    ToolCard CollapsibleTitle:focus { background: #49324c; }
+    ToolCard.tool-failed CollapsibleTitle { color: #ee9b9b; }
+    ToolCard.tool-done CollapsibleTitle { color: #a6ccad; }
     ToolCard Contents { padding: 1 2; }
     .tool-output { height: auto; }
     #rail { display: none; width: 46; min-width: 30; margin-left: 1;
-        border-left: solid #343b30; background: #1d211a; }
-    #drawer-title { height: 2; padding: 0 1; color: #d8ad73; }
+        border-left: solid #3b2d46; background: #211a28; }
+    #drawer-title { height: 2; padding: 0 1; color: #f2a0cc; }
     #details-tabs { height: 1fr; }
     #details-tabs TabPane { height: 1fr; padding: 0 1; }
     .detail-scroll { height: 1fr; scrollbar-size: 1 1; }
     #graph, #decisions, #evidence { height: auto; }
     #graph { margin: 1 0; }
     #event-log { height: 1fr; scrollbar-size: 1 1; padding: 0; }
-    Tabs { background: #1d211a; }
-    Tab { color: #999b94; }
-    Tab.-active { color: #d8ad73; }
-    Underline > .underline--bar { color: #d8ad73; background: #1d211a; }
-    #status { height: 1; padding: 0 3; color: #999b94; }
+    Tabs { background: #211a28; }
+    Tab { color: #aaa0b2; }
+    Tab.-active { color: #f2a0cc; }
+    Underline > .underline--bar { color: #f2a0cc; background: #211a28; }
+    #status { height: 1; padding: 0 3; color: #aaa0b2; }
+    #result-actions { display: none; height: 3; padding: 0 2; }
+    #result-actions Button { width: auto; min-width: 8; height: 3; padding: 0 1;
+        border: none; background: #2e2435; color: #f2a0cc; margin-right: 1; }
+    #result-actions #result-summary { width: 1fr; height: 2; padding: 1 1 0 0; color: #c9bdd2; }
     #composer { height: auto; margin: 0 2; }
-    #prompt { height: 5; border: round #555f49; background: #22271e;
+    #prompt { height: 5; border: round #654968; background: #241d2c;
         padding: 0 1; scrollbar-size: 1 1; }
-    #prompt:focus { border: round #d8ad73; }
+    #prompt:focus { border: round #f2a0cc; }
     #composer-actions { height: 3; align-vertical: middle; }
-    #prompt-meta { width: 1fr; height: 2; color: #999b94; padding-left: 1; }
-    #send-prompt { width: 23; min-width: 20; height: 3;
-        background: #303b26; color: #e8e4da; border: round #555f49; }
-    #send-prompt:hover { background: #404f31; }
+    #prompt-meta { width: 1fr; height: 2; color: #aaa0b2; padding-left: 1; }
+    #expand-prompt, #mode-picker, #jev-picker { height: 3; width: auto; min-width: 5; border: none;
+        padding: 0 1; background: #2e2435; color: #c9bdd2; margin-right: 1; }
+    #send-prompt, #stop-run { width: 18; min-width: 14; height: 3;
+        background: #55344e; color: #eee8f1; border: round #654968; }
+    #stop-run { display: none; color: #ee9b9b; }
+    #send-prompt:hover { background: #72445f; }
     Screen.input-expanded #body, Screen.input-expanded #status { display: none; }
     Screen.input-expanded #composer { height: 1fr; }
-    Footer { background: #1f231d; color: #999b94; }
-    Footer > .footer--key { background: #30382a; color: #d8ad73; }
+    Footer { background: #201a27; color: #aaa0b2; }
+    FooterKey { background: #201a27; }
+    FooterKey .footer-key--key { background: #32243b; color: #f2a0cc; }
+    FooterKey .footer-key--description { background: #201a27; color: #aaa0b2; }
     Screen.narrow #body { padding: 0 1; }
     Screen.narrow #rail { width: 1fr; margin-left: 0; border-left: none; }
     Screen.narrow.details-open #main { display: none; }
@@ -145,6 +175,11 @@ class JevApp(App):
     Screen.short #phase-strip { margin-top: 0; }
     Screen.short #composer { margin: 0 1; }
     Screen.short #welcome { padding: 1; }
+    Screen.short #navigation { padding: 0 1; }
+    Screen.short #navigation Button { padding: 0 1; margin-right: 0; }
+    Screen.short #prompt-meta { width: 1fr; }
+    Screen.short #mode-picker, Screen.short #jev-picker { display: none; }
+    Screen.narrow #result-summary { display: none; }
     """
 
     def __init__(self, session: Any, initial_prompt: Optional[str] = None,
@@ -176,6 +211,11 @@ class JevApp(App):
         self._draft_timer = None
         self._latest_draft = ""
         self._last_worker_text = ""
+        self._last_worker_card = None
+        self._last_answer = ""
+        self._answer_card = None
+        self._activity = None
+        self._activity_groups = []
         self._expanded_input = False
         self._seen_sequences = set()
         self._runner = None
@@ -184,13 +224,21 @@ class JevApp(App):
 
     def compose(self) -> ComposeResult:
         yield Static(id="masthead")
+        with Horizontal(id="navigation"):
+            yield Button("＋ Новый", id="nav-new")
+            yield Button("Сессии", id="nav-sessions")
+            yield Button("Файлы", id="nav-files")
+            yield Button("Jev", id="nav-jev")
+            yield Button("Логи", id="nav-logs")
+            yield Button("Меню", id="nav-menu")
         with Horizontal(id="body"):
             with Vertical(id="main"):
                 yield Static(id="phase-strip")
                 with VerticalScroll(id="chat"):
-                    yield Static(Text("Начните с задачи.\n\nСоздать инструмент, разобраться в проекте, проверить гипотезу.\n"
-                                      "Здесь появятся ответы, решения Jev и реальные действия.\n\n"
-                                      "F2 — пример запроса     F1 — все команды", style=MUTED), id="welcome")
+                    yield Static(Text("Что сделаем?\n\nОпишите задачу своими словами или вставьте большой запрос.\n"
+                                      "Jev выберет следующий шаг, агент выполнит работу.\n\n"
+                                      "Enter — отправить  ·  Ctrl+J — новая строка", style=MUTED), id="welcome")
+                    yield Button("Вставить пример задачи", id="welcome-example")
             with Vertical(id="rail"):
                 yield Static("НАБЛЮДЕНИЕ  /  F6 закрыть", id="drawer-title")
                 with TabbedContent(id="details-tabs"):
@@ -204,12 +252,22 @@ class JevApp(App):
                     with TabPane("События", id="events-tab"):
                         yield RichLog(id="event-log", markup=False, highlight=False,
                                       wrap=True, min_width=20, max_lines=4000)
+        with Horizontal(id="result-actions"):
+            yield Static(id="result-summary")
+            yield Button("↓ Ответ", id="result-answer")
+            yield Button("Файлы", id="result-files")
+            yield Button("Копировать", id="result-copy")
+            yield Button("Экспорт", id="result-export")
         yield Static(id="status")
         with Vertical(id="composer"):
             yield PromptEditor(id="prompt", soft_wrap=True, tab_behavior="focus")
             with Horizontal(id="composer-actions"):
                 yield Static(id="prompt-meta")
-                yield Button("Отправить · Ctrl+D", id="send-prompt")
+                yield Button("Выполнение ▾", id="mode-picker")
+                yield Button("Jev ▾", id="jev-picker")
+                yield Button("↕", id="expand-prompt")
+                yield Button("Отправить ↵", id="send-prompt")
+                yield Button("■ Стоп", id="stop-run")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -218,7 +276,7 @@ class JevApp(App):
         self._clock = self.set_interval(0.25, self._refresh_status)
         self._restore_history()
         editor = self._view.query_one("#prompt", PromptEditor)
-        editor.border_title = " Сообщение "
+        editor.border_title = " Ваше сообщение "
         editor.focus()
         if not self.is_replay:
             from .catalog import load_draft
@@ -231,12 +289,18 @@ class JevApp(App):
         for event in prior or []:
             self._receive(event)
         if self.is_replay:
-            self._chat("REPLAY", "Сохранённые события · инструменты и API не запускаются.", YELLOW)
+            self.notify("Просмотр сохранённых событий · без запуска инструментов", timeout=3)
         elif prior:
-            self._chat("SYSTEM", "История восстановлена. Новое сообщение продолжит эту сессию.", MUTED)
+            self.notify("История восстановлена. Можно продолжить разговор.", timeout=3)
         self._restoring = False
         self._refresh_all()
-        self.call_after_refresh(self._scroll_chat)
+        self.run_worker(self._settle_history(), group="restore-view", exclusive=True, exit_on_error=False)
+
+    async def _settle_history(self):
+        for group in tuple(self._activity_groups):
+            await group.settled.wait()
+        if self._ui_active():
+            self.call_after_refresh(self._scroll_chat)
 
     def _scroll_chat(self) -> None:
         if self._ui_active():
@@ -267,7 +331,7 @@ class JevApp(App):
         view.set_class(width < 100, "narrow")
         view.set_class(height < 32, "short")
 
-    def _chat(self, role: str, text: Any, color: str = CREAM) -> None:
+    def _chat(self, role: str, text: Any, color: str = CREAM, activity: Optional[bool] = None):
         if not self._ui_active():
             return
         original = role
@@ -280,12 +344,25 @@ class JevApp(App):
         card = ConversationCard(role, plain(text), color, markdown=original in ("WORKER", "ASSISTANT"), kind=kind)
         chat = self._view.query_one("#chat", VerticalScroll)
         follow = chat.is_vertical_scroll_end or original == "YOU"
-        chat.mount(card)
+        if activity is None:
+            activity = original in {"JEV", "CHECKS", "PLAN", "КОНТЕКСТ", "РАЗБОР ПРОВЕРКИ", "РЕЖИМ", "POLICY", "WORKER", "ASSISTANT"}
+        if activity:
+            self._ensure_activity().add(card)
+        else:
+            chat.mount(card)
         if not self._restoring and follow:
             self.call_after_refresh(self._scroll_chat)
+        return card
+
+    def _ensure_activity(self):
+        if self._activity is None:
+            self._activity = ActivityGroup()
+            self._activity_groups.append(self._activity)
+            self._view.query_one("#chat", VerticalScroll).mount(self._activity)
+        return self._activity
 
     def _hide_welcome(self) -> None:
-        for widget in self._view.query("#welcome"):
+        for widget in self._view.query("#welcome, #welcome-example"):
             widget.display = False
 
     def _tool(self, event: Dict[str, Any], data: Dict[str, Any]) -> None:
@@ -299,7 +376,10 @@ class JevApp(App):
         follow = chat.is_vertical_scroll_end
         if key not in self._tools:
             self._tools[key] = ToolCard(data)
-            chat.mount(self._tools[key])
+            group = self._ensure_activity()
+            group.add(self._tools[key])
+            group.tool_count += 1
+            group.update_summary()
         else:
             self._tools[key].update_event(data)
         if not self._restoring and follow:
@@ -335,6 +415,10 @@ class JevApp(App):
         self._view.query_one("#event-log", RichLog).write(log)
         if kind == "user":
             self._last_worker_text = ""
+            self._last_worker_card = None
+            self._last_answer = ""
+            self._answer_card = None
+            self._activity = None
             self._elapsed_ms = number(event.get("elapsed_ms"))
             self._meters = {}
             self._phases = {}
@@ -367,6 +451,8 @@ class JevApp(App):
             if data.get("applied") is False:
                 brief += "\nНаблюдение · решение не применяется"
             self._chat("JEV", brief, AMBER)
+            self._activity.jev_count += 1
+            self._activity.update_summary()
         elif kind == "tool":
             self._tool(event, data)
         elif kind == "context":
@@ -384,13 +470,18 @@ class JevApp(App):
         elif kind == "policy":
             self._chat("РЕЖИМ", data.get("summary") or data.get("message") or data, MUTED)
         elif kind == "message":
-            self._last_worker_text = str(data.get("text", ""))
-            self._chat(str(data.get("role", "worker")).upper(), data.get("text", ""), GREEN)
+            role = str(data.get("role", "worker")).upper()
+            card = self._chat(role, data.get("text", ""), CREAM)
+            if role in {"WORKER", "ASSISTANT"}:
+                self._last_worker_text = str(data.get("text", ""))
+                self._last_worker_card = card
         elif kind == "checks":
             self._checks = data
             self._chat("CHECKS", "{} / {} пройдено\n".format(data.get("passed", "?"), data.get("total", "?")) +
                        "\n".join(("✓ " if item.get("passed") else "× ") + str(item.get("title", item.get("id", "check")))
                                  for item in data.get("items", []) if isinstance(item, dict)), GREEN)
+            self._activity.checks = data
+            self._activity.update_summary()
         elif kind == "files":
             self._files = data.get("changed") or []
         elif kind == "meters":
@@ -407,12 +498,16 @@ class JevApp(App):
             self._detail = plain(reason_label(str(data.get("reason", ""))), 200)
             self._acceptance_scope = plain(data.get("acceptance_scope", ""), 2000)
             summary = data.get("summary")
-            if summary == self._last_worker_text:
-                summary = self._detail
-            self._chat(status_label(self._outcome).upper(), summary or self._detail or "Ход завершён.",
-                       GREEN if self._outcome in ("complete", "completed", "success", "accepted", "ready", "answered") else YELLOW)
+            if summary and summary == self._last_worker_text and self._last_worker_card and self._activity:
+                self._activity.discard(self._last_worker_card)
             if self._acceptance_scope:
-                self._chat("ГРАНИЦЫ ПРИЁМКИ", self._acceptance_scope, YELLOW)
+                self._chat("ГРАНИЦЫ ПРИЁМКИ", self._acceptance_scope, MUTED, activity=True)
+            if self._activity:
+                self._activity.update_summary(finished=True, status=self._outcome)
+            self._last_answer = str(summary or self._last_worker_text or self._detail or "Ход завершён.")
+            self._answer_card = self._chat("ASSISTANT", self._last_answer, AMBER, activity=False)
+            if self._answer_card:
+                self._answer_card.add_class("answer")
         elif kind == "error":
             self._outcome = "error"
             for card in self._tools.values():
@@ -505,7 +600,7 @@ class JevApp(App):
                         filled = round(p * width)
                         out.append(plain(option, 35) + "\n", style=CREAM)
                         out.append("█" * filled, style=AMBER)
-                        out.append("░" * (width - filled), style="#3d4535")
+                        out.append("░" * (width - filled), style="#49364f")
                         out.append(" {:5.1f}%\n".format(p * 100), style=MUTED)
             out.append("\nConfidence — поле ответа; полоски показывают распределение.", style=MUTED)
         self._view.query_one("#decisions", Static).update(out)
@@ -551,11 +646,14 @@ class JevApp(App):
         jev_mode = getattr(self.session, "jev_mode", "assist")
         top = Text("JEV", style=f"bold {AMBER}")
         top.append(" / HARNESS", style=f"bold {CREAM}")
-        top.append("   " + mode + "   ·   " + execution_mode + "   ·   jev " + jev_mode, style=MUTED)
+        top.append("   " + mode, style=MUTED)
         if not self._busy:
             top.append("   ·   " + status_label(self._outcome).lower(), style=GREEN)
         if self.size.height >= 32:
-            top.append("\n" + plain(str(self.session.workspace), 180), style=MUTED)
+            path = str(self.session.workspace)
+            if len(path) > self.size.width - 8:
+                path = "…/" + "/".join(Path(path).parts[-3:])
+            top.append("\n" + plain(path, 180), style=MUTED)
         self._view.query_one("#masthead", Static).update(top)
         status = Text("● " if self._busy else "○ ", style=AMBER if self._busy else MUTED)
         status.append("{:5.1f}s  ".format(elapsed), style=CREAM)
@@ -567,6 +665,18 @@ class JevApp(App):
         if self.size.width >= 110 and self._detail:
             status.append("  /  " + plain(self._detail, 70), style=MUTED)
         self._view.query_one("#status", Static).update(status)
+        active = self._busy or self.session.busy
+        self._view.query_one("#stop-run").display = active
+        self._view.query_one("#send-prompt").display = not active
+        for name in ("nav-new", "nav-sessions", "mode-picker", "jev-picker"):
+            self._view.query_one("#" + name, Button).disabled = active or self.is_replay
+        self._view.query_one("#mode-picker", Button).label = "План ▾" if execution_mode == "plan" else "Выполнение ▾"
+        self._view.query_one("#jev-picker", Button).label = {"assist": "Jev: помощь ▾", "observe": "Jev: наблюдение ▾", "off": "Jev: выкл ▾"}.get(jev_mode, "Jev ▾")
+        self._view.query_one("#result-actions").display = bool(self._last_answer) and not active and not self._expanded_input
+        brief = status_label(self._outcome)
+        if self._files:
+            brief += " · файлы: {}".format(len(self._files))
+        self._view.query_one("#result-summary", Static).update(Text(brief, style=GREEN))
 
     def on_text_area_changed(self, event: TextArea.Changed) -> None:
         if event.text_area.id == "prompt":
@@ -600,8 +710,7 @@ class JevApp(App):
             max(5, rows + 2), max(5, self.size.height // 2 - 3))
         lines = len(editor.text.split("\n")) if editor.text else 0
         self._view.query_one("#prompt-meta", Static).update(
-            "{} строк · {} / 20 000 символов\nEnter — новая строка · F4 — {}".format(
-                lines, len(editor.text), "свернуть" if self._expanded_input else "развернуть"))
+            "{} строк · {} символов\nCtrl+J — новая строка".format(lines, len(editor.text)))
 
     def action_expand_input(self) -> None:
         if not self._ui_active() or self.screen is not self._view:
@@ -612,9 +721,24 @@ class JevApp(App):
         self._view.query_one("#prompt", PromptEditor).focus()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "send-prompt":
+        actions = {"send-prompt": self.action_submit_prompt, "stop-run": self._stop,
+                   "nav-sessions": self.action_sessions, "nav-files": self.action_files,
+                   "nav-jev": self.action_toggle_details, "nav-logs": self.action_toggle_events,
+                   "nav-menu": self.action_palette, "welcome-example": self.action_example,
+                   "expand-prompt": self.action_expand_input, "mode-picker": self.action_mode_picker,
+                   "jev-picker": self.action_jev_picker, "result-answer": self.action_latest_answer,
+                   "result-files": self.action_files, "result-copy": self.action_copy_answer,
+                   "result-export": self.action_export}
+        if event.button.id in actions:
             event.stop()
-            self.action_submit_prompt()
+            actions[event.button.id]()
+        elif event.button.id == "nav-new":
+            event.stop()
+            self.run_worker(self.action_new_session(), exclusive=True, group="navigation")
+
+    def on_prompt_editor_submitted(self, event: PromptEditor.Submitted) -> None:
+        event.stop()
+        self.action_submit_prompt()
 
     def action_submit_prompt(self) -> None:
         if not self._ui_active() or self.screen is not self._view:
@@ -649,6 +773,8 @@ class JevApp(App):
                 self.action_toggle_events() if command == "/events" else self.action_toggle_details()
             elif command == "/sessions":
                 self.action_sessions()
+            elif command == "/new":
+                self.run_worker(self.action_new_session(), exclusive=True, group="navigation")
             elif command == "/files":
                 self.action_files()
             elif command == "/export":
@@ -664,6 +790,8 @@ class JevApp(App):
             elif command == "/clear":
                 self._view.query_one("#chat", VerticalScroll).remove_children()
                 self._tools = {}
+                self._activity, self._activity_groups = None, []
+                self._answer_card = None
                 self._view.query_one("#event-log", RichLog).clear()
                 self._chat("SYSTEM", "Экран очищен. События сохранены на диске.", MUTED)
             elif command == "/bottom":
@@ -742,6 +870,62 @@ class JevApp(App):
         prompt.move_cursor((0, 0))
         prompt.focus()
 
+    def action_focus_prompt(self) -> None:
+        if self.screen is self._view:
+            self._details(False)
+            self._focus_editor()
+
+    def action_back_to_chat(self) -> None:
+        if self.screen is self._view:
+            if self._expanded_input:
+                self.action_expand_input()
+            self.action_focus_prompt()
+
+    def action_chat_page(self, direction: int) -> None:
+        if self.screen is self._view:
+            chat = self._view.query_one("#chat", VerticalScroll)
+            chat.scroll_relative(y=direction * max(3, chat.size.height - 2), animate=False)
+
+    def action_toggle_activity(self) -> None:
+        if self.screen is self._view and self._activity:
+            self._activity.collapsed = not self._activity.collapsed
+            self._view.query_one("#chat", VerticalScroll).scroll_to_widget(self._activity, animate=False)
+
+    def action_latest_answer(self) -> None:
+        if self.screen is self._view:
+            self._details(False)
+            self._scroll_chat()
+
+    def action_copy_answer(self) -> None:
+        if self._last_answer:
+            self.copy_to_clipboard(self._last_answer)
+            self.notify("Ответ отправлен в буфер терминала. Если копирование недоступно — нажмите «Экспорт».", timeout=4)
+
+    def action_mode_picker(self) -> None:
+        self.push_screen(PickerScreen("Что разрешено агенту", [
+            {"title": "Выполнение", "description": "Читать, изменять файлы и запускать проверки", "value": "/mode auto"},
+            {"title": "Только план", "description": "Изучить проект без изменения файлов", "value": "/mode plan"},
+        ]), self._palette_selected)
+
+    def action_jev_picker(self) -> None:
+        self.push_screen(PickerScreen("Роль Jev", [
+            {"title": "Помогает", "description": "Решения Jev влияют на работу", "value": "/jev assist"},
+            {"title": "Наблюдает", "description": "Решения видны, но не применяются", "value": "/jev observe"},
+            {"title": "Выключен", "description": "Работать без вызовов TypeSafe", "value": "/jev off"},
+        ]), self._palette_selected)
+
+    async def action_new_session(self) -> None:
+        if self.screen is not self._view or self._busy or self.session.busy or self.is_replay:
+            return
+        from .core import Session
+        self._persist_draft()
+        try:
+            fresh = Session.create(Path(self.session.directory).parent)
+        except (OSError, ValueError) as exc:
+            self.notify(str(exc), severity="error")
+            return
+        await self._session_selected(str(fresh.directory))
+
     def _details(self, show: bool, tab: Optional[str] = None) -> None:
         self._show_details = show
         self._view.query_one("#rail").display = show
@@ -770,6 +954,7 @@ class JevApp(App):
         if self.screen is not self._view:
             return
         choices = [
+            {"title": "Новый чат", "description": "Ctrl+N · новая рабочая папка; текущая сессия сохраняется", "value": "/new"},
             {"title": "Детали Jev и граф", "description": "F6 · вероятности, проверки и файлы", "value": "/details"},
             {"title": "Журнал событий", "description": "F3 · точные сохранённые данные", "value": "/events"},
             {"title": "Продолжить сессию", "description": "/sessions · поиск по предыдущим задачам", "value": "/sessions"},
@@ -824,14 +1009,24 @@ class JevApp(App):
         self._persist_draft()
         try:
             replacement = Session.load(Path(directory))
+            restored_draft = load_draft(replacement)
         except (OSError, ValueError, KeyError) as exc:
             self._chat("ERROR", "Не удалось открыть сессию: " + str(exc), YELLOW)
             return
+        if self._draft_timer is not None:
+            self._draft_timer.stop()
+            self._draft_timer = None
         self.session = replacement
+        # Keep the editor and its owner consistent before any yielding UI work;
+        # a pending autosave must never write session A's draft into session B.
+        self._latest_draft = restored_draft
+        self._view.query_one("#prompt", PromptEditor).load_text(restored_draft)
         self._seen_sequences.clear()
         self._event_count = 0
         self._event_types = []
         self._tools = {}
+        self._activity, self._activity_groups = None, []
+        self._last_answer, self._last_worker_card, self._answer_card = "", None, None
         self._phases, self._latest_jev, self._checks, self._meters = {}, {}, {}, {}
         self._source_context = {}
         self._steps, self._files = [], []
@@ -841,7 +1036,10 @@ class JevApp(App):
         await self._view.query_one("#chat", VerticalScroll).remove_children()
         self._view.query_one("#event-log", RichLog).clear()
         self._restore_history()
-        self._view.query_one("#prompt", PromptEditor).load_text(load_draft(self.session))
+        if not self.session.events():
+            await self._view.query_one("#chat", VerticalScroll).mount(
+                Static(Text("Новая задача\n\nНапишите запрос или начните с примера.", style=MUTED), id="welcome"),
+                Button("Вставить пример задачи", id="welcome-example"))
         self._focus_editor()
 
     def action_files(self) -> None:
@@ -869,12 +1067,11 @@ class JevApp(App):
         except (OSError, ValueError) as exc:
             self._chat("ERROR", str(exc), YELLOW)
             return
-        self._chat("ЭКСПОРТ", str(path), GREEN)
+        self.notify("Экспорт: " + str(path), timeout=8)
 
     def action_save_view(self) -> None:
         directory = Path(self.session.directory) / "screenshots"
         directory.mkdir(parents=True, exist_ok=True)
         filename = directory / ("terminal-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f") + ".svg")
         filename.write_text(self.export_screenshot(title="Jev + Harness · " + str(self.session.id)), encoding="utf-8")
-        self._chat("SCREENSHOT SAVED", str(filename), GREEN)
         self.notify("Снимок терминала SVG сохранён", timeout=3)

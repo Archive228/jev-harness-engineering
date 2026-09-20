@@ -1,0 +1,23 @@
+{
+  "capture": "Actual Textual app running in an interactive PTY; SVG exported with Ctrl+S, PNG captured from SVG in browser.",
+  "terminal_columns": 126,
+  "terminal_rows": 48,
+  "source_events": "verification/v2/crypto-live-session/events.jsonl",
+  "source_events_sha256": "3b687e386a39ce4b5dedf9d4b66adadbe399eaf1e5c98aa37da3a19cf886ada0",
+  "source_events_unchanged": true,
+  "source_events_count": 134,
+  "new_session_events": 0,
+  "input_characters": 517,
+  "input_lines": 13,
+  "model_api_calls_during_ui_capture": 0,
+  "screenshots": {
+    "terminal-pink-activity-browser.png": "6f1d30915cef76c7cf2e72be357558aa2ee43a059e3385a24329b37ed7e5272d",
+    "terminal-pink-activity.svg": "3f3a9ad97ec492121407d014869b35e0a6963481e681ce4a44488edc65eecc6f",
+    "terminal-pink-input-browser.png": "614a99cd96b82884e3c48a540f187aeb4cb0452e004a6095b967a25475336717",
+    "terminal-pink-input.svg": "1f5f8dd361f9a97f35ba09cde771657f4e5b51ef478192c3167dcdbea18bde42",
+    "terminal-pink-jev-browser.png": "18f6c9c005246b4c34b032fa64924cb8cced05fc4aa60711bf74d717b029f892",
+    "terminal-pink-jev.svg": "aa2d97a3720c6d740f3f935400c10032e27b8ce968349ab24182d48fb3a83f62",
+    "terminal-pink-result-browser.png": "5a0277246c2bc4ef3d40e1d0357eb563fa44826b41351a77af8bbb28590e11d6",
+    "terminal-pink-result.svg": "ffd756f8edd9a44b12956bfac2d3f6df672b91328537e8fcd71ab3c9e37a76e5"
+  }
+}

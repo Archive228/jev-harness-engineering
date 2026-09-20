@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import json
+import re
+import shlex
+from pathlib import PurePosixPath
 from typing import Any, Dict, List
 
 from rich.markdown import Markdown
@@ -12,14 +15,16 @@ from textual import events
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Vertical, VerticalScroll
+from textual.message import Message
 from textual.screen import ModalScreen
 from textual.widgets import Collapsible, Input, OptionList, Static, TabbedContent, TabPane, TextArea
 
-AMBER = "#d8ad73"
-CREAM = "#e8e4da"
-MUTED = "#999b94"
-GREEN = "#a7b995"
-RED = "#d99383"
+PINK = "#f2a0cc"
+AMBER = PINK  # Compatibility for the application chrome and older imports.
+CREAM = "#ede7f0"
+MUTED = "#aaa0b2"
+GREEN = "#aad7b2"
+RED = "#ffaaa7"
 
 
 def plain(value: Any, limit: int = 14000) -> str:
@@ -30,9 +35,62 @@ def plain(value: Any, limit: int = 14000) -> str:
 
 
 class PromptEditor(TextArea):
+    BINDINGS = [Binding("enter", "submit", "Отправить", show=False, priority=True),
+                Binding("ctrl+j,shift+enter", "newline", "Новая строка", show=False, priority=True)]
+
+    class Submitted(Message):
+        def __init__(self, editor: "PromptEditor") -> None:
+            super().__init__()
+            self.editor = editor
+            self.text = editor.text
+
+        @property
+        def control(self) -> "PromptEditor":
+            return self.editor
+
+    def action_submit(self) -> None:
+        if not self.read_only:
+            self.post_message(self.Submitted(self))
+
+    def action_newline(self) -> None:
+        if not self.read_only:
+            self.replace("\n", *self.selection, maintain_selection_offset=False)
+
     def on_paste(self, event: events.Paste) -> None:
         # The base TextArea inserts the text. Prevent App forwarding it twice.
         event.stop()
+
+
+def command_summary(command: str) -> str:
+    """Shorten display-only shell wrappers without interpreting any shell code."""
+    value = command
+    for _ in range(2):
+        try:
+            parts = shlex.split(value)
+        except ValueError:
+            break
+        if (len(parts) == 3 and PurePosixPath(parts[0]).name in ("sh", "bash", "zsh", "dash", "fish")
+                and parts[1] in ("-c", "-lc", "-ic", "-lic")):
+            value = parts[2]
+        else:
+            break
+    # Only the leading executable is replaced; operators and quoting stay intact.
+    match = re.match(r"^\s*('[^']*'|\"[^\"]*\"|\S+)", value)
+    if match:
+        try:
+            executable = shlex.split(match.group(1))[0]
+        except (ValueError, IndexError):
+            executable = ""
+        if executable.startswith("/") and re.fullmatch(r"python(?:\d+(?:\.\d+)*)?", PurePosixPath(executable).name):
+            value = "python" + value[match.end():]
+    return " ".join(plain(value, 500).split())
+
+
+class _ToolPreview(Static):
+    def on_click(self, event: events.Click) -> None:
+        if isinstance(self.parent, ToolCard):
+            self.parent.collapsed = not self.parent.collapsed
+            event.stop()
 
 
 class ConversationCard(Vertical):
@@ -45,18 +103,29 @@ class ConversationCard(Vertical):
 
     def compose(self) -> ComposeResult:
         yield Static(Text(self.role, style="bold " + self.color), classes="message-role")
-        body = Markdown(self.content, code_theme="monokai", hyperlinks=False) if self.markdown else Text(self.content, style=CREAM)
+        body = Markdown(self.content, code_theme="dracula", hyperlinks=False) if self.markdown else Text(self.content, style=CREAM)
         yield Static(body, classes="message-body")
 
 
 class ToolCard(Collapsible):
     """One card per actual call, updated in place as its lifecycle arrives."""
+    DEFAULT_CSS = """
+    ToolCard > .tool-preview { display: none; height: 1; color: #aaa0b2; padding: 0 1; }
+    ToolCard.-collapsed > .tool-preview { display: block; }
+    ToolCard > .tool-preview:hover { color: #f2a0cc; }
+    """
+
     def __init__(self, data: Dict[str, Any]) -> None:
         self.data = dict(data)
         self.output_view = Static(Text(""), classes="tool-output")
+        self.preview_view = _ToolPreview(Text(""), classes="tool-preview")
         super().__init__(self.output_view, title="", collapsed=True,
                          collapsed_symbol="▸", expanded_symbol="▾", classes="tool-card")
         self.update_event(data)
+
+    def compose(self) -> ComposeResult:
+        yield from super().compose()
+        yield self.preview_view
 
     def update_event(self, data: Dict[str, Any]) -> None:
         self.data.update(data)
@@ -68,24 +137,47 @@ class ToolCard(Collapsible):
         done = lifecycle == "completed" or state in ("done", "completed", "complete", "finished", "success", "passed") or code is not None
         self.is_terminal = bool(done or failed or unknown)
         symbol = "?" if unknown else "×" if failed else "✓" if done else "●"
-        command = plain(self.data.get("command") or self.data.get("kind") or "tool", 500)
-        command_first = " ".join(command.split())
-        title = "{}  {}".format(symbol, command_first[:105] + ("…" if len(command_first) > 105 else ""))
+        command = plain(self.data.get("command") or "", 18000)
+        kind = str(self.data.get("kind") or "tool")
+        label = {"command_execution": "Терминал", "shell": "Терминал", "acceptance": "Проверка",
+                 "file_change": "Файлы", "mcp_tool_call": "Инструмент", "web_search": "Поиск",
+                 "provider_error": "Ошибка провайдера", "read": "Чтение"}.get(kind, kind)
+        files = self.data.get("files")
+        if kind == "file_change" and isinstance(files, list):
+            count = len(files)
+            noun = "файл" if count % 10 == 1 and count % 100 != 11 else "файла" if count % 10 in (2, 3, 4) and count % 100 not in (12, 13, 14) else "файлов"
+            summary = "{} {}".format(count, noun)
+            if len(files) == 1 and isinstance(files[0], dict):
+                summary = plain(files[0].get("path") or "1 файл", 500)
+        else:
+            summary = command_summary(command)
+        title = symbol
         if code is not None:
-            title += "  ·  exit {}".format(code)
+            title += " exit {}".format(code)
         elif state in ("cancelled", "stopped"):
-            title += "  ·  остановлено"
+            title += " остановлено"
         elif unknown:
-            title += "  ·  статус неизвестен"
+            title += " статус неизвестен"
+        title += "  ·  " + label
+        if summary:
+            title += "  ·  " + summary[:76] + ("…" if len(summary) > 76 else "")
         self.title = escape(title)
         self.set_class(failed, "tool-failed")
         self.set_class(done and not failed and not unknown, "tool-done")
-        output = Text(command + "\n", style="bold " + CREAM)
+        output = Text(("Команда\n" + command if command else "Тип события: " + kind) + "\n", style="bold " + CREAM)
+        if isinstance(files, list) and files:
+            output.append("\n" + plain(files, 14000) + "\n", style=MUTED)
         if self.data.get("output"):
-            output.append("\n" + plain(self.data["output"], 18000), style=MUTED)
+            raw_output = str(self.data["output"])
+            output.append("\n" + plain(raw_output, 18000), style=MUTED)
+            lines = raw_output.splitlines()
+            first_line = next((line for line in lines if line.strip()), "")
+            preview = "{} стр. · {}".format(len(lines), " ".join(plain(first_line, 300).split()))
         else:
             note = "В этой записи нет сопоставленного события завершения." if unknown else "Команда завершилась без текстового вывода." if done else "Выполнение остановлено." if failed else "Ожидаю фактический вывод процесса…"
             output.append("\n" + note, style=MUTED)
+            preview = "Без текстового вывода · нажмите, чтобы раскрыть" if done and not unknown and not failed else "Нажмите, чтобы раскрыть подробности" if failed or unknown else "Выполняется · нажмите, чтобы раскрыть"
+        self.preview_view.update(Text(preview[:130] + ("…" if len(preview) > 130 else ""), style=MUTED))
         self.output_view.update(output)
 
 
@@ -95,14 +187,17 @@ class PickerScreen(ModalScreen):
                 Binding("down", "next", "Вниз", show=False, priority=True),
                 Binding("up", "previous", "Вверх", show=False, priority=True)]
     DEFAULT_CSS = """
-    PickerScreen { align: center middle; background: #101210 85%; }
+    PickerScreen { align: center middle; background: #18151d 90%; }
     #picker-box { width: 86; max-width: 94%; height: 80%; max-height: 34;
-        padding: 1 2; background: #222520; border: round #555b50; }
-    #picker-heading { height: 2; color: #d8ad73; text-style: bold; }
-    #picker-search { border: none; background: #2b2e28; margin-bottom: 1; height: 3; }
-    #picker-options { height: 1fr; border: none; background: #222520; padding: 0; }
-    #picker-options > .option-list--option-highlighted { background: #393f32; color: #e8e4da; }
-    #picker-hint { height: 1; margin-top: 1; color: #999b94; }
+        padding: 1 2; background: #221c29; border: round #86536f; }
+    #picker-heading { height: 1; color: #f2a0cc; text-style: bold; }
+    #picker-description { height: 2; color: #aaa0b2; }
+    #picker-search { border: round #6d455f; background: #2c2434; margin-bottom: 1; height: 3; }
+    #picker-search:focus { border: round #f2a0cc; }
+    #picker-options { height: 1fr; border: none; background: #221c29; padding: 0; }
+    #picker-options > .option-list--option { padding: 0 1; margin-bottom: 1; }
+    #picker-options > .option-list--option-highlighted { background: #4a2d43; color: #ede7f0; }
+    #picker-hint { height: 1; margin-top: 1; color: #aaa0b2; }
     """
 
     def __init__(self, title: str, choices: List[Dict[str, Any]], placeholder: str = "Поиск…") -> None:
@@ -113,6 +208,7 @@ class PickerScreen(ModalScreen):
     def compose(self) -> ComposeResult:
         with Vertical(id="picker-box"):
             yield Static(Text(self.heading), id="picker-heading")
+            yield Static(Text("Начните вводить название или выберите строку ниже."), id="picker-description")
             yield Input(placeholder=self.placeholder, id="picker-search")
             yield OptionList(id="picker-options")
             yield Static("↑ ↓ выбрать   Enter открыть   Escape закрыть", id="picker-hint")
@@ -129,13 +225,14 @@ class PickerScreen(ModalScreen):
         options = self.query_one(OptionList)
         options.clear_options()
         for item in self.filtered:
-            label = Text(plain(item["title"], 300), style=CREAM)
+            label = Text(plain(item["title"], 300), style="bold " + CREAM)
             if item.get("description"):
                 label.append("\n" + plain(item["description"], 250), style=MUTED)
             options.add_option(label)
         options.highlighted = 0 if self.filtered else None
         self.query_one("#picker-hint", Static).update(
-            "↑ ↓ выбрать   Enter открыть   Escape закрыть" if self.filtered else "Ничего не найдено · Escape закрыть")
+            "{} из {} · ↑ ↓ выбрать   Enter открыть   Esc закрыть".format(len(self.filtered), len(self.choices))
+            if self.filtered else "Ничего не найдено · измените запрос или Esc закрыть")
 
     def on_input_changed(self, event: Input.Changed) -> None:
         self._filter(event.value)
@@ -164,9 +261,9 @@ class PickerScreen(ModalScreen):
 class HelpScreen(ModalScreen):
     BINDINGS = [Binding("escape,f1", "dismiss", "Закрыть", show=False)]
     DEFAULT_CSS = """
-    HelpScreen { align: center middle; background: #101210 85%; }
+    HelpScreen { align: center middle; background: #18151d 90%; }
     #help-box { width: 80; max-width: 94%; height: auto; max-height: 90%;
-        padding: 1 3; background: #222520; border: round #555b50; }
+        padding: 1 3; background: #221c29; border: round #86536f; }
     """
 
     def compose(self) -> ComposeResult:
@@ -175,8 +272,9 @@ class HelpScreen(ModalScreen):
             yield Static(Text(
                 "Пишите обычную задачу. Jev выбирает ограниченные решения; исполнитель "
                 "создаёт ответ и файлы; harness проверяет фактический результат.\n\n"
-                "Enter       новая строка, вставка сохраняет все абзацы\n"
-                "Ctrl+D      отправить весь текст\n"
+                "Enter       отправить весь текст\n"
+                "Ctrl+J      новая строка; Shift+Enter — если поддерживает терминал\n"
+                "Ctrl+D      также отправить весь текст\n"
                 "F1 / Ctrl+P поиск команд\n"
                 "F2          вставить пример без запуска\n"
                 "F3          точный журнал событий\n"
@@ -184,6 +282,8 @@ class HelpScreen(ModalScreen):
                 "F6          решения Jev, граф, проверки и файлы\n"
                 "Ctrl+S      сохранить реальный экран в SVG\n"
                 "Ctrl+C      остановить работу; в ожидании — выйти\n\n"
+                "Вставка сохраняет все абзацы и ничего не отправляет.\n"
+                "Сессии, файлы и детали Jev доступны кнопками в чате.\n\n"
                 "/sessions   продолжить сохранённую сессию\n"
                 "/files      открыть созданные файлы и diff\n"
                 "/export     сохранить разговор в Markdown\n"
@@ -202,12 +302,15 @@ class HelpScreen(ModalScreen):
 class ArtifactScreen(ModalScreen):
     BINDINGS = [Binding("escape", "dismiss", "Закрыть", show=False)]
     DEFAULT_CSS = """
-    ArtifactScreen { align: center middle; background: #101210 90%; }
+    ArtifactScreen { align: center middle; background: #18151d 90%; }
     #artifact-box { width: 94%; height: 90%; padding: 1 2;
-        background: #1d201c; border: round #555b50; }
-    #artifact-title { height: 2; color: #d8ad73; }
-    #artifact-notice { height: auto; max-height: 4; color: #999b94; }
+        background: #221c29; border: round #86536f; }
+    #artifact-title { height: 2; color: #f2a0cc; }
+    #artifact-notice { height: auto; max-height: 4; color: #aaa0b2; }
     #artifact-tabs { height: 1fr; }
+    #artifact-tabs Tab { color: #aaa0b2; }
+    #artifact-tabs Tab.-active { color: #f2a0cc; text-style: bold; }
+    #artifact-tabs Underline > .underline--bar { color: #f2a0cc; background: #4a2d43; }
     #artifact-tabs TabPane { height: 1fr; padding: 1 0; }
     .artifact-scroll { height: 1fr; }
     .artifact-source { height: auto; }
@@ -226,10 +329,10 @@ class ArtifactScreen(ModalScreen):
                 with TabPane("Файл", id="artifact-source-tab"):
                     with VerticalScroll(classes="artifact-scroll"):
                         text = plain(data.get("text", ""), 65536)
-                        yield Static(Syntax(text, data.get("language") or "text", theme="monokai",
-                                            background_color="#1d201c", word_wrap=True, line_numbers=True), classes="artifact-source")
+                        yield Static(Syntax(text, data.get("language") or "text", theme="dracula",
+                                            background_color="#221c29", word_wrap=True, line_numbers=True), classes="artifact-source")
                 with TabPane("Diff", id="artifact-diff-tab"):
                     with VerticalScroll(classes="artifact-scroll"):
                         diff = data.get("diff") or "Для этой записи diff не сохранён."
-                        yield Static(Syntax(plain(diff, 65536), "diff", theme="monokai",
-                                            background_color="#1d201c", word_wrap=True), classes="artifact-source")
+                        yield Static(Syntax(plain(diff, 65536), "diff", theme="dracula",
+                                            background_color="#221c29", word_wrap=True), classes="artifact-source")

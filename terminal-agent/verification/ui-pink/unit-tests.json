@@ -1,0 +1,7 @@
+{
+  "command": "python -B -m unittest discover -s tests -v",
+  "exit_code": 0,
+  "elapsed_seconds": 31.724,
+  "python": "3.9.6 (default, Mar  6 2026, 16:22:43) \n[Clang 21.0.0 (clang-2100.0.123.102)]",
+  "model_api_calls": 0
+}

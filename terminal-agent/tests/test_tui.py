@@ -163,13 +163,13 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
                 [CRYPTO_PROMPT],
             )
 
-    async def test_enter_inserts_newline_without_submitting(self):
+    async def test_ctrl_j_inserts_newline_without_submitting(self):
         app = JevApp(self.session)
         async with app.run_test(size=(120, 40)) as pilot:
             prompt = app.query_one("#prompt", TextArea)
             app.post_message(events.Paste("Первая строка"))
             await pilot.pause()
-            await pilot.press("enter")
+            await pilot.press("ctrl+j")
             app.post_message(events.Paste("Вторая строка"))
             await pilot.pause()
             self.assertEqual(prompt.text, "Первая строка\nВторая строка")
