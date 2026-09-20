@@ -1,0 +1,24 @@
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "category": {
+      "type": "choice",
+      "choice": "account",
+      "confidence": 1.0,
+      "probabilities": {
+        "account": 1.0,
+        "other": 0.0,
+        "export": 0.0,
+        "payment": 0.0
+      }
+    },
+    "has_workaround": {
+      "type": "noul",
+      "noul": 0.03
+    }
+  },
+  "usage": {
+    "input_tokens": 489,
+    "output_tokens": 66
+  }
+}

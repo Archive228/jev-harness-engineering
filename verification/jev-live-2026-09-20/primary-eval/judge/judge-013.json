@@ -1,0 +1,48 @@
+{
+  "mode": "live",
+  "synthetic": false,
+  "request": {
+    "state": {
+      "failure": "Поиск по слову, которое есть только в описании, возвращает пустой список.",
+      "observations": [
+        "Снимок исходящего запроса подтверждает наличие полей title и description.",
+        "Результат прямого обращения к backend в текущем состоянии неизвестен."
+      ],
+      "already_run": [
+        "D2"
+      ]
+    },
+    "model": "jev-1.13.0",
+    "questions": {
+      "next_check": {
+        "type": "choice",
+        "instructions": "Select the next diagnostic that adds missing evidence about the observed failure on the CURRENT source snapshot. Do not repeat a diagnostic already completed with fresh evidence. Stale results do not count as fresh evidence. Select none_suitable when both diagnostics are already covered, neither can run, or neither addresses the failure.",
+        "criteria": {
+          "D1": "Bypass the UI request builder and call the backend with both title and description fields. This reveals backend filtering behavior. It requires importing app.py.",
+          "D2": "Inspect the outgoing search request built by the UI to reveal whether its fields parameter includes description. It requires importing app.py.",
+          "none_suitable": "Neither available diagnostic adds relevant, executable, fresh evidence for this failure."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "next_check": {
+        "type": "choice",
+        "choice": "D1",
+        "confidence": 0.85,
+        "probabilities": {
+          "D2": 0.04,
+          "none_suitable": 0.06,
+          "D1": 0.9
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 45
+    }
+  },
+  "elapsed_ms": 946.3
+}

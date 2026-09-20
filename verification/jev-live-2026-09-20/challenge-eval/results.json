@@ -1,0 +1,767 @@
+{
+  "protocol": "jev-live-eval-v1",
+  "mode": "live",
+  "status": "completed",
+  "started_at": "2026-09-20T10:11:05.186393+00:00",
+  "requested_model": "jev-1.13.0",
+  "endpoint": "https://api.typesafe.ai/v1/systemone",
+  "dataset_version": "authored-challenge-v1",
+  "dataset_sha256": "57179107cd4df9a3511d290583f16b5cc60dc8c9cba7a653863bf32ccd1a3ecf",
+  "runner_sha256": "9de5f06dd67dafdbc6ff7166c7445287850688721853d374561fcb72ab82e6a7",
+  "client_sha256": "720b72eeb8ab890c3b1712d058b788c8a71da1b9d2bf1761f302fe0079c1394f",
+  "python_version": "3.9.6",
+  "questions_sha256": "ad42292735262af68ccc4ff9d386fb709f7b83cffddcd3e3d9208b519db59d6a",
+  "thresholds": {
+    "choice_confidence_min": 0.6,
+    "noul_no_max": 0.2,
+    "noul_yes_min": 0.8
+  },
+  "timeout_seconds": 20,
+  "max_requests": 18,
+  "automatic_retries": 0,
+  "remote_requests": 18,
+  "valid_responses": 18,
+  "request_errors": 0,
+  "usage": {
+    "input_tokens": 10824,
+    "output_tokens": 1026
+  },
+  "total_request_ms": 17261.21,
+  "usage_complete": true,
+  "usage_reported_requests": 18,
+  "usage_unreported_requests": 0,
+  "baseline": {
+    "category": {
+      "correct": 4,
+      "total": 10,
+      "accuracy": 0.4
+    },
+    "has_workaround": {
+      "correct": 5,
+      "total": 10,
+      "accuracy": 0.5
+    },
+    "next_check": {
+      "correct": 3,
+      "total": 8,
+      "accuracy": 0.375
+    }
+  },
+  "requests": [
+    {
+      "case_id": "challenge-support-en-01",
+      "request_sha256": "b1517b8b2a27cddef10eeba49906ab1010797fc962f24689dbb4df3e83e5af9e",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 483,
+        "output_tokens": 66
+      },
+      "response_path": "challenge-support-en-01-response.json",
+      "elapsed_ms": 1102.36
+    },
+    {
+      "case_id": "challenge-support-en-02",
+      "request_sha256": "138afa3de3bf290524e626182564abec61971c452639fa050da89ad1225ee036",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 489,
+        "output_tokens": 66
+      },
+      "response_path": "challenge-support-en-02-response.json",
+      "elapsed_ms": 1110.92
+    },
+    {
+      "case_id": "challenge-support-en-03",
+      "request_sha256": "1e953b37a416120f5818e3ef819e0184ad3e0379978545c9a19cc23fdf8f32e9",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 492,
+        "output_tokens": 66
+      },
+      "response_path": "challenge-support-en-03-response.json",
+      "elapsed_ms": 919.89
+    },
+    {
+      "case_id": "challenge-support-en-04",
+      "request_sha256": "0ac2c397da928f49ec596d7ceafeeff4036c3427365ab9e8058d7694a6eba825",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 484,
+        "output_tokens": 66
+      },
+      "response_path": "challenge-support-en-04-response.json",
+      "elapsed_ms": 972.28
+    },
+    {
+      "case_id": "challenge-support-en-05",
+      "request_sha256": "57063732036a10a5d5a2f5945e9b89e716803cb04f0cb362800935522fed15e5",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 484,
+        "output_tokens": 66
+      },
+      "response_path": "challenge-support-en-05-response.json",
+      "elapsed_ms": 872.4
+    },
+    {
+      "case_id": "challenge-support-ru-01",
+      "request_sha256": "c2a2fc9a2c9f969addfe48b14c536764e4f2adbb4a90e85cbd7fd6e04d8fd922",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 621,
+        "output_tokens": 66
+      },
+      "response_path": "challenge-support-ru-01-response.json",
+      "elapsed_ms": 900.83
+    },
+    {
+      "case_id": "challenge-support-ru-02",
+      "request_sha256": "c7c93bf779239f6ada4525c2b4339a21b527179d93464da8ba84cc5feee4aea1",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 564,
+        "output_tokens": 66
+      },
+      "response_path": "challenge-support-ru-02-response.json",
+      "elapsed_ms": 915.97
+    },
+    {
+      "case_id": "challenge-support-ru-03",
+      "request_sha256": "7f40c1932e4030e6ad6dc0735576d314c9b4689f02dac6170e0ba0312578fce0",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 608,
+        "output_tokens": 66
+      },
+      "response_path": "challenge-support-ru-03-response.json",
+      "elapsed_ms": 986.03
+    },
+    {
+      "case_id": "challenge-support-ru-04",
+      "request_sha256": "39d8b4ec04309179374f96888f5c86d7bdcc4a83de05a4c9aa023be2b48298c8",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 630,
+        "output_tokens": 66
+      },
+      "response_path": "challenge-support-ru-04-response.json",
+      "elapsed_ms": 917.07
+    },
+    {
+      "case_id": "challenge-support-ru-05",
+      "request_sha256": "b4f2c9eb62a8c4cec0d20c782167801abaf793f92584ecfce0c4fc1569eb440f",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 610,
+        "output_tokens": 66
+      },
+      "response_path": "challenge-support-ru-05-response.json",
+      "elapsed_ms": 922.64
+    },
+    {
+      "case_id": "challenge-diag-en-01",
+      "request_sha256": "ec30d3815d148677baac4b966bed84bddd1b26f736017abdb7e8a03c4f386da2",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 601,
+        "output_tokens": 45
+      },
+      "response_path": "challenge-diag-en-01-response.json",
+      "elapsed_ms": 889.66
+    },
+    {
+      "case_id": "challenge-diag-en-02",
+      "request_sha256": "30df92734fcdfb7906078e772a7f1d781b77c744af44f205bf508eb450c08585",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 610,
+        "output_tokens": 45
+      },
+      "response_path": "challenge-diag-en-02-response.json",
+      "elapsed_ms": 951.86
+    },
+    {
+      "case_id": "challenge-diag-en-03",
+      "request_sha256": "2e6f4317c596552339b3b8be28d59f969802b81dcc1b1701a18f39a7037a2435",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 565,
+        "output_tokens": 47
+      },
+      "response_path": "challenge-diag-en-03-response.json",
+      "elapsed_ms": 1041.7
+    },
+    {
+      "case_id": "challenge-diag-en-04",
+      "request_sha256": "0b8f28d1bafe087a69898acb9183df267f655bf033b4b1222adc5f0ad40c11ba",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 596,
+        "output_tokens": 47
+      },
+      "response_path": "challenge-diag-en-04-response.json",
+      "elapsed_ms": 868.81
+    },
+    {
+      "case_id": "challenge-diag-ru-01",
+      "request_sha256": "61456f4e90f064b38096d95d39bee2d922a7f22eef8613c6f4cdb28507bd3365",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 730,
+        "output_tokens": 45
+      },
+      "response_path": "challenge-diag-ru-01-response.json",
+      "elapsed_ms": 1030.46
+    },
+    {
+      "case_id": "challenge-diag-ru-02",
+      "request_sha256": "eb4e6f44c2f6843d314de653b7e57bc8a2ba66781d56eaa2d48daa368e435c35",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 757,
+        "output_tokens": 45
+      },
+      "response_path": "challenge-diag-ru-02-response.json",
+      "elapsed_ms": 940.79
+    },
+    {
+      "case_id": "challenge-diag-ru-03",
+      "request_sha256": "57bfbc80a9a0ccb89aad5c368b8523298e62e8e7873fc65d990bf3367c1a0e8e",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 780,
+        "output_tokens": 47
+      },
+      "response_path": "challenge-diag-ru-03-response.json",
+      "elapsed_ms": 938.15
+    },
+    {
+      "case_id": "challenge-diag-ru-04",
+      "request_sha256": "6658cfe66b558b32040ee74c866b734e77aac9deb2e92464f2a9fb61eb83d78c",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 720,
+        "output_tokens": 45
+      },
+      "response_path": "challenge-diag-ru-04-response.json",
+      "elapsed_ms": 1001.92
+    }
+  ],
+  "answers": [
+    {
+      "case_id": "challenge-support-en-01",
+      "kind": "support",
+      "language": "en",
+      "question": "category",
+      "expected": "export",
+      "raw_label": "export",
+      "raw_correct": true,
+      "policy_label": "export",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "payment",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-support-en-01",
+      "kind": "support",
+      "language": "en",
+      "question": "has_workaround",
+      "expected": true,
+      "raw_label": true,
+      "raw_correct": true,
+      "policy_label": true,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-support-en-02",
+      "kind": "support",
+      "language": "en",
+      "question": "category",
+      "expected": "account",
+      "raw_label": "account",
+      "raw_correct": true,
+      "policy_label": "account",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "payment",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-support-en-02",
+      "kind": "support",
+      "language": "en",
+      "question": "has_workaround",
+      "expected": false,
+      "raw_label": false,
+      "raw_correct": true,
+      "policy_label": false,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": true
+    },
+    {
+      "case_id": "challenge-support-en-03",
+      "kind": "support",
+      "language": "en",
+      "question": "category",
+      "expected": "payment",
+      "raw_label": "payment",
+      "raw_correct": true,
+      "policy_label": "payment",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "other",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-support-en-03",
+      "kind": "support",
+      "language": "en",
+      "question": "has_workaround",
+      "expected": false,
+      "raw_label": false,
+      "raw_correct": true,
+      "policy_label": false,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": true
+    },
+    {
+      "case_id": "challenge-support-en-04",
+      "kind": "support",
+      "language": "en",
+      "question": "category",
+      "expected": "other",
+      "raw_label": "other",
+      "raw_correct": true,
+      "policy_label": "other",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "payment",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-support-en-04",
+      "kind": "support",
+      "language": "en",
+      "question": "has_workaround",
+      "expected": true,
+      "raw_label": true,
+      "raw_correct": true,
+      "policy_label": true,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-support-en-05",
+      "kind": "support",
+      "language": "en",
+      "question": "category",
+      "expected": "export",
+      "raw_label": "export",
+      "raw_correct": true,
+      "policy_label": "export",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "export",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "challenge-support-en-05",
+      "kind": "support",
+      "language": "en",
+      "question": "has_workaround",
+      "expected": false,
+      "raw_label": false,
+      "raw_correct": true,
+      "policy_label": false,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": true
+    },
+    {
+      "case_id": "challenge-support-ru-01",
+      "kind": "support",
+      "language": "ru",
+      "question": "category",
+      "expected": "payment",
+      "raw_label": "payment",
+      "raw_correct": true,
+      "policy_label": "payment",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "payment",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "challenge-support-ru-01",
+      "kind": "support",
+      "language": "ru",
+      "question": "has_workaround",
+      "expected": true,
+      "raw_label": true,
+      "raw_correct": true,
+      "policy_label": true,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-support-ru-02",
+      "kind": "support",
+      "language": "ru",
+      "question": "category",
+      "expected": "account",
+      "raw_label": "account",
+      "raw_correct": true,
+      "policy_label": "account",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "account",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "challenge-support-ru-02",
+      "kind": "support",
+      "language": "ru",
+      "question": "has_workaround",
+      "expected": true,
+      "raw_label": true,
+      "raw_correct": true,
+      "policy_label": true,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-support-ru-03",
+      "kind": "support",
+      "language": "ru",
+      "question": "category",
+      "expected": "other",
+      "raw_label": "other",
+      "raw_correct": true,
+      "policy_label": "other",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "payment",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-support-ru-03",
+      "kind": "support",
+      "language": "ru",
+      "question": "has_workaround",
+      "expected": false,
+      "raw_label": false,
+      "raw_correct": true,
+      "policy_label": false,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": true
+    },
+    {
+      "case_id": "challenge-support-ru-04",
+      "kind": "support",
+      "language": "ru",
+      "question": "category",
+      "expected": "export",
+      "raw_label": "export",
+      "raw_correct": true,
+      "policy_label": "export",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "other",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-support-ru-04",
+      "kind": "support",
+      "language": "ru",
+      "question": "has_workaround",
+      "expected": true,
+      "raw_label": true,
+      "raw_correct": true,
+      "policy_label": true,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-support-ru-05",
+      "kind": "support",
+      "language": "ru",
+      "question": "category",
+      "expected": "payment",
+      "raw_label": "payment",
+      "raw_correct": true,
+      "policy_label": "payment",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "payment",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "challenge-support-ru-05",
+      "kind": "support",
+      "language": "ru",
+      "question": "has_workaround",
+      "expected": false,
+      "raw_label": false,
+      "raw_correct": true,
+      "policy_label": false,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": true
+    },
+    {
+      "case_id": "challenge-diag-en-01",
+      "kind": "diagnostic",
+      "language": "en",
+      "question": "next_check",
+      "expected": "D1",
+      "raw_label": "D1",
+      "raw_correct": true,
+      "policy_label": "D1",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "D1",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "challenge-diag-en-02",
+      "kind": "diagnostic",
+      "language": "en",
+      "question": "next_check",
+      "expected": "D2",
+      "raw_label": "D2",
+      "raw_correct": true,
+      "policy_label": "D2",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "D1",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-diag-en-03",
+      "kind": "diagnostic",
+      "language": "en",
+      "question": "next_check",
+      "expected": "none_suitable",
+      "raw_label": "none_suitable",
+      "raw_correct": true,
+      "policy_label": "none_suitable",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": true,
+      "baseline_label": "D1",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-diag-en-04",
+      "kind": "diagnostic",
+      "language": "en",
+      "question": "next_check",
+      "expected": "none_suitable",
+      "raw_label": "none_suitable",
+      "raw_correct": true,
+      "policy_label": "none_suitable",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": true,
+      "baseline_label": "D1",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-diag-ru-01",
+      "kind": "diagnostic",
+      "language": "ru",
+      "question": "next_check",
+      "expected": "D1",
+      "raw_label": "D1",
+      "raw_correct": true,
+      "policy_label": "D1",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "D1",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "challenge-diag-ru-02",
+      "kind": "diagnostic",
+      "language": "ru",
+      "question": "next_check",
+      "expected": "D2",
+      "raw_label": "D2",
+      "raw_correct": true,
+      "policy_label": "D2",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "D1",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-diag-ru-03",
+      "kind": "diagnostic",
+      "language": "ru",
+      "question": "next_check",
+      "expected": "none_suitable",
+      "raw_label": "none_suitable",
+      "raw_correct": true,
+      "policy_label": "none_suitable",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": true,
+      "baseline_label": "D1",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "challenge-diag-ru-04",
+      "kind": "diagnostic",
+      "language": "ru",
+      "question": "next_check",
+      "expected": "D1",
+      "raw_label": "D1",
+      "raw_correct": true,
+      "policy_label": "D1",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "D1",
+      "baseline_correct": true
+    }
+  ],
+  "metrics": {
+    "expected_answers": 28,
+    "valid_answers": 28,
+    "unanswered": 0,
+    "raw_correct": 28,
+    "raw_accuracy_on_valid": 1.0,
+    "policy_abstentions": 0,
+    "accepted_decisions": 28,
+    "accepted_correct": 28,
+    "accepted_incorrect": 0,
+    "decision_coverage": 1.0,
+    "accuracy_on_accepted": 1.0,
+    "explicit_none_suitable": 3
+  },
+  "by_question": {
+    "category": {
+      "expected_answers": 10,
+      "valid_answers": 10,
+      "unanswered": 0,
+      "raw_correct": 10,
+      "raw_accuracy_on_valid": 1.0,
+      "policy_abstentions": 0,
+      "accepted_decisions": 10,
+      "accepted_correct": 10,
+      "accepted_incorrect": 0,
+      "decision_coverage": 1.0,
+      "accuracy_on_accepted": 1.0,
+      "explicit_none_suitable": 0
+    },
+    "has_workaround": {
+      "expected_answers": 10,
+      "valid_answers": 10,
+      "unanswered": 0,
+      "raw_correct": 10,
+      "raw_accuracy_on_valid": 1.0,
+      "policy_abstentions": 0,
+      "accepted_decisions": 10,
+      "accepted_correct": 10,
+      "accepted_incorrect": 0,
+      "decision_coverage": 1.0,
+      "accuracy_on_accepted": 1.0,
+      "explicit_none_suitable": 0
+    },
+    "next_check": {
+      "expected_answers": 8,
+      "valid_answers": 8,
+      "unanswered": 0,
+      "raw_correct": 8,
+      "raw_accuracy_on_valid": 1.0,
+      "policy_abstentions": 0,
+      "accepted_decisions": 8,
+      "accepted_correct": 8,
+      "accepted_incorrect": 0,
+      "decision_coverage": 1.0,
+      "accuracy_on_accepted": 1.0,
+      "explicit_none_suitable": 3
+    }
+  },
+  "finished_at": "2026-09-20T10:11:22.488874+00:00"
+}

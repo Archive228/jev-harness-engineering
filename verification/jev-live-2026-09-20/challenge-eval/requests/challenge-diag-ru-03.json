@@ -1,0 +1,31 @@
+{
+  "state": {
+    "source_snapshot": "rev-h-current",
+    "failure": "Приёмочный тест поиска по описанию падает на текущем snapshot.",
+    "runtime": {
+      "app_importable": true,
+      "both_diagnostics_executable": true
+    },
+    "observations": [
+      "Свежая D1 на rev-h-current уже показала: даже прямой backend с title и description возвращает пустой список.",
+      "Свежая D2 на том же rev-h-current уже зафиксировала оба поля в UI-запросе.",
+      "Оба полных результата сохранены, входные данные и исходники не менялись. Повтор D1 или D2 не добавит отсутствующих сведений; нужна следующая стадия исправления, которой нет среди вариантов вопроса."
+    ],
+    "already_run": [
+      "D1",
+      "D2"
+    ]
+  },
+  "model": "jev-1.13.0",
+  "questions": {
+    "next_check": {
+      "type": "choice",
+      "instructions": "Select the next diagnostic that adds missing evidence about the observed failure on the CURRENT source snapshot. Do not repeat a diagnostic already completed with fresh evidence. Stale results do not count as fresh evidence. Select none_suitable when both diagnostics are already covered, neither can run, or neither addresses the failure.",
+      "criteria": {
+        "D1": "Bypass the UI request builder and call the backend with both title and description fields. This reveals backend filtering behavior. It requires importing app.py.",
+        "D2": "Inspect the outgoing search request built by the UI to reveal whether its fields parameter includes description. It requires importing app.py.",
+        "none_suitable": "Neither available diagnostic adds relevant, executable, fresh evidence for this failure."
+      }
+    }
+  }
+}

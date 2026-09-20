@@ -1,0 +1,179 @@
+[
+  {
+    "argv": [
+      "python3",
+      "run.py",
+      "inspect",
+      "--mode",
+      "demo",
+      "--case",
+      "export-ticket"
+    ],
+    "exit_code": 0,
+    "duration": 0.051,
+    "stdout": "{\n  \"status\": \"inspected\",\n  \"reason\": \"three_question_example\",\n  \"mode\": \"demo\",\n  \"synthetic_judge_and_worker\": true,\n  \"checks_executed\": 0,\n  \"worker_iterations\": 0,\n  \"judge_invocations\": 1,\n  \"remote_jev_requests\": 0,\n  \"judge_elapsed_ms\": 0.02,\n  \"usage\": {\n    \"input_tokens\": 0,\n    \"output_tokens\": 0\n  },\n  \"elapsed_ms\": 0.61,\n  \"output_directory\": \"<clean-copy>/jev-harness-lab/runs/20260920-130347-inspect-335099\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      "run.py",
+      "evidence",
+      "--mode",
+      "demo",
+      "--case",
+      "missing-evidence"
+    ],
+    "exit_code": 0,
+    "duration": 0.105,
+    "stdout": "{\n  \"status\": \"reported\",\n  \"reason\": \"evidence_report_written\",\n  \"mode\": \"demo\",\n  \"synthetic_judge_and_worker\": true,\n  \"checks_executed\": 1,\n  \"worker_iterations\": 0,\n  \"judge_invocations\": 1,\n  \"remote_jev_requests\": 0,\n  \"judge_elapsed_ms\": 0.01,\n  \"usage\": {\n    \"input_tokens\": 0,\n    \"output_tokens\": 0\n  },\n  \"elapsed_ms\": 62.67,\n  \"output_directory\": \"<clean-copy>/jev-harness-lab/runs/20260920-130347-evidence-621319\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      "run.py",
+      "next-check",
+      "--mode",
+      "demo",
+      "--case",
+      "missing-evidence"
+    ],
+    "exit_code": 0,
+    "duration": 0.202,
+    "stdout": "{\n  \"status\": \"checked\",\n  \"reason\": \"selected_diagnostic_executed\",\n  \"mode\": \"demo\",\n  \"synthetic_judge_and_worker\": true,\n  \"checks_executed\": 3,\n  \"worker_iterations\": 0,\n  \"judge_invocations\": 2,\n  \"remote_jev_requests\": 0,\n  \"judge_elapsed_ms\": 0.02,\n  \"usage\": {\n    \"input_tokens\": 0,\n    \"output_tokens\": 0\n  },\n  \"elapsed_ms\": 156.74,\n  \"output_directory\": \"<clean-copy>/jev-harness-lab/runs/20260920-130347-next-check-ff49a7\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      "run.py",
+      "loop",
+      "--mode",
+      "demo",
+      "--case",
+      "missing-evidence"
+    ],
+    "exit_code": 0,
+    "duration": 0.295,
+    "stdout": "{\n  \"status\": \"complete\",\n  \"reason\": \"acceptance_contract_satisfied\",\n  \"mode\": \"demo\",\n  \"synthetic_judge_and_worker\": true,\n  \"checks_executed\": 5,\n  \"worker_iterations\": 1,\n  \"judge_invocations\": 3,\n  \"remote_jev_requests\": 0,\n  \"judge_elapsed_ms\": 0.03,\n  \"usage\": {\n    \"input_tokens\": 0,\n    \"output_tokens\": 0\n  },\n  \"elapsed_ms\": 253.05,\n  \"output_directory\": \"<clean-copy>/jev-harness-lab/runs/20260920-130347-loop-72a2e2\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      "run.py",
+      "evidence",
+      "--mode",
+      "demo",
+      "--state",
+      "runs/example/state.json"
+    ],
+    "exit_code": 0,
+    "duration": 0.042,
+    "stdout": "{\n  \"status\": \"reported\",\n  \"reason\": \"evidence_report_written\",\n  \"mode\": \"demo\",\n  \"synthetic_judge_and_worker\": true,\n  \"checks_executed\": 0,\n  \"worker_iterations\": 0,\n  \"judge_invocations\": 1,\n  \"remote_jev_requests\": 0,\n  \"judge_elapsed_ms\": 0.01,\n  \"usage\": {\n    \"input_tokens\": 0,\n    \"output_tokens\": 0\n  },\n  \"elapsed_ms\": 1.98,\n  \"output_directory\": \"<clean-copy>/jev-harness-lab/runs/20260920-130348-evidence-d9d1db\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      "run.py",
+      "next-check",
+      "--mode",
+      "demo",
+      "--state",
+      "runs/example/state.json"
+    ],
+    "exit_code": 0,
+    "duration": 0.042,
+    "stdout": "{\n  \"status\": \"complete\",\n  \"reason\": \"acceptance_contract_satisfied\",\n  \"mode\": \"demo\",\n  \"synthetic_judge_and_worker\": true,\n  \"checks_executed\": 0,\n  \"worker_iterations\": 0,\n  \"judge_invocations\": 1,\n  \"remote_jev_requests\": 0,\n  \"judge_elapsed_ms\": 0.01,\n  \"usage\": {\n    \"input_tokens\": 0,\n    \"output_tokens\": 0\n  },\n  \"elapsed_ms\": 2.14,\n  \"output_directory\": \"<clean-copy>/jev-harness-lab/runs/20260920-130348-next-check-3f8101\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      "run.py",
+      "replay",
+      "--run",
+      "runs/example",
+      "--policy",
+      "policy.json"
+    ],
+    "exit_code": 0,
+    "duration": 0.04,
+    "stdout": "{\n  \"status\": \"matched\",\n  \"decisions\": 7,\n  \"warning\": \"Only recorded deterministic decisions were checked; no model/worker/check calls or counterfactual rollout occurred.\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      "run.py",
+      "loop",
+      "--mode",
+      "demo",
+      "--case",
+      "correct"
+    ],
+    "exit_code": 0,
+    "duration": 0.141,
+    "stdout": "{\n  \"status\": \"complete\",\n  \"reason\": \"acceptance_contract_satisfied\",\n  \"mode\": \"demo\",\n  \"synthetic_judge_and_worker\": true,\n  \"checks_executed\": 2,\n  \"worker_iterations\": 0,\n  \"judge_invocations\": 1,\n  \"remote_jev_requests\": 0,\n  \"judge_elapsed_ms\": 0.01,\n  \"usage\": {\n    \"input_tokens\": 0,\n    \"output_tokens\": 0\n  },\n  \"elapsed_ms\": 100.43,\n  \"output_directory\": \"<clean-copy>/jev-harness-lab/runs/20260920-130348-loop-b83ba2\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      "run.py",
+      "loop",
+      "--mode",
+      "demo",
+      "--case",
+      "stalled"
+    ],
+    "exit_code": 2,
+    "duration": 0.194,
+    "stdout": "{\n  \"status\": \"stop\",\n  \"reason\": \"no_new_evidence_or_source_change\",\n  \"mode\": \"demo\",\n  \"synthetic_judge_and_worker\": true,\n  \"checks_executed\": 3,\n  \"worker_iterations\": 1,\n  \"judge_invocations\": 2,\n  \"remote_jev_requests\": 0,\n  \"judge_elapsed_ms\": 0.02,\n  \"usage\": {\n    \"input_tokens\": 0,\n    \"output_tokens\": 0\n  },\n  \"elapsed_ms\": 152.78,\n  \"output_directory\": \"<clean-copy>/jev-harness-lab/runs/20260920-130348-loop-99b1c4\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      "run.py",
+      "loop",
+      "--mode",
+      "demo",
+      "--selector",
+      "fixed"
+    ],
+    "exit_code": 0,
+    "duration": 0.295,
+    "stdout": "{\n  \"status\": \"complete\",\n  \"reason\": \"acceptance_contract_satisfied\",\n  \"mode\": \"demo\",\n  \"synthetic_judge_and_worker\": true,\n  \"checks_executed\": 5,\n  \"worker_iterations\": 1,\n  \"judge_invocations\": 0,\n  \"remote_jev_requests\": 0,\n  \"judge_elapsed_ms\": 0.0,\n  \"usage\": {\n    \"input_tokens\": 0,\n    \"output_tokens\": 0\n  },\n  \"elapsed_ms\": 254.76,\n  \"output_directory\": \"<clean-copy>/jev-harness-lab/runs/20260920-130348-loop-2e623d\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      "run.py",
+      "loop",
+      "--mode",
+      "demo",
+      "--selector",
+      "all"
+    ],
+    "exit_code": 0,
+    "duration": 0.354,
+    "stdout": "{\n  \"status\": \"complete\",\n  \"reason\": \"acceptance_contract_satisfied\",\n  \"mode\": \"demo\",\n  \"synthetic_judge_and_worker\": true,\n  \"checks_executed\": 6,\n  \"worker_iterations\": 1,\n  \"judge_invocations\": 0,\n  \"remote_jev_requests\": 0,\n  \"judge_elapsed_ms\": 0.0,\n  \"usage\": {\n    \"input_tokens\": 0,\n    \"output_tokens\": 0\n  },\n  \"elapsed_ms\": 312.67,\n  \"output_directory\": \"<clean-copy>/jev-harness-lab/runs/20260920-130348-loop-8cae7e\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      "evaluate.py",
+      "--out",
+      "evaluation-local-reader"
+    ],
+    "exit_code": 0,
+    "duration": 2.529,
+    "stdout": "<clean-copy>/jev-harness-lab/evaluation-local-reader/evaluation.json\n",
+    "stderr": ""
+  }
+]

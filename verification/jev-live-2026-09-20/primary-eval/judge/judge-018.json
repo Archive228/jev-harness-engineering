@@ -1,0 +1,48 @@
+{
+  "mode": "live",
+  "synthetic": false,
+  "request": {
+    "state": {
+      "failure": "Поиск из интерфейса пропускает совпадение в описании.",
+      "observations": [
+        "Свежая проверка backend напрямую вернула ожидаемый результат по описанию.",
+        "Последняя запись параметров UI-запроса устарела: после неё изменили построитель запроса."
+      ],
+      "already_run": [
+        "D1"
+      ]
+    },
+    "model": "jev-1.13.0",
+    "questions": {
+      "next_check": {
+        "type": "choice",
+        "instructions": "Select the next diagnostic that adds missing evidence about the observed failure on the CURRENT source snapshot. Do not repeat a diagnostic already completed with fresh evidence. Stale results do not count as fresh evidence. Select none_suitable when both diagnostics are already covered, neither can run, or neither addresses the failure.",
+        "criteria": {
+          "D1": "Bypass the UI request builder and call the backend with both title and description fields. This reveals backend filtering behavior. It requires importing app.py.",
+          "D2": "Inspect the outgoing search request built by the UI to reveal whether its fields parameter includes description. It requires importing app.py.",
+          "none_suitable": "Neither available diagnostic adds relevant, executable, fresh evidence for this failure."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "next_check": {
+        "type": "choice",
+        "choice": "D2",
+        "confidence": 0.94,
+        "probabilities": {
+          "D2": 0.96,
+          "D1": 0.01,
+          "none_suitable": 0.03
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 630,
+      "output_tokens": 45
+    }
+  },
+  "elapsed_ms": 940.07
+}

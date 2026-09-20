@@ -1,0 +1,19 @@
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "next_check": {
+      "type": "choice",
+      "choice": "none_suitable",
+      "confidence": 0.92,
+      "probabilities": {
+        "D2": 0.05,
+        "none_suitable": 0.95,
+        "D1": 0.0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 596,
+    "output_tokens": 47
+  }
+}

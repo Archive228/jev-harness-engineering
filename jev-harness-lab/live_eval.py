@@ -180,6 +180,7 @@ def render_report(result):
         for key, group in result["by_question"].items():
             lines.append("- `%s`: raw %s/%s; accepted %s/%s; uncertainty abstentions %s; unanswered %s." % (key, group["raw_correct"], group["valid_answers"], group["accepted_correct"], group["accepted_decisions"], group["policy_abstentions"], group["unanswered"]))
         lines.extend(["", "Reported API tokens: %s input, %s output. Sum of request durations: %s ms. These durations include network overhead and are not model-only latency." % (result["usage"]["input_tokens"], result["usage"]["output_tokens"], result["total_request_ms"]), ""])
+        lines.extend(["Usage complete: **%s**. Remote requests with validated counters: %s; without counters: %s. Totals include only reported counters; zero is not evidence that an unsuccessful request was free." % (result["usage_complete"], result["usage_reported_requests"], result["usage_unreported_requests"]), ""])
     lines.extend(["## Fixed local controls", "", "Category: fixed keyword rules; workaround: always false; diagnostic: always D1. These weak controls are transparent reference points, not tuned competitive baselines.", ""])
     for key, metric in result["baseline"].items():
         lines.append("- `%s`: %s/%s." % (key, metric["correct"], metric["total"]))
@@ -210,6 +211,7 @@ def evaluate(out, dry_run=False, model=MODEL, timeout=20, cases_path=CASES_PATH,
         "timeout_seconds": timeout, "max_requests": MAX_REQUESTS, "automatic_retries": 0,
         "remote_requests": 0, "valid_responses": 0, "request_errors": 0,
         "usage": {"input_tokens": 0, "output_tokens": 0}, "total_request_ms": 0,
+        "usage_complete": True, "usage_reported_requests": 0, "usage_unreported_requests": 0,
         "baseline": baseline_summary(cases), "requests": [], "answers": [],
     }
     write_json(out / "dataset.json", document)
@@ -246,12 +248,18 @@ def evaluate(out, dry_run=False, model=MODEL, timeout=20, cases_path=CASES_PATH,
         if judge is not None:
             result["remote_requests"] = judge.remote_requests
             result["usage"] = dict(judge.usage)
+            result["usage_complete"] = judge.usage_complete
+            result["usage_reported_requests"] = judge.usage_reported_requests
+            result["usage_unreported_requests"] = judge.remote_requests - judge.usage_reported_requests
             result["total_request_ms"] = round(judge.total_ms, 2)
         # Save progress even if the process is interrupted between requests.
         write_json(out / "progress.json", result)
     if judge is not None:
         result["remote_requests"] = judge.remote_requests
         result["usage"] = judge.usage
+        result["usage_complete"] = judge.usage_complete
+        result["usage_reported_requests"] = judge.usage_reported_requests
+        result["usage_unreported_requests"] = judge.remote_requests - judge.usage_reported_requests
         result["total_request_ms"] = round(judge.total_ms, 2)
     result["metrics"] = summarize(result["answers"], expected_count)
     counts = Counter(key for case in cases for key in case["expected"])
@@ -269,9 +277,10 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Save protocol/requests; make no network calls and generate no Jev answers")
     parser.add_argument("--model", default=MODEL)
     parser.add_argument("--timeout", type=float, default=20)
+    parser.add_argument("--cases", default=str(CASES_PATH), help="Frozen dataset JSON; labels remain outside model requests")
     args = parser.parse_args()
     try:
-        result = evaluate(args.out, args.dry_run, args.model, args.timeout)
+        result = evaluate(args.out, args.dry_run, args.model, args.timeout, cases_path=args.cases)
     except (ValueError, OSError, KeyError) as exc:
         print("Evaluation setup failed: " + str(exc), file=sys.stderr)
         return 1

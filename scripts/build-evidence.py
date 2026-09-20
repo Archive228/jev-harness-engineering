@@ -1,0 +1,190 @@
+#!/usr/bin/env python3
+"""Build the article's evidence views from saved JSON and command logs; no API calls."""
+import html
+import json
+from pathlib import Path
+import re
+
+
+ROOT = Path(__file__).resolve().parent.parent
+VERIFICATION = ROOT / "verification"
+LIVE = VERIFICATION / "jev-live-2026-09-20"
+
+
+def read_json(path):
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def esc(value):
+    return html.escape(str(value), quote=True)
+
+
+def number(value, digits=2):
+    return ("%.*f" % (digits, value)).rstrip("0").rstrip(".")
+
+
+def link(path, label):
+    relative = path.relative_to(VERIFICATION).as_posix()
+    return '<a href="%s">%s</a>' % (esc(relative), esc(label))
+
+
+def source_line(*items):
+    return '<div class="sources">Источники: %s</div>' % " · ".join(items)
+
+
+def probability_bar(label, probability):
+    if not isinstance(probability, (int, float)) or not 0 <= probability <= 1:
+        raise ValueError("Invalid probability in saved evidence")
+    return ('<div class="probability"><span>%s</span><div class="track">'
+            '<i style="width:%.4f%%"></i></div><b>%s</b></div>') % (
+                esc(label), probability * 100, esc(number(probability)))
+
+
+def panel(view, number_label, title, subtitle, body, sources):
+    return ('<section class="view" id="%s" aria-labelledby="%s-title">'
+            '<div class="eyebrow">%s</div><h1 id="%s-title">%s</h1>'
+            '<p class="subtitle">%s</p>%s%s</section>') % (
+                esc(view), esc(view), esc(number_label), esc(view), esc(title),
+                subtitle, body, sources)
+
+
+CSS = """
+:root{--ink:#202930;--paper:#f8f7f2;--accent:#ba4934;--line:#dedfd8;--muted:#647078;--ok:#336751}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.frame{max-width:1100px;margin:auto;padding:24px 32px 20px}header{display:flex;justify-content:space-between;gap:20px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:23px}
+.brand{font-size:13px;font-weight:750;letter-spacing:.09em}.dateline{font-size:12px;color:var(--muted);margin-top:3px}nav{display:flex;gap:6px}nav a{font-size:12px;color:var(--muted);border:1px solid transparent;border-radius:4px;text-decoration:none;padding:7px 10px}nav a[aria-current=page]{border-color:var(--line);background:#fff;color:var(--ink)}
+.eyebrow{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);font-weight:750}h1{font-size:31px;line-height:1.15;letter-spacing:-.035em;margin:7px 0 8px}h2{font-size:19px;line-height:1.2;margin:0 0 8px}p{margin:8px 0}.subtitle{color:var(--muted);margin-bottom:18px;font-size:14px}a{color:var(--accent);text-underline-offset:3px}.view{display:none}.view.active{display:block}
+.ticket{padding:17px 21px;background:#eeeee7;border-left:3px solid var(--accent);font-size:18px;line-height:1.4;margin-bottom:16px}.ticket small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px}
+.grid{display:grid;gap:14px}.three{grid-template-columns:repeat(3,1fr)}.two{grid-template-columns:repeat(2,1fr)}.card{background:#fff;border:1px solid var(--line);border-radius:6px;padding:18px 20px}.label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}.value{font-size:35px;font-weight:720;letter-spacing:-.04em;line-height:1.2;margin:6px 0}.value span{font-size:17px;font-weight:500;letter-spacing:0;color:var(--muted)}.fine{font-size:12px;color:var(--muted)}.caption{font-size:13px;line-height:1.35}.probability{display:grid;grid-template-columns:62px 1fr 28px;gap:7px;align-items:center;font-size:11px;margin:6px 0}.probability b{text-align:right;font-variant-numeric:tabular-nums}.track{height:5px;background:#ebece7;overflow:hidden;border-radius:2px}.track i{display:block;height:100%;background:var(--accent)}.divider{height:1px;background:var(--line);margin:13px 0}
+.metrics{display:flex;flex-wrap:wrap;gap:12px 24px;padding:13px 0;font-size:13px}.metrics b{font-variant-numeric:tabular-nums}.sources{font-size:11px;line-height:1.6;color:var(--muted);border-top:1px solid var(--line);padding-top:11px;margin-top:17px}.note{background:#eceee8;padding:12px 15px;border-radius:5px;font-size:13px;line-height:1.4;margin-top:14px}.note.accent{background:#f3e9e1;border-left:3px solid var(--accent)}.note strong{font-weight:700}.qrow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-top:1px solid var(--line);padding:10px 0 8px;font-size:13px}.qrow:last-child{padding-bottom:0}.qrow strong{font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap}.qrow small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+.table-scroll{max-width:100%;overflow-x:auto}table{width:100%;border-collapse:collapse;margin:11px 0;font-size:13px}th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}td{padding:11px 10px;border-bottom:1px solid var(--line)}th:first-child,td:first-child{padding-left:0}.good{color:var(--ok);font-weight:750}.stop{color:var(--accent);font-weight:750}.recovery{display:flex;justify-content:space-between;gap:20px;align-items:center}.recovery h2{font-size:17px}.recovery .value{font-size:24px;margin:0}.code{font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#eeeee8;padding:13px 16px;border:1px solid var(--line);border-radius:5px;margin:10px 0;color:var(--ink)}.log{font-size:12px;background:#fff;margin-top:8px;padding:16px 18px;line-height:1.6}.tests-head{display:flex;align-items:center;gap:20px}.tests-head .value{font-size:60px;line-height:1;margin:0}.tests-head .caption{font-size:14px}.command-label{font-size:11px;color:var(--muted);margin:13px 0 5px}
+footer{margin-top:15px;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;gap:15px}footer a{color:var(--muted)}
+@media(max-width:700px){.frame{padding:20px}.three,.two{grid-template-columns:1fr}header{display:block}nav{margin-top:13px;flex-wrap:wrap}h1{font-size:27px}.ticket{font-size:17px}.recovery{display:block}table{font-size:11px}.sources{font-size:12px}}
+"""
+
+
+def main():
+    inspect_result = read_json(LIVE / "first-call-ru/metadata.json")
+    inspect = {"mode": inspect_result["mode"], "elapsed_ms": inspect_result["elapsed_ms"],
+               "request": read_json(LIVE / "first-call-ru/request.json"),
+               "response": read_json(LIVE / "first-call-ru/response.json")}
+    primary = read_json(LIVE / "primary-eval/results.json")
+    challenge = read_json(LIVE / "challenge-eval/results.json")
+    datasets = {name: read_json(LIVE / name / "dataset.json") for name in ("primary-eval", "challenge-eval")}
+    matrix = read_json(LIVE / "codex-matrix/evaluation.json")
+    stop_response = read_json(LIVE / "codex-matrix/backend-title-only/judge/judge-002.json")
+    stop_policy = read_json(LIVE / "codex-matrix/backend-title-only/policy.json")
+    recovery = read_json(LIVE / "backend-recovery/recovery.json")
+    recovery_protocol = read_json(LIVE / "backend-recovery/protocol.json")
+    tests = read_json(VERIFICATION / "local-tests-2026-09-20.json")
+    test_text = (VERIFICATION / "terminal/unit-tests-83.txt").read_text(encoding="utf-8")
+    tail = "\n".join(test_text.rstrip().splitlines()[-8:])
+    test_match = re.search(r"Ran (\d+) tests in ([\d.]+)s\s+OK\s*$", test_text)
+    if not test_match or int(test_match.group(1)) != tests["tests"] or tests["exit_code"] != 0:
+        raise ValueError("Saved test evidence is missing or inconsistent")
+    if inspect["mode"] != "live" or any(r["mode"] != "live" for r in (primary, challenge)):
+        raise ValueError("Gallery requires live provider evidence")
+    answers = inspect["response"]["answers"]
+    choice, score, noul = (answers[key] for key in ("category", "impact", "has_workaround"))
+    usage = inspect["response"]["usage"]
+    model = inspect["response"]["model"]
+    date = primary["started_at"].split("T")[0]
+    selected_level = max(score["probabilities"], key=score["probabilities"].get)
+    cards = [
+        '<div class="card"><div class="label">Choice · category</div><div class="value">%s</div><p class="fine">confidence = %s</p>%s</div>' % (
+            esc(choice["choice"]), esc(number(choice["confidence"])),
+            "".join(probability_bar(k, choice["probabilities"][k]) for k in inspect["request"]["questions"]["category"]["criteria"])),
+        '<div class="card"><div class="label">Score · impact</div><div class="value">%s <span>/ %s</span></div><p class="fine">confidence = %s</p><p class="caption">%s</p><div class="divider"></div><p class="fine">Позиция на заданной шкале, а не вероятность.</p></div>' % (
+            esc(number(score["score"])), esc(len(score["legend"]) - 1), esc(number(score["confidence"])), esc(score["legend"][selected_level])),
+        '<div class="card"><div class="label">Noul · has_workaround</div><div class="value">%s</div><p class="fine">P(да): клиент нашёл обходной путь</p>%s<div class="divider"></div><p class="fine">У Noul нет отдельного confidence.</p></div>' % (
+            esc(number(noul["noul"])), probability_bar("да", noul["noul"])),
+    ]
+    primitive_body = ('<div class="ticket"><small>Состояние, переданное Jev</small>%s</div>'
+                      '<div class="grid three">%s</div><div class="metrics">'
+                      '<span>API-запросов: <b>%s</b></span><span>Токены: <b>%s input / %s output</b></span>'
+                      '<span>Сеть + API: <b>%s ms</b></span></div>') % (
+                          esc(inspect["request"]["state"]), "".join(cards), esc(inspect_result["remote_requests"]),
+                          esc(usage["input_tokens"]), esc(usage["output_tokens"]), esc(number(inspect["elapsed_ms"])))
+    primitive_view = panel("primitives", "01 / Прямой вызов API", "Три решения из одного обращения", "Реальный ответ <strong>%s</strong>; значения прочитаны из сохранённого JSON." % esc(model), primitive_body,
+                           source_line(link(LIVE / "first-call-ru/request.json", "русский запрос"), link(LIVE / "first-call-ru/response.json", "ответ API"), link(LIVE / "first-call-ru/metadata.json", "метаданные запуска")))
+
+    eval_cards = []
+    question_names = {"category": ("Категория обращения", "Choice · category"), "has_workaround": ("Есть проверенный обходной путь?", "Noul · has_workaround"), "next_check": ("Следующая диагностика", "Choice · next_check")}
+    for name, title, record in (("primary-eval", "Основной набор", primary), ("challenge-eval", "Независимый stress-набор", challenge)):
+        m = record["metrics"]
+        question_rows = []
+        for key, detail in record["by_question"].items():
+            label, identifier = question_names[key]
+            question_rows.append('<div class="qrow"><span>%s<small>%s</small></span><strong>%s / %s</strong></div>' % (
+                esc(label), esc(identifier), esc(detail["raw_correct"]), esc(detail["valid_answers"])))
+        eval_cards.append('<div class="card"><h2>%s</h2><div class="fine">%s случаев · %s API-запросов</div><div class="value">%s / %s <span>верных ответов</span></div>%s<div class="divider"></div><div class="fine">Принято политикой: %s; abstentions: %s; пропущено: %s.</div></div>' % (
+            esc(title), len(datasets[name]["cases"]), esc(record["remote_requests"]), esc(m["raw_correct"]), esc(m["valid_answers"]), "".join(question_rows),
+            esc(m["accepted_decisions"]), esc(m["policy_abstentions"]), esc(m["unanswered"])))
+    evaluation_view = panel("evaluation", "02 / Две отдельные проверки", "Как Jev ответил на размеченные случаи", "Наборы показаны отдельно. В каждом случае проверяются конкретные вопросы к фиксированному состоянию.",
+                            '<div class="grid two">%s</div><div class="note"><strong>Малые, вручную подобранные наборы.</strong> В stress-наборе — отрицания, непроверенные советы, посторонние инструкции и устаревшие свидетельства. Эти результаты не оценивают надёжность на реальном потоке задач.</div>' % "".join(eval_cards),
+                            source_line(link(LIVE / "primary-eval/results.json", "основной: результаты"), link(LIVE / "primary-eval/dataset.json", "разметка"), link(LIVE / "challenge-eval/results.json", "stress: результаты"), link(LIVE / "challenge-eval/dataset.json", "разметка")))
+
+    complete = sum(row["status"] == "complete" for row in matrix["rows"])
+    stopped = sum(row["status"] == "stop" for row in matrix["rows"])
+    false_complete = sum(bool(row["false_complete"]) for row in matrix["rows"])
+    table_rows = []
+    for row in matrix["rows"]:
+        passed = row["independent_acceptance"]["passed"]
+        status_class = "good" if row["status"] == "complete" else "stop"
+        table_rows.append('<tr><td>%s</td><td class="%s">%s</td><td>%s</td><td>%s</td><td class="%s">%s</td></tr>' % (
+            esc(row["case"]), status_class, esc(row["status"]), esc(row["checks"]), esc(row["iterations"]), "good" if passed else "stop", "PASS" if passed else "FAIL"))
+    stopped_answer = stop_response["response"]["answers"]["next_diagnostic"]
+    threshold = stop_policy["min_choice_confidence"]
+    rh = recovery["harness"]
+    loop_body = '<div class="table-scroll" tabindex="0"><table><thead><tr><th>Исходный дефект</th><th>Harness</th><th>Проверок</th><th>Исправлений</th><th>Независимая приёмка</th></tr></thead><tbody>%s</tbody></table></div>' % "".join(table_rows)
+    loop_body += '<div class="note accent"><strong>Почему backend-title-only остановлен.</strong> Jev выбрал %s: P(%s) = %s, но confidence = <strong>%s</strong> ниже порога <strong>%.2f</strong>. Политика сохранила stop; worker не запускался.</div>' % (
+        esc(stopped_answer["choice"]), esc(stopped_answer["choice"]), esc(number(stopped_answer["probabilities"][stopped_answer["choice"]])), esc(number(stopped_answer["confidence"])), threshold)
+    loop_body += '<div class="card recovery" style="margin-top:14px"><div><div class="label">Отдельное восстановление · selector=%s</div><h2>Тот же backend-дефект, явный запуск диагностик</h2><div class="fine">%s проверки · %s исправление · %s новых запросов Jev</div></div><div><div class="value good">%s</div><div class="fine">независимая приёмка</div></div></div>' % (
+        esc(recovery_protocol["selector"]), esc(rh["checks_executed"]), esc(rh["worker_iterations"]), esc(rh["remote_jev_requests"]), "PASS" if recovery["independent_acceptance"]["passed"] else "FAIL")
+    loop_body += '<p class="fine">Восстановление — отдельный опыт после остановки. Оно не превращает первоначальный результат матрицы в %s / %s.</p>' % (len(matrix["rows"]), len(matrix["rows"]))
+    loop_view = panel("loop", "03 / Jev + настоящий Codex", "Успешный ремонт и честная остановка", '<strong>%s complete · %s stop · %s ложных complete.</strong> Каждую задачу после остановки проверил отдельный oracle.' % (complete, stopped, false_complete), loop_body,
+                      source_line(link(LIVE / "codex-matrix/evaluation.json", "матрица запусков"), link(LIVE / "codex-matrix/backend-title-only/judge/judge-002.json", "Choice при остановке"), link(LIVE / "codex-matrix/backend-title-only/policy.json", "порог"), link(LIVE / "backend-recovery/recovery.json", "восстановление")))
+
+    matrix_command = (VERIFICATION / "terminal/jev-codex-matrix.txt").read_text(encoding="utf-8").splitlines()[0]
+    tests_body = '<div class="card"><div class="tests-head"><div class="value good">%s</div><div class="caption"><strong>теста прошли</strong><br>Python %s · сохранённый exit code: %s</div></div><div class="command-label">Команда из метаданных локальной проверки</div><pre class="code">%s</pre><div class="command-label">Сохранённый вывод unittest · последние 8 строк, без пересказа</div><pre class="code log">%s</pre></div>' % (
+        esc(tests["tests"]), esc(tests["python"].split()[0]), esc(tests["exit_code"]), esc(tests["command"]), esc(tail))
+    tests_body += '<div class="command-label">Команда реальной матрицы Jev + Codex из сохранённого журнала</div><pre class="code">%s</pre><p class="fine">Это просмотр уже сохранённых файлов. Открытие страницы не запускает тесты и не вызывает API.</p>' % esc(matrix_command)
+    tests_view = panel("tests", "04 / Проверяемость", "Просмотр сохранённого протокола команд", "Фрагмент настоящего вывода; исходные файлы доступны по ссылкам ниже.", tests_body,
+                       source_line(link(VERIFICATION / "terminal/unit-tests-83.txt", "полный тестовый лог"), link(VERIFICATION / "local-tests-2026-09-20.json", "метаданные тестов"), link(VERIFICATION / "terminal/jev-codex-matrix.txt", "команда матрицы"), link(VERIFICATION / "terminal/backend-recovery.txt", "журнал восстановления")))
+
+    document = '<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jev + Harness · сохранённые протоколы</title><style>%s</style></head><body><main class="frame"><header><div><div class="brand">JEV + HARNESS ENGINEERING</div><div class="dateline">Сохранённые эксперименты · %s</div></div><nav aria-label="Виды протокола"><a href="?view=primitives" data-view="primitives">API-ответ</a><a href="?view=evaluation" data-view="evaluation">Два набора</a><a href="?view=loop" data-view="loop">Цикл ремонта</a><a href="?view=tests" data-view="tests">Тесты</a></nav></header>%s<footer><span>Собрано из файлов verification/ · секреты и заголовки авторизации не используются</span><a href="terminal/evidence-summary.txt">Текстовая сводка</a></footer></main><script>const allowed=["primitives","evaluation","loop","tests"];const requested=new URLSearchParams(location.search).get("view");const current=allowed.includes(requested)?requested:"primitives";document.getElementById(current).classList.add("active");document.querySelector(`[data-view="${current}"]`).setAttribute("aria-current","page");document.title=document.getElementById(current+"-title").textContent+" · Jev + Harness";</script><noscript><style>.view{display:block;margin-bottom:35px}</style></noscript></body></html>' % (
+        CSS, esc(date), primitive_view + evaluation_view + loop_view + tests_view)
+
+    summary = ["JEV + HARNESS: ПРОСМОТР СОХРАНЁННОГО ПРОТОКОЛА КОМАНД", "",
+               "Числа ниже вычислены из JSON. Раздел вывода unittest приведён дословно.",
+               "Открытие галереи или запуск её сборщика не вызывает API и не выполняет тесты.", "",
+               "API / %s" % model,
+               "remote_requests=%s; input_tokens=%s; output_tokens=%s; elapsed_ms=%s" % (inspect_result["remote_requests"], usage["input_tokens"], usage["output_tokens"], inspect["elapsed_ms"]),
+               "choice=%s; choice_confidence=%s; score=%s; score_confidence=%s; noul=%s" % (choice["choice"], choice["confidence"], score["score"], score["confidence"], noul["noul"]),
+               "sources: ../jev-live-2026-09-20/first-call-ru/{request,response,metadata}.json", ""]
+    for name, record in (("primary-eval", primary), ("challenge-eval", challenge)):
+        m = record["metrics"]
+        summary.extend([name, "cases=%s; requests=%s; raw_correct=%s/%s; accepted=%s; abstentions=%s; unanswered=%s" % (
+            len(datasets[name]["cases"]), record["remote_requests"], m["raw_correct"], m["valid_answers"], m["accepted_decisions"], m["policy_abstentions"], m["unanswered"]),
+            "source: ../jev-live-2026-09-20/%s/results.json" % name, ""])
+    summary.extend(["Малые подобранные наборы; эти результаты не оценивают надёжность в production.", "", "MATRIX / selector=%s" % matrix["selector"], matrix_command])
+    for row in matrix["rows"]:
+        summary.append("%s: status=%s; checks=%s; repairs=%s; oracle=%s; false_complete=%s" % (
+            row["case"], row["status"], row["checks"], row["iterations"], "PASS" if row["independent_acceptance"]["passed"] else "FAIL", row["false_complete"]))
+    summary.extend(["backend stop: choice=%s; probability=%s; confidence=%s; min_choice_confidence=%s" % (stopped_answer["choice"], stopped_answer["probabilities"][stopped_answer["choice"]], stopped_answer["confidence"], threshold),
+                    "source: ../jev-live-2026-09-20/codex-matrix/evaluation.json", "", "SEPARATE RECOVERY / selector=%s" % recovery_protocol["selector"],
+                    "status=%s; checks=%s; repairs=%s; remote_jev_requests=%s; oracle=%s" % (rh["status"], rh["checks_executed"], rh["worker_iterations"], rh["remote_jev_requests"], "PASS" if recovery["independent_acceptance"]["passed"] else "FAIL"),
+                    "source: ../jev-live-2026-09-20/backend-recovery/recovery.json", "", "UNITTEST / command from saved metadata", tests["command"],
+                    "Последние 8 строк terminal/unit-tests-83.txt:", tail, "", "sources: unit-tests-83.txt; ../local-tests-2026-09-20.json", ""])
+    summary_text = "\n".join(summary)
+    for content in (document, summary_text):
+        if re.search(r"apikey_[A-Za-z0-9_]{20,}|new1_[A-Za-z0-9]{20,}|Bearer\s+[A-Za-z0-9_-]{20,}", content):
+            raise ValueError("Secret-like content rejected")
+    (VERIFICATION / "terminal").mkdir(exist_ok=True)
+    (VERIFICATION / "evidence-gallery.html").write_text(document, encoding="utf-8")
+    (VERIFICATION / "terminal/evidence-summary.txt").write_text(summary_text, encoding="utf-8")
+    print("Built verification/evidence-gallery.html and verification/terminal/evidence-summary.txt")
+
+
+if __name__ == "__main__":
+    main()

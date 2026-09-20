@@ -1,0 +1,52 @@
+{
+  "kind": "preregistered_codex_worker_sanity_experiment",
+  "created_at_unix": 1789898897.751891,
+  "selector": "jev",
+  "mode": "live",
+  "remote_jev_requests_expected": null,
+  "jev_requests_enabled": true,
+  "source_sha256": {
+    "worker_eval.py": "94b1989c0f00afaca0d28871b20ec8fa258dfd9586c119969a1f396c13fbeb81",
+    "run.py": "efdf6ff22ae2fb7431c8fc597f47222f2a63160f3b6cf66818d8addd54764f61",
+    "judge.py": "720b72eeb8ab890c3b1712d058b788c8a71da1b9d2bf1761f302fe0079c1394f",
+    "policy.py": "1ee237d8e08be6b582cdcbdabe0d785ee1ec56f8e3440d5251144f2601bc865d",
+    "evidence.py": "9cc7681d26e5e69291fe1c6be3c1b4b8b5479f430207a6debae222bcb1acb798",
+    "checks.json": "00029d1ae995726a1c1d3818208084d5a1e6cb214da73f7c66282497402212fd",
+    "check_runner.py": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+    "worker.py": "a1e5ac79acf84a2c3f7d9f06f8caf035ab802389bded27babbdc3d67be89bdcb",
+    "processes.py": "cf12a0ca5bb9d7f8eb9c52f25e9ea7488dc4aa90227abf0310c364fbec44688b",
+    "evaluate.py": "523c7e278ba02fa8a34c99182fd53e45abcc88b5c80267cb1e6c1f15bc9acec4",
+    "oracle_runner.py": "cf5926439cef003e5fd684280bfeef7914b1ec351556a9b55ebd0df68ff949d6",
+    "adapters/codex_cli.py": "1bc0b80f0001def70a28480f14eaf92cc42d520eb65963712d998eaa4e4a28f0",
+    "task.md": "7c36e42f0a69b425d8def9770eea42e85f8846cb923ad3e4788a8ca108dd4f36"
+  },
+  "policy_sha256": "7e4f34a14a8495f2172e35f9a16c13e54dd12f259f791bf84c948f0edbb89e16",
+  "policy": {
+    "scope_threshold": 0.8,
+    "min_choice_confidence": 0.6,
+    "max_iterations": 2,
+    "max_checks": 10,
+    "max_jev_calls": 10,
+    "max_seconds": 300,
+    "command_timeout": 10,
+    "api_timeout": 20,
+    "worker_timeout": 105
+  },
+  "cases": [
+    {
+      "case": "ui-title-only",
+      "initial_sha256": "2c751442facf34981beae4f3d4288168cfbca9eac9a2d2f9b5f585071f3618bb",
+      "initial_source_file": "ui-title-only-seed/initial-app.py.txt"
+    },
+    {
+      "case": "backend-title-only",
+      "initial_sha256": "5dd2cf4603c4900e17ab8ab058167185fe105a36f54a4dd82465505a127502b5",
+      "initial_source_file": "backend-title-only-seed/initial-app.py.txt"
+    },
+    {
+      "case": "both-title-only",
+      "initial_sha256": "d33b5b425ad1ea4cccf7a043f21236b27a7adf0a6a55586eebe57bbf3ab25245",
+      "initial_source_file": "both-title-only-seed/initial-app.py.txt"
+    }
+  ]
+}

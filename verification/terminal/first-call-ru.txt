@@ -1,0 +1,6 @@
+$ python3 first_call.py
+export
+1.0
+0.95
+
+Exit code: 0

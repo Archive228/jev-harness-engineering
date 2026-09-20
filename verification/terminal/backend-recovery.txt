@@ -1,0 +1,68 @@
+$ python3 -B run.py loop --mode live --selector all --state runs/jev-backend-recovery-2026-09-20/seed/state.json --out runs/jev-backend-recovery-2026-09-20/run --worker-config worker-config-codex.json --policy policy-codex.json
+{
+  "status": "complete",
+  "reason": "acceptance_contract_satisfied",
+  "mode": "live",
+  "synthetic_judge_and_worker": false,
+  "checks_executed": 4,
+  "worker_iterations": 1,
+  "judge_invocations": 0,
+  "remote_jev_requests": 0,
+  "judge_elapsed_ms": 0.0,
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "usage_complete": true,
+  "usage_reported_requests": 0,
+  "usage_unreported_requests": 0,
+  "elapsed_ms": 14696.05,
+  "output_directory": "<workspace>/jev-harness-lab/runs/jev-backend-recovery-2026-09-20/run"
+}
+
+POST-STOP ORACLE
+{
+  "passed": true,
+  "observations": [
+    {
+      "query": "blue",
+      "expected": [
+        1
+      ],
+      "actual": [
+        1
+      ],
+      "pass": true
+    },
+    {
+      "query": "export",
+      "expected": [
+        2
+      ],
+      "actual": [
+        2
+      ],
+      "pass": true
+    },
+    {
+      "query": "MILK",
+      "expected": [
+        1
+      ],
+      "actual": [
+        1
+      ],
+      "pass": true
+    },
+    {
+      "query": "does-not-exist",
+      "expected": [],
+      "actual": [],
+      "pass": true
+    }
+  ],
+  "execution_error": null,
+  "exit_code": 0,
+  "elapsed_ms": 57.89
+}
+Exit code: 0

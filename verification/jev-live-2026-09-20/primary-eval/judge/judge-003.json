@@ -1,0 +1,51 @@
+{
+  "mode": "live",
+  "synthetic": false,
+  "request": {
+    "state": {
+      "ticket": "The password sign-in form rejects me. Signing in with our Google SSO button succeeds; that is how I access the workspace today."
+    },
+    "model": "jev-1.13.0",
+    "questions": {
+      "category": {
+        "type": "choice",
+        "instructions": "Classify the actual problem the customer asks to fix. Ignore features explicitly described as working normally.",
+        "criteria": {
+          "export": "Exporting, generating or downloading a document or file",
+          "account": "Signing in, authentication or access to an account",
+          "payment": "Billing, invoices, subscription payments or billing details",
+          "other": "A different problem outside the three categories above"
+        }
+      },
+      "has_workaround": {
+        "type": "noul",
+        "instructions": "Does this customer's message explicitly report an alternative method that they have actually used successfully to accomplish the affected task? Advice, an untried suggestion, a question, and a failed alternative do not count."
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "category": {
+        "type": "choice",
+        "choice": "account",
+        "confidence": 1.0,
+        "probabilities": {
+          "export": 0.0,
+          "payment": 0.0,
+          "other": 0.0,
+          "account": 1.0
+        }
+      },
+      "has_workaround": {
+        "type": "noul",
+        "noul": 0.98
+      }
+    },
+    "usage": {
+      "input_tokens": 458,
+      "output_tokens": 66
+    }
+  },
+  "elapsed_ms": 1040.47
+}

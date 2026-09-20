@@ -1,0 +1,22 @@
+{
+  "state": {
+    "failure": "The application fails at startup before any search can run.",
+    "observations": [
+      "The Python interpreter reports a SyntaxError while importing app.py.",
+      "Both available diagnostics require importing app.py and would fail before inspecting search behavior."
+    ],
+    "already_run": []
+  },
+  "model": "jev-1.13.0",
+  "questions": {
+    "next_check": {
+      "type": "choice",
+      "instructions": "Select the next diagnostic that adds missing evidence about the observed failure on the CURRENT source snapshot. Do not repeat a diagnostic already completed with fresh evidence. Stale results do not count as fresh evidence. Select none_suitable when both diagnostics are already covered, neither can run, or neither addresses the failure.",
+      "criteria": {
+        "D1": "Bypass the UI request builder and call the backend with both title and description fields. This reveals backend filtering behavior. It requires importing app.py.",
+        "D2": "Inspect the outgoing search request built by the UI to reveal whether its fields parameter includes description. It requires importing app.py.",
+        "none_suitable": "Neither available diagnostic adds relevant, executable, fresh evidence for this failure."
+      }
+    }
+  }
+}

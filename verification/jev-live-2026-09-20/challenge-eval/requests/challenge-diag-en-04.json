@@ -1,0 +1,30 @@
+{
+  "state": {
+    "source_snapshot": "rev-e-current",
+    "failure": "The application cannot start because app.py has an IndentationError.",
+    "runtime": {
+      "app_importable": false,
+      "both_diagnostics_executable": false
+    },
+    "observations": [
+      "The interpreter fails before executing any function in app.py.",
+      "D1 and D2 both import this same app.py. Neither can observe backend filtering or the UI fields parameter until the syntax error is repaired.",
+      "A backend search succeeded on rev-e-old, before the broken edit. That older result does not make either current diagnostic executable."
+    ],
+    "already_run": [
+      "D1"
+    ]
+  },
+  "model": "jev-1.13.0",
+  "questions": {
+    "next_check": {
+      "type": "choice",
+      "instructions": "Select the next diagnostic that adds missing evidence about the observed failure on the CURRENT source snapshot. Do not repeat a diagnostic already completed with fresh evidence. Stale results do not count as fresh evidence. Select none_suitable when both diagnostics are already covered, neither can run, or neither addresses the failure.",
+      "criteria": {
+        "D1": "Bypass the UI request builder and call the backend with both title and description fields. This reveals backend filtering behavior. It requires importing app.py.",
+        "D2": "Inspect the outgoing search request built by the UI to reveal whether its fields parameter includes description. It requires importing app.py.",
+        "none_suitable": "Neither available diagnostic adds relevant, executable, fresh evidence for this failure."
+      }
+    }
+  }
+}

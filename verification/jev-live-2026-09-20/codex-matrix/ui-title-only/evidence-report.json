@@ -1,0 +1,95 @@
+{
+  "snapshot": "057bc8fdcb22de205d39fe02878220ccb0bfac636ce64701c7452349d670b486",
+  "criteria": [
+    {
+      "criterion": "R1",
+      "requirement": "Searching for a word present in an item's title returns that item.",
+      "check_id": "C1",
+      "status": "passed",
+      "reason": "fresh_zero_exit_known_contract",
+      "scope_noul": 0.91,
+      "scope_supported": true,
+      "record": {
+        "check_id": "C1",
+        "scope": "Calls application search('milk') and asserts that item 1 is returned by a title match.",
+        "argv": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "-B",
+          "<workspace>/jev-harness-lab/check_runner.py",
+          "C1",
+          "<workspace>/jev-harness-lab/runs/jev-codex-eval-2026-09-20/ui-title-only-seed/project"
+        ],
+        "snapshot": "057bc8fdcb22de205d39fe02878220ccb0bfac636ce64701c7452349d670b486",
+        "snapshot_after": "057bc8fdcb22de205d39fe02878220ccb0bfac636ce64701c7452349d670b486",
+        "exit_code": 0,
+        "stdout": "{\"check_id\": \"C1\", \"kind\": \"check_completed\", \"observation\": {\"query\": \"milk\", \"actual_ids\": [1], \"expected_ids\": [1]}}\n",
+        "stderr": "",
+        "elapsed_ms": 78.01,
+        "executed_at_unix": 1789898917.6802418,
+        "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+        "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+        "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+        "check_result": {
+          "check_id": "C1",
+          "kind": "check_completed",
+          "observation": {
+            "query": "milk",
+            "actual_ids": [
+              1
+            ],
+            "expected_ids": [
+              1
+            ]
+          }
+        }
+      }
+    },
+    {
+      "criterion": "R2",
+      "requirement": "Searching for a word present only in an item's description returns that item.",
+      "check_id": "C2",
+      "status": "passed",
+      "reason": "fresh_zero_exit_known_contract",
+      "scope_noul": 0.91,
+      "scope_supported": true,
+      "record": {
+        "check_id": "C2",
+        "scope": "Calls application search('carton') and asserts that item 1 is returned by a description-only match.",
+        "argv": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "-B",
+          "<workspace>/jev-harness-lab/check_runner.py",
+          "C2",
+          "<workspace>/jev-harness-lab/runs/jev-codex-eval-2026-09-20/ui-title-only-seed/project"
+        ],
+        "snapshot": "057bc8fdcb22de205d39fe02878220ccb0bfac636ce64701c7452349d670b486",
+        "snapshot_after": "057bc8fdcb22de205d39fe02878220ccb0bfac636ce64701c7452349d670b486",
+        "exit_code": 0,
+        "stdout": "{\"check_id\": \"C2\", \"kind\": \"check_completed\", \"observation\": {\"query\": \"carton\", \"actual_ids\": [1], \"expected_ids\": [1]}}\n",
+        "stderr": "",
+        "elapsed_ms": 55.98,
+        "executed_at_unix": 1789898917.7376268,
+        "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+        "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+        "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+        "check_result": {
+          "check_id": "C2",
+          "kind": "check_completed",
+          "observation": {
+            "query": "carton",
+            "actual_ids": [
+              1
+            ],
+            "expected_ids": [
+              1
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "all_passed": true,
+  "scope_warning": "Noul is a shadow annotation of described check scope. Known mandatory test mappings determine acceptance in code; model scores neither promote nor downgrade them.",
+  "mode": "live",
+  "synthetic_judgment": false
+}

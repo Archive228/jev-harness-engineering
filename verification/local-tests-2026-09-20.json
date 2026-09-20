@@ -1,0 +1,8 @@
+{
+  "command": "python3 -B -m unittest discover -s tests -v",
+  "python": "3.9.6 (default, Mar  6 2026, 16:22:43) \n[Clang 21.0.0 (clang-2100.0.123.102)]",
+  "exit_code": 0,
+  "tests": 83,
+  "seconds": 5.019,
+  "log": "verification/terminal/unit-tests-83.txt"
+}

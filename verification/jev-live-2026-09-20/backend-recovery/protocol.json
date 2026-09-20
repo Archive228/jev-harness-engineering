@@ -1,0 +1,7 @@
+{
+  "kind": "explicit_all_diagnostics_recovery",
+  "source_run": "jev-codex-eval-2026-09-20/backend-title-only",
+  "reason": "Choice confidence 0.52 was below predeclared threshold 0.60; original stop and project remain preserved.",
+  "snapshot_before": "585fb5d74d1217271034d6513ec30c8ad94146cca6000d570f6f6c68b94fb3ea",
+  "selector": "all"
+}

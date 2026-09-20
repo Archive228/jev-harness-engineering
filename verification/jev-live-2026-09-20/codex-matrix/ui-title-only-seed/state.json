@@ -1,0 +1,8 @@
+{
+  "project": "<workspace>/jev-harness-lab/runs/jev-codex-eval-2026-09-20/ui-title-only-seed/project",
+  "project_relative_to_state": "project",
+  "snapshot": "d8fd8d957497644501801209ff6e351386bb579972d4f9e4d3d5ed9179fc7408",
+  "records": [],
+  "case": "missing-evidence",
+  "worker_claim": "The requested search behavior needs independent verification."
+}

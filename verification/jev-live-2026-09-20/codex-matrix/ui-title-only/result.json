@@ -1,0 +1,20 @@
+{
+  "status": "complete",
+  "reason": "acceptance_contract_satisfied",
+  "mode": "live",
+  "synthetic_judge_and_worker": false,
+  "checks_executed": 5,
+  "worker_iterations": 1,
+  "judge_invocations": 3,
+  "remote_jev_requests": 3,
+  "judge_elapsed_ms": 2849.78,
+  "usage": {
+    "input_tokens": 2115,
+    "output_tokens": 109
+  },
+  "usage_complete": true,
+  "usage_reported_requests": 3,
+  "usage_unreported_requests": 0,
+  "elapsed_ms": 20848.23,
+  "output_directory": "<workspace>/jev-harness-lab/runs/jev-codex-eval-2026-09-20/ui-title-only"
+}

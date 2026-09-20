@@ -1,0 +1,45 @@
+JEV + HARNESS: ПРОСМОТР СОХРАНЁННОГО ПРОТОКОЛА КОМАНД
+
+Числа ниже вычислены из JSON. Раздел вывода unittest приведён дословно.
+Открытие галереи или запуск её сборщика не вызывает API и не выполняет тесты.
+
+API / jev-1.13.0
+remote_requests=1; input_tokens=746; output_tokens=79; elapsed_ms=984.84
+choice=export; choice_confidence=1.0; score=1.0; score_confidence=0.99; noul=0.95
+sources: ../jev-live-2026-09-20/first-call-ru/{request,response,metadata}.json
+
+primary-eval
+cases=18; requests=18; raw_correct=28/28; accepted=28; abstentions=0; unanswered=0
+source: ../jev-live-2026-09-20/primary-eval/results.json
+
+challenge-eval
+cases=18; requests=18; raw_correct=28/28; accepted=28; abstentions=0; unanswered=0
+source: ../jev-live-2026-09-20/challenge-eval/results.json
+
+Малые подобранные наборы; эти результаты не оценивают надёжность в production.
+
+MATRIX / selector=jev
+$ python3 -B worker_eval.py --selector jev --out runs/jev-codex-eval-2026-09-20
+ui-title-only: status=complete; checks=5; repairs=1; oracle=PASS; false_complete=False
+backend-title-only: status=stop; checks=2; repairs=0; oracle=FAIL; false_complete=False
+both-title-only: status=complete; checks=5; repairs=1; oracle=PASS; false_complete=False
+backend stop: choice=D2; probability=0.68; confidence=0.52; min_choice_confidence=0.6
+source: ../jev-live-2026-09-20/codex-matrix/evaluation.json
+
+SEPARATE RECOVERY / selector=all
+status=complete; checks=4; repairs=1; remote_jev_requests=0; oracle=PASS
+source: ../jev-live-2026-09-20/backend-recovery/recovery.json
+
+UNITTEST / command from saved metadata
+python3 -B -m unittest discover -s tests -v
+Последние 8 строк terminal/unit-tests-83.txt:
+test_three_faults_are_distinct_and_break_description_search (test_worker_eval.WorkerEvaluationTests) ... ok
+test_timeout_recorded_without_false_completion (test_worker_eval.WorkerEvaluationTests) ... ok
+test_unknown_selector_rejected_before_writes (test_worker_eval.WorkerEvaluationTests) ... ok
+
+----------------------------------------------------------------------
+Ran 83 tests in 4.956s
+
+OK
+
+sources: unit-tests-83.txt; ../local-tests-2026-09-20.json

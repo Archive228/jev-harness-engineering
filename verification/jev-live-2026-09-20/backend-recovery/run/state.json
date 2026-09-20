@@ -1,0 +1,206 @@
+{
+  "project": "<workspace>/jev-harness-lab/runs/jev-backend-recovery-2026-09-20/seed/project",
+  "project_relative_to_state": "../seed/project",
+  "snapshot": "c0ef34d5505bd60b55a3433bb36ab8e3158c41b82484b785056f006dc2a2c85c",
+  "records": [
+    {
+      "check_id": "C1",
+      "scope": "Calls application search('milk') and asserts that item 1 is returned by a title match.",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "<workspace>/jev-harness-lab/check_runner.py",
+        "C1",
+        "<workspace>/jev-harness-lab/runs/jev-codex-eval-2026-09-20/backend-title-only-seed/project"
+      ],
+      "snapshot": "585fb5d74d1217271034d6513ec30c8ad94146cca6000d570f6f6c68b94fb3ea",
+      "snapshot_after": "585fb5d74d1217271034d6513ec30c8ad94146cca6000d570f6f6c68b94fb3ea",
+      "exit_code": 0,
+      "stdout": "{\"check_id\": \"C1\", \"kind\": \"check_completed\", \"observation\": {\"query\": \"milk\", \"actual_ids\": [1], \"expected_ids\": [1]}}\n",
+      "stderr": "",
+      "elapsed_ms": 50.21,
+      "executed_at_unix": 1789898918.8353431,
+      "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+      "check_result": {
+        "check_id": "C1",
+        "kind": "check_completed",
+        "observation": {
+          "query": "milk",
+          "actual_ids": [
+            1
+          ],
+          "expected_ids": [
+            1
+          ]
+        }
+      }
+    },
+    {
+      "check_id": "C2",
+      "scope": "Calls application search('carton') and asserts that item 1 is returned by a description-only match.",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "<workspace>/jev-harness-lab/check_runner.py",
+        "C2",
+        "<workspace>/jev-harness-lab/runs/jev-codex-eval-2026-09-20/backend-title-only-seed/project"
+      ],
+      "snapshot": "585fb5d74d1217271034d6513ec30c8ad94146cca6000d570f6f6c68b94fb3ea",
+      "snapshot_after": "585fb5d74d1217271034d6513ec30c8ad94146cca6000d570f6f6c68b94fb3ea",
+      "exit_code": 1,
+      "stdout": "{\"check_id\": \"C2\", \"kind\": \"assertion_failure\", \"error\": \"AssertionError\", \"detail\": \"description-only search: expected [1], got []\"}\n",
+      "stderr": "",
+      "elapsed_ms": 55.76,
+      "executed_at_unix": 1789898919.811766,
+      "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+      "check_result": {
+        "check_id": "C2",
+        "kind": "assertion_failure",
+        "error": "AssertionError",
+        "detail": "description-only search: expected [1], got []"
+      }
+    },
+    {
+      "check_id": "D1",
+      "scope": "Bypass the UI request builder and call the backend with title and description fields. Isolate backend filtering from request construction.",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "<workspace>/jev-harness-lab/check_runner.py",
+        "D1",
+        "<workspace>/jev-harness-lab/runs/jev-backend-recovery-2026-09-20/seed/project"
+      ],
+      "snapshot": "585fb5d74d1217271034d6513ec30c8ad94146cca6000d570f6f6c68b94fb3ea",
+      "snapshot_after": "585fb5d74d1217271034d6513ec30c8ad94146cca6000d570f6f6c68b94fb3ea",
+      "exit_code": 0,
+      "stdout": "{\"check_id\": \"D1\", \"kind\": \"check_completed\", \"observation\": {\"backend_direct_ids\": [], \"expected_ids\": [1], \"backend_match\": false}}\n",
+      "stderr": "",
+      "elapsed_ms": 58.38,
+      "executed_at_unix": 1789899071.2192562,
+      "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+      "check_result": {
+        "check_id": "D1",
+        "kind": "check_completed",
+        "observation": {
+          "backend_direct_ids": [],
+          "expected_ids": [
+            1
+          ],
+          "backend_match": false
+        }
+      }
+    },
+    {
+      "check_id": "D2",
+      "scope": "Inspect the search request constructed by the UI. Reveal whether its fields parameter includes description.",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "<workspace>/jev-harness-lab/check_runner.py",
+        "D2",
+        "<workspace>/jev-harness-lab/runs/jev-backend-recovery-2026-09-20/seed/project"
+      ],
+      "snapshot": "585fb5d74d1217271034d6513ec30c8ad94146cca6000d570f6f6c68b94fb3ea",
+      "snapshot_after": "585fb5d74d1217271034d6513ec30c8ad94146cca6000d570f6f6c68b94fb3ea",
+      "exit_code": 0,
+      "stdout": "{\"check_id\": \"D2\", \"kind\": \"check_completed\", \"observation\": {\"request\": {\"query\": \"carton\", \"fields\": [\"title\", \"description\"]}, \"includes_description\": true}}\n",
+      "stderr": "",
+      "elapsed_ms": 53.91,
+      "executed_at_unix": 1789899071.27458,
+      "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+      "check_result": {
+        "check_id": "D2",
+        "kind": "check_completed",
+        "observation": {
+          "request": {
+            "query": "carton",
+            "fields": [
+              "title",
+              "description"
+            ]
+          },
+          "includes_description": true
+        }
+      }
+    },
+    {
+      "check_id": "C1",
+      "scope": "Calls application search('milk') and asserts that item 1 is returned by a title match.",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "<workspace>/jev-harness-lab/check_runner.py",
+        "C1",
+        "<workspace>/jev-harness-lab/runs/jev-backend-recovery-2026-09-20/seed/project"
+      ],
+      "snapshot": "c0ef34d5505bd60b55a3433bb36ab8e3158c41b82484b785056f006dc2a2c85c",
+      "snapshot_after": "c0ef34d5505bd60b55a3433bb36ab8e3158c41b82484b785056f006dc2a2c85c",
+      "exit_code": 0,
+      "stdout": "{\"check_id\": \"C1\", \"kind\": \"check_completed\", \"observation\": {\"query\": \"milk\", \"actual_ids\": [1], \"expected_ids\": [1]}}\n",
+      "stderr": "",
+      "elapsed_ms": 54.17,
+      "executed_at_unix": 1789899085.799139,
+      "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+      "check_result": {
+        "check_id": "C1",
+        "kind": "check_completed",
+        "observation": {
+          "query": "milk",
+          "actual_ids": [
+            1
+          ],
+          "expected_ids": [
+            1
+          ]
+        }
+      }
+    },
+    {
+      "check_id": "C2",
+      "scope": "Calls application search('carton') and asserts that item 1 is returned by a description-only match.",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "<workspace>/jev-harness-lab/check_runner.py",
+        "C2",
+        "<workspace>/jev-harness-lab/runs/jev-backend-recovery-2026-09-20/seed/project"
+      ],
+      "snapshot": "c0ef34d5505bd60b55a3433bb36ab8e3158c41b82484b785056f006dc2a2c85c",
+      "snapshot_after": "c0ef34d5505bd60b55a3433bb36ab8e3158c41b82484b785056f006dc2a2c85c",
+      "exit_code": 0,
+      "stdout": "{\"check_id\": \"C2\", \"kind\": \"check_completed\", \"observation\": {\"query\": \"carton\", \"actual_ids\": [1], \"expected_ids\": [1]}}\n",
+      "stderr": "",
+      "elapsed_ms": 53.51,
+      "executed_at_unix": 1789899085.8538802,
+      "contract_sha256": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "contract_sha256_after": "b40e0513fe314c72520027eacb0cc5e8d61edf848eb6d21aea1b64df3efaaa05",
+      "runner_sha256": "a2a1d5e96f86b166f6b6f5ec22a154976c44beb40828ac92de95d03403ce214c",
+      "check_result": {
+        "check_id": "C2",
+        "kind": "check_completed",
+        "observation": {
+          "query": "carton",
+          "actual_ids": [
+            1
+          ],
+          "expected_ids": [
+            1
+          ]
+        }
+      }
+    }
+  ],
+  "case": "missing-evidence",
+  "worker_claim": "Updated `app.py` so backend search checks the requested fields, enabling title OR description matches while preserving case-insensitive matching. No Python or tests were run.",
+  "provenance_note": "Imported records are trusted caller data; hashes check freshness, not authenticity."
+}

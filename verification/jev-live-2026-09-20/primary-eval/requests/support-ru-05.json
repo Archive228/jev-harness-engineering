@@ -1,0 +1,22 @@
+{
+  "state": {
+    "ticket": "Не могу обновить платёжные реквизиты в подписке. Коллега советует открыть приватное окно, но я ещё не проверял этот совет."
+  },
+  "model": "jev-1.13.0",
+  "questions": {
+    "category": {
+      "type": "choice",
+      "instructions": "Classify the actual problem the customer asks to fix. Ignore features explicitly described as working normally.",
+      "criteria": {
+        "export": "Exporting, generating or downloading a document or file",
+        "account": "Signing in, authentication or access to an account",
+        "payment": "Billing, invoices, subscription payments or billing details",
+        "other": "A different problem outside the three categories above"
+      }
+    },
+    "has_workaround": {
+      "type": "noul",
+      "instructions": "Does this customer's message explicitly report an alternative method that they have actually used successfully to accomplish the affected task? Advice, an untried suggestion, a question, and a failed alternative do not count."
+    }
+  }
+}

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""Standalone Russian-language example. Requires TYPESAFE_API_KEY.
-Live accuracy has not been evaluated; questions match the article.
+"""Первый запрос статьи с русскими вопросами; нужен TYPESAFE_API_KEY.
+Живой прогон 2026-09-20: export / 1.0 / 0.95. Исходный ответ сохранён в
+verification/jev-live-2026-09-20/first-call-ru/response.json.
+Это результат одного запроса, а не оценка общей точности модели.
 """
 category_question = {
     "type": "choice",

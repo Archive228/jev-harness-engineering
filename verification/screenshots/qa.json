@@ -1,0 +1,37 @@
+{
+  "date": "2026-09-20",
+  "source": "jev-engineering.html",
+  "tool": "Codex in-app browser / cua_repl",
+  "checks": {
+    "desktop_viewport": [
+      1100,
+      750
+    ],
+    "mobile_viewport": [
+      390,
+      844
+    ],
+    "images_loaded": 8,
+    "sections": 12,
+    "horizontal_page_overflow": false,
+    "mobile_initial_toc_collapsed": true,
+    "image_zoom_open_and_close": "passed"
+  },
+  "screenshots": [
+    {
+      "file": "article-desktop.png",
+      "bytes": 103395,
+      "sha256": "1486d84a1a1c7de70c7dbc6ef0ef5221a99f26f401e0d874d61250b88fcaf041"
+    },
+    {
+      "file": "article-mobile-zoom.png",
+      "bytes": 34642,
+      "sha256": "95f3c0925b35c3f13607b8e47fecb8bea580050e2a570a90929b746ec4ed77e4"
+    },
+    {
+      "file": "article-mobile.png",
+      "bytes": 48059,
+      "sha256": "fcb197eb419498c339de42f3f20e23f9e19de2f7529843dc6d758f84696999c0"
+    }
+  ]
+}

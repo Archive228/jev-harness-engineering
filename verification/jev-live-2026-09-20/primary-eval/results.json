@@ -1,0 +1,764 @@
+{
+  "protocol": "jev-live-eval-v1",
+  "mode": "live",
+  "status": "completed",
+  "started_at": "2026-09-20T10:04:18.587659+00:00",
+  "requested_model": "jev-1.13.0",
+  "endpoint": "https://api.typesafe.ai/v1/systemone",
+  "dataset_version": "authored-holdout-v1",
+  "dataset_sha256": "3f0559bb66fada242d686d91c0126d755cc2ae34c7396c19388aa63fbbd595ff",
+  "runner_sha256": "270d9f186a10197fa2ec1000fc788dafe7f18157d5d2eb75ce9cfb6e7c9d59ab",
+  "client_sha256": "d7f005cce8b00e1c38ad33f798a4336c86e201ecbeb937dc9ae2d8efd9ce747e",
+  "python_version": "3.9.6",
+  "questions_sha256": "ad42292735262af68ccc4ff9d386fb709f7b83cffddcd3e3d9208b519db59d6a",
+  "thresholds": {
+    "choice_confidence_min": 0.6,
+    "noul_no_max": 0.2,
+    "noul_yes_min": 0.8
+  },
+  "timeout_seconds": 20,
+  "max_requests": 18,
+  "automatic_retries": 0,
+  "remote_requests": 18,
+  "valid_responses": 18,
+  "request_errors": 0,
+  "usage": {
+    "input_tokens": 9322,
+    "output_tokens": 1024
+  },
+  "total_request_ms": 17102.64,
+  "baseline": {
+    "category": {
+      "correct": 8,
+      "total": 10,
+      "accuracy": 0.8
+    },
+    "has_workaround": {
+      "correct": 6,
+      "total": 10,
+      "accuracy": 0.6
+    },
+    "next_check": {
+      "correct": 3,
+      "total": 8,
+      "accuracy": 0.375
+    }
+  },
+  "requests": [
+    {
+      "case_id": "support-en-01",
+      "request_sha256": "8bb23f74232c68f03bf840d08b1829ab1798fca5c7d1fb8fcf69460f58df6dae",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 453,
+        "output_tokens": 66
+      },
+      "response_path": "support-en-01-response.json",
+      "elapsed_ms": 986.59
+    },
+    {
+      "case_id": "support-en-02",
+      "request_sha256": "b77572fb9fbe2f29d3eaf5fcb52d1f97c3b8e567d7e81314511536bb1f836e69",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 450,
+        "output_tokens": 66
+      },
+      "response_path": "support-en-02-response.json",
+      "elapsed_ms": 927.02
+    },
+    {
+      "case_id": "support-en-03",
+      "request_sha256": "11ca6868fc89dd8f6a637babdc0a85cac6135ae813b28c03de5311db21c545f4",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 458,
+        "output_tokens": 66
+      },
+      "response_path": "support-en-03-response.json",
+      "elapsed_ms": 1045.23
+    },
+    {
+      "case_id": "support-en-04",
+      "request_sha256": "a4e7b815bd55e7ec253f5a7489a29ea7e93feeb7ecbc3008398d333193b1a945",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 454,
+        "output_tokens": 66
+      },
+      "response_path": "support-en-04-response.json",
+      "elapsed_ms": 946.78
+    },
+    {
+      "case_id": "support-en-05",
+      "request_sha256": "53a84c495b3679c4268b4e0627992d5c72042a655a57e5f3900ee24ed1f011c1",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 457,
+        "output_tokens": 66
+      },
+      "response_path": "support-en-05-response.json",
+      "elapsed_ms": 957.02
+    },
+    {
+      "case_id": "support-ru-01",
+      "request_sha256": "cf15c633018574333ee98f8e63d74c551cc442cc66cb8cbb876997a4c0cc3b75",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 501,
+        "output_tokens": 66
+      },
+      "response_path": "support-ru-01-response.json",
+      "elapsed_ms": 930.21
+    },
+    {
+      "case_id": "support-ru-02",
+      "request_sha256": "7a371c24f34da96a921051bed73ded2e91e840da7d518a2d78adf583a5dad2d4",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 522,
+        "output_tokens": 66
+      },
+      "response_path": "support-ru-02-response.json",
+      "elapsed_ms": 969.6
+    },
+    {
+      "case_id": "support-ru-03",
+      "request_sha256": "7b0ee666d66d9360a2a8737bcc5976952af4948b67fb1ae534bb6e807ecc3e3f",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 525,
+        "output_tokens": 66
+      },
+      "response_path": "support-ru-03-response.json",
+      "elapsed_ms": 1006.16
+    },
+    {
+      "case_id": "support-ru-04",
+      "request_sha256": "c732c1965653bca8e5d86768a5f08f77cc925af80c80f88f458f8ea828c67d15",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 501,
+        "output_tokens": 66
+      },
+      "response_path": "support-ru-04-response.json",
+      "elapsed_ms": 980.82
+    },
+    {
+      "case_id": "support-ru-05",
+      "request_sha256": "9985c99c16596b261e7a1e1ad04c49f4f8f3cb142a14ab964c8e8d02e3a2d4da",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 511,
+        "output_tokens": 66
+      },
+      "response_path": "support-ru-05-response.json",
+      "elapsed_ms": 895.79
+    },
+    {
+      "case_id": "diag-en-01",
+      "request_sha256": "947bc26e69705b0e135bcec5281fabd755903d56bbdb3ef6e655b78027985a26",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 504,
+        "output_tokens": 45
+      },
+      "response_path": "diag-en-01-response.json",
+      "elapsed_ms": 942.94
+    },
+    {
+      "case_id": "diag-en-02",
+      "request_sha256": "49f492309850566eacf09a107f751718b059abc2a6586b03dc8aef9d157b522d",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 513,
+        "output_tokens": 45
+      },
+      "response_path": "diag-en-02-response.json",
+      "elapsed_ms": 982.01
+    },
+    {
+      "case_id": "diag-ru-01",
+      "request_sha256": "d9abd9aebd394048b2e737619370101b65062070e07aab75523600eb783a6b0f",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 601,
+        "output_tokens": 45
+      },
+      "response_path": "diag-ru-01-response.json",
+      "elapsed_ms": 947.12
+    },
+    {
+      "case_id": "diag-ru-02",
+      "request_sha256": "22532c94db82491ec5a786fbb983bbef25201768971156d2640507e8434c6acc",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 588,
+        "output_tokens": 45
+      },
+      "response_path": "diag-ru-02-response.json",
+      "elapsed_ms": 902.36
+    },
+    {
+      "case_id": "diag-en-03",
+      "request_sha256": "7f37cee3cd00ab66fa47f4db29e8ed0ea86d300943fcdbebf9f5df251ec03633",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 513,
+        "output_tokens": 47
+      },
+      "response_path": "diag-en-03-response.json",
+      "elapsed_ms": 883.38
+    },
+    {
+      "case_id": "diag-ru-03",
+      "request_sha256": "14c2a221316ec0731d819c092ae2e33aae07dd18836e21351fc5a8cbc5b89748",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 627,
+        "output_tokens": 47
+      },
+      "response_path": "diag-ru-03-response.json",
+      "elapsed_ms": 972.39
+    },
+    {
+      "case_id": "diag-en-04",
+      "request_sha256": "042194416a0bf8a1137ade8c474bff71152d796a9748f0a2ae4fd2d5ea0aecd8",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 514,
+        "output_tokens": 45
+      },
+      "response_path": "diag-en-04-response.json",
+      "elapsed_ms": 910.13
+    },
+    {
+      "case_id": "diag-ru-04",
+      "request_sha256": "468b8d5d40cb91c3f62fe193cca8b5797f90c75b6cf8d1b8ef8c9f55aa25844b",
+      "status": "ok",
+      "response_model": "jev-1.13.0",
+      "provider_metadata": {},
+      "usage": {
+        "input_tokens": 630,
+        "output_tokens": 45
+      },
+      "response_path": "diag-ru-04-response.json",
+      "elapsed_ms": 941.23
+    }
+  ],
+  "answers": [
+    {
+      "case_id": "support-en-01",
+      "kind": "support",
+      "language": "en",
+      "question": "category",
+      "expected": "export",
+      "raw_label": "export",
+      "raw_correct": true,
+      "policy_label": "export",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "export",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-en-01",
+      "kind": "support",
+      "language": "en",
+      "question": "has_workaround",
+      "expected": true,
+      "raw_label": true,
+      "raw_correct": true,
+      "policy_label": true,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": false
+    },
+    {
+      "case_id": "support-en-02",
+      "kind": "support",
+      "language": "en",
+      "question": "category",
+      "expected": "payment",
+      "raw_label": "payment",
+      "raw_correct": true,
+      "policy_label": "payment",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "payment",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-en-02",
+      "kind": "support",
+      "language": "en",
+      "question": "has_workaround",
+      "expected": false,
+      "raw_label": false,
+      "raw_correct": true,
+      "policy_label": false,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-en-03",
+      "kind": "support",
+      "language": "en",
+      "question": "category",
+      "expected": "account",
+      "raw_label": "account",
+      "raw_correct": true,
+      "policy_label": "account",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "account",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-en-03",
+      "kind": "support",
+      "language": "en",
+      "question": "has_workaround",
+      "expected": true,
+      "raw_label": true,
+      "raw_correct": true,
+      "policy_label": true,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": false
+    },
+    {
+      "case_id": "support-en-04",
+      "kind": "support",
+      "language": "en",
+      "question": "category",
+      "expected": "other",
+      "raw_label": "other",
+      "raw_correct": true,
+      "policy_label": "other",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "other",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-en-04",
+      "kind": "support",
+      "language": "en",
+      "question": "has_workaround",
+      "expected": false,
+      "raw_label": false,
+      "raw_correct": true,
+      "policy_label": false,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-en-05",
+      "kind": "support",
+      "language": "en",
+      "question": "category",
+      "expected": "export",
+      "raw_label": "export",
+      "raw_correct": true,
+      "policy_label": "export",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "payment",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "support-en-05",
+      "kind": "support",
+      "language": "en",
+      "question": "has_workaround",
+      "expected": false,
+      "raw_label": false,
+      "raw_correct": true,
+      "policy_label": false,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-ru-01",
+      "kind": "support",
+      "language": "ru",
+      "question": "category",
+      "expected": "account",
+      "raw_label": "account",
+      "raw_correct": true,
+      "policy_label": "account",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "account",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-ru-01",
+      "kind": "support",
+      "language": "ru",
+      "question": "has_workaround",
+      "expected": false,
+      "raw_label": false,
+      "raw_correct": true,
+      "policy_label": false,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-ru-02",
+      "kind": "support",
+      "language": "ru",
+      "question": "category",
+      "expected": "payment",
+      "raw_label": "payment",
+      "raw_correct": true,
+      "policy_label": "payment",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "payment",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-ru-02",
+      "kind": "support",
+      "language": "ru",
+      "question": "has_workaround",
+      "expected": true,
+      "raw_label": true,
+      "raw_correct": true,
+      "policy_label": true,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": false
+    },
+    {
+      "case_id": "support-ru-03",
+      "kind": "support",
+      "language": "ru",
+      "question": "category",
+      "expected": "export",
+      "raw_label": "export",
+      "raw_correct": true,
+      "policy_label": "export",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "export",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-ru-03",
+      "kind": "support",
+      "language": "ru",
+      "question": "has_workaround",
+      "expected": true,
+      "raw_label": true,
+      "raw_correct": true,
+      "policy_label": true,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": false
+    },
+    {
+      "case_id": "support-ru-04",
+      "kind": "support",
+      "language": "ru",
+      "question": "category",
+      "expected": "other",
+      "raw_label": "other",
+      "raw_correct": true,
+      "policy_label": "other",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "account",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "support-ru-04",
+      "kind": "support",
+      "language": "ru",
+      "question": "has_workaround",
+      "expected": false,
+      "raw_label": false,
+      "raw_correct": true,
+      "policy_label": false,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-ru-05",
+      "kind": "support",
+      "language": "ru",
+      "question": "category",
+      "expected": "payment",
+      "raw_label": "payment",
+      "raw_correct": true,
+      "policy_label": "payment",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "payment",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "support-ru-05",
+      "kind": "support",
+      "language": "ru",
+      "question": "has_workaround",
+      "expected": false,
+      "raw_label": false,
+      "raw_correct": true,
+      "policy_label": false,
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": false,
+      "baseline_correct": true
+    },
+    {
+      "case_id": "diag-en-01",
+      "kind": "diagnostic",
+      "language": "en",
+      "question": "next_check",
+      "expected": "D1",
+      "raw_label": "D1",
+      "raw_correct": true,
+      "policy_label": "D1",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "D1",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "diag-en-02",
+      "kind": "diagnostic",
+      "language": "en",
+      "question": "next_check",
+      "expected": "D2",
+      "raw_label": "D2",
+      "raw_correct": true,
+      "policy_label": "D2",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "D1",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "diag-ru-01",
+      "kind": "diagnostic",
+      "language": "ru",
+      "question": "next_check",
+      "expected": "D1",
+      "raw_label": "D1",
+      "raw_correct": true,
+      "policy_label": "D1",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "D1",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "diag-ru-02",
+      "kind": "diagnostic",
+      "language": "ru",
+      "question": "next_check",
+      "expected": "D2",
+      "raw_label": "D2",
+      "raw_correct": true,
+      "policy_label": "D2",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "D1",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "diag-en-03",
+      "kind": "diagnostic",
+      "language": "en",
+      "question": "next_check",
+      "expected": "none_suitable",
+      "raw_label": "none_suitable",
+      "raw_correct": true,
+      "policy_label": "none_suitable",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": true,
+      "baseline_label": "D1",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "diag-ru-03",
+      "kind": "diagnostic",
+      "language": "ru",
+      "question": "next_check",
+      "expected": "none_suitable",
+      "raw_label": "none_suitable",
+      "raw_correct": true,
+      "policy_label": "none_suitable",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": true,
+      "baseline_label": "D1",
+      "baseline_correct": false
+    },
+    {
+      "case_id": "diag-en-04",
+      "kind": "diagnostic",
+      "language": "en",
+      "question": "next_check",
+      "expected": "D1",
+      "raw_label": "D1",
+      "raw_correct": true,
+      "policy_label": "D1",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "D1",
+      "baseline_correct": true
+    },
+    {
+      "case_id": "diag-ru-04",
+      "kind": "diagnostic",
+      "language": "ru",
+      "question": "next_check",
+      "expected": "D2",
+      "raw_label": "D2",
+      "raw_correct": true,
+      "policy_label": "D2",
+      "policy_abstained": false,
+      "policy_correct": true,
+      "explicit_none_suitable": false,
+      "baseline_label": "D1",
+      "baseline_correct": false
+    }
+  ],
+  "metrics": {
+    "expected_answers": 28,
+    "valid_answers": 28,
+    "unanswered": 0,
+    "raw_correct": 28,
+    "raw_accuracy_on_valid": 1.0,
+    "policy_abstentions": 0,
+    "accepted_decisions": 28,
+    "accepted_correct": 28,
+    "accepted_incorrect": 0,
+    "decision_coverage": 1.0,
+    "accuracy_on_accepted": 1.0,
+    "explicit_none_suitable": 2
+  },
+  "by_question": {
+    "category": {
+      "expected_answers": 10,
+      "valid_answers": 10,
+      "unanswered": 0,
+      "raw_correct": 10,
+      "raw_accuracy_on_valid": 1.0,
+      "policy_abstentions": 0,
+      "accepted_decisions": 10,
+      "accepted_correct": 10,
+      "accepted_incorrect": 0,
+      "decision_coverage": 1.0,
+      "accuracy_on_accepted": 1.0,
+      "explicit_none_suitable": 0
+    },
+    "has_workaround": {
+      "expected_answers": 10,
+      "valid_answers": 10,
+      "unanswered": 0,
+      "raw_correct": 10,
+      "raw_accuracy_on_valid": 1.0,
+      "policy_abstentions": 0,
+      "accepted_decisions": 10,
+      "accepted_correct": 10,
+      "accepted_incorrect": 0,
+      "decision_coverage": 1.0,
+      "accuracy_on_accepted": 1.0,
+      "explicit_none_suitable": 0
+    },
+    "next_check": {
+      "expected_answers": 8,
+      "valid_answers": 8,
+      "unanswered": 0,
+      "raw_correct": 8,
+      "raw_accuracy_on_valid": 1.0,
+      "policy_abstentions": 0,
+      "accepted_decisions": 8,
+      "accepted_correct": 8,
+      "accepted_incorrect": 0,
+      "decision_coverage": 1.0,
+      "accuracy_on_accepted": 1.0,
+      "explicit_none_suitable": 2
+    }
+  },
+  "finished_at": "2026-09-20T10:04:35.732918+00:00"
+}

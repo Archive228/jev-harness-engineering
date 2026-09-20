@@ -49,15 +49,24 @@ def probability(value):
             and math.isfinite(value) and 0 <= value <= 1)
 
 
+def response_usage(response):
+    """Return complete, validated provider counters; missing is never zero."""
+    usage = response.get("usage") if isinstance(response, dict) else None
+    if (not isinstance(usage, dict)
+            or any(not isinstance(usage.get(name), int)
+                   or isinstance(usage.get(name), bool) or usage[name] < 0
+                   for name in ("input_tokens", "output_tokens"))):
+        raise JudgeError("Missing or invalid usage counters")
+    return {name: usage[name] for name in ("input_tokens", "output_tokens")}
+
+
 def validate_response(response, questions):
     answers = response.get("answers") if isinstance(response, dict) else None
     if not isinstance(answers, dict):
         raise JudgeError("Response has no answers object")
-    usage = response.get("usage", {})
-    if (not isinstance(usage, dict)
-            or any(not isinstance(value, int) or isinstance(value, bool) or value < 0
-                   for name, value in usage.items() if name in ("input_tokens", "output_tokens"))):
-        raise JudgeError("Invalid usage counters")
+    if not isinstance(response.get("model"), str) or not response["model"].strip():
+        raise JudgeError("Missing or invalid response model")
+    response_usage(response)
     for key, question in questions.items():
         answer = answers.get(key)
         if not isinstance(answer, dict) or answer.get("type") != question["type"]:
@@ -73,7 +82,8 @@ def validate_response(response, questions):
                 or abs(sum(distribution.values()) - 1) > 0.02
                 or not probability(answer.get("confidence"))):
             raise JudgeError("Invalid distribution/confidence for " + key)
-        if question["type"] == "choice" and answer.get("choice") not in expected:
+        if question["type"] == "choice" and (not isinstance(answer.get("choice"), str)
+                                             or answer["choice"] not in expected):
             raise JudgeError("Choice outside registered options")
         if question["type"] == "choice" and distribution[answer["choice"]] + 1e-6 < max(distribution.values()):
             raise JudgeError("Choice is not a maximum-probability option")
@@ -117,11 +127,14 @@ class Judge:
         self.remote_requests = 0
         self.total_ms = 0.0
         self.usage = {"input_tokens": 0, "output_tokens": 0}
+        self.usage_complete = True
+        self.usage_reported_requests = 0
 
     def ask(self, state, questions):
         self.calls += 1
         request = {"state": state, "model": self.model, "questions": questions}
         record = {"mode": self.mode, "synthetic": self.mode == "demo", "request": request}
+        remote_attempted = False
         start = time.monotonic()
         try:
             if self.mode == "demo":
@@ -133,6 +146,7 @@ class Judge:
                 call = urllib.request.Request(ENDPOINT, data=json.dumps(request).encode(), method="POST",
                                               headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"})
                 self.remote_requests += 1
+                remote_attempted = True
                 with wall_deadline(self.timeout):
                     with urllib.request.urlopen(call, timeout=self.timeout) as result:
                         raw = result.read(2_000_001)
@@ -140,14 +154,23 @@ class Judge:
                             raise JudgeError("API response too large")
                         response = json.loads(raw)
             record["response"] = response  # Preserve provider JSON, including extra fields.
-            validate_response(response, questions)
+            usage = response_usage(response)
+            # A billed response still consumes tokens when its answers are invalid.
             for name in self.usage:
-                value = response.get("usage", {}).get(name, 0)
-                if isinstance(value, int) and value >= 0:
-                    self.usage[name] += value
+                self.usage[name] += usage[name]
+            record["usage_reported"] = True
+            if remote_attempted:
+                self.usage_reported_requests += 1
+            validate_response(response, questions)
             return response
         except urllib.error.HTTPError as exc:
             record["error"] = "HTTP %s" % exc.code
+            # Never persist a response's entire headers or Authorization data.
+            for name in ("x-request-id", "request-id"):
+                value = exc.headers.get(name) if exc.headers else None
+                if value and len(value) <= 200 and all(c.isalnum() or c in "-_.:" for c in value):
+                    record["provider_request_id"] = value
+                    break
             raise JudgeError(record["error"]) from None
         except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
             record["error"] = "API transport/JSON failure: " + type(exc).__name__
@@ -156,6 +179,10 @@ class Judge:
             record["error"] = str(exc)
             raise
         finally:
+            record.setdefault("usage_reported", False)
+            if remote_attempted and (record.get("error") or not record["usage_reported"]):
+                self.usage_complete = False
+            record["usage_complete"] = not remote_attempted or (record["usage_reported"] and not record.get("error"))
             record["elapsed_ms"] = round((time.monotonic() - start) * 1000, 2)
             self.total_ms += record["elapsed_ms"]
             self.directory.mkdir(parents=True, exist_ok=True)

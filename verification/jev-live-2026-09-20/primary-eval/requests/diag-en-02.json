@@ -1,0 +1,24 @@
+{
+  "state": {
+    "failure": "Search succeeds for title matches but fails for a description-only match.",
+    "observations": [
+      "Calling the backend directly with title and description on this snapshot returns the expected item.",
+      "The UI's outgoing request has not been inspected."
+    ],
+    "already_run": [
+      "D1"
+    ]
+  },
+  "model": "jev-1.13.0",
+  "questions": {
+    "next_check": {
+      "type": "choice",
+      "instructions": "Select the next diagnostic that adds missing evidence about the observed failure on the CURRENT source snapshot. Do not repeat a diagnostic already completed with fresh evidence. Stale results do not count as fresh evidence. Select none_suitable when both diagnostics are already covered, neither can run, or neither addresses the failure.",
+      "criteria": {
+        "D1": "Bypass the UI request builder and call the backend with both title and description fields. This reveals backend filtering behavior. It requires importing app.py.",
+        "D2": "Inspect the outgoing search request built by the UI to reveal whether its fields parameter includes description. It requires importing app.py.",
+        "none_suitable": "Neither available diagnostic adds relevant, executable, fresh evidence for this failure."
+      }
+    }
+  }
+}

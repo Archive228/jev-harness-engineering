@@ -1,0 +1,53 @@
+{
+  "mode": "live",
+  "synthetic": false,
+  "request": {
+    "state": {
+      "ticket": "Signing in works, and there is no billing problem. The browser button for downloading my inventory report only produces an empty file. I opened the mobile app, downloaded that same report there, and checked that every inventory row is present. Please fix the browser download."
+    },
+    "model": "jev-1.13.0",
+    "questions": {
+      "category": {
+        "type": "choice",
+        "instructions": "Classify the actual problem the customer asks to fix. Ignore features explicitly described as working normally.",
+        "criteria": {
+          "export": "Exporting, generating or downloading a document or file",
+          "account": "Signing in, authentication or access to an account",
+          "payment": "Billing, invoices, subscription payments or billing details",
+          "other": "A different problem outside the three categories above"
+        }
+      },
+      "has_workaround": {
+        "type": "noul",
+        "instructions": "Does this customer's message explicitly report an alternative method that they have actually used successfully to accomplish the affected task? Advice, an untried suggestion, a question, and a failed alternative do not count."
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "category": {
+        "type": "choice",
+        "choice": "export",
+        "confidence": 1.0,
+        "probabilities": {
+          "payment": 0.0,
+          "export": 1.0,
+          "other": 0.0,
+          "account": 0.0
+        }
+      },
+      "has_workaround": {
+        "type": "noul",
+        "noul": 0.98
+      }
+    },
+    "usage": {
+      "input_tokens": 483,
+      "output_tokens": 66
+    }
+  },
+  "usage_reported": true,
+  "usage_complete": true,
+  "elapsed_ms": 1101.05
+}

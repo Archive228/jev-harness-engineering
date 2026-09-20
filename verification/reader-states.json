@@ -1,0 +1,322 @@
+[
+  {
+    "file": "jev-harness-lab/evaluation-example/correct-all/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/evaluation-example/correct-fixed/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/evaluation-example/correct-jev/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/evaluation-example/missing-evidence-all/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/evaluation-example/missing-evidence-fixed/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/evaluation-example/missing-evidence-jev/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/evaluation-example/stalled-all/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "failed",
+        "nonzero_exit"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/evaluation-example/stalled-fixed/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "failed",
+        "nonzero_exit"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/evaluation-example/stalled-jev/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "failed",
+        "nonzero_exit"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/examples/correct/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/examples/evidence-demo/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "unverified",
+        "no_fresh_execution"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/examples/router-demo/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "failed",
+        "nonzero_exit"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/examples/stalled/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "failed",
+        "nonzero_exit"
+      ]
+    ]
+  },
+  {
+    "file": "jev-harness-lab/runs/example/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ]
+    ]
+  },
+  {
+    "file": "verification/codex-worker-2026-09-19/backend-title-only-seed/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "unverified",
+        "no_fresh_execution"
+      ],
+      [
+        "R2",
+        "unverified",
+        "no_fresh_execution"
+      ]
+    ]
+  },
+  {
+    "file": "verification/codex-worker-2026-09-19/backend-title-only/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ]
+    ]
+  },
+  {
+    "file": "verification/codex-worker-2026-09-19/both-title-only-seed/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "unverified",
+        "no_fresh_execution"
+      ],
+      [
+        "R2",
+        "unverified",
+        "no_fresh_execution"
+      ]
+    ]
+  },
+  {
+    "file": "verification/codex-worker-2026-09-19/both-title-only/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ]
+    ]
+  },
+  {
+    "file": "verification/codex-worker-2026-09-19/ui-title-only-seed/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "unverified",
+        "no_fresh_execution"
+      ],
+      [
+        "R2",
+        "unverified",
+        "no_fresh_execution"
+      ]
+    ]
+  },
+  {
+    "file": "verification/codex-worker-2026-09-19/ui-title-only/state.json",
+    "project_exists": true,
+    "criteria": [
+      [
+        "R1",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ],
+      [
+        "R2",
+        "passed",
+        "fresh_zero_exit_known_contract"
+      ]
+    ]
+  }
+]

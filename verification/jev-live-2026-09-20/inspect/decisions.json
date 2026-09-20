@@ -1,0 +1,42 @@
+{
+  "synthetic": false,
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "category": {
+        "type": "choice",
+        "choice": "export",
+        "confidence": 1.0,
+        "probabilities": {
+          "account": 0.0,
+          "payment": 0.0,
+          "other": 0.0,
+          "export": 1.0
+        }
+      },
+      "impact": {
+        "type": "score",
+        "score": 1.0,
+        "confidence": 0.99,
+        "legend": {
+          "0": "Cosmetic issue; functionality works",
+          "1": "Function is broken, but a working workaround exists",
+          "2": "Task is blocked and no working workaround is stated"
+        },
+        "probabilities": {
+          "0": 0.0,
+          "1": 1.0,
+          "2": 0.0
+        }
+      },
+      "has_workaround": {
+        "type": "noul",
+        "noul": 0.89
+      }
+    },
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 79
+    }
+  }
+}

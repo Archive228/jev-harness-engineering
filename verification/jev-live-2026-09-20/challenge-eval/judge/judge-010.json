@@ -1,0 +1,53 @@
+{
+  "mode": "live",
+  "synthetic": false,
+  "request": {
+    "state": {
+      "ticket": "Скачанный счёт открывается нормально, вход тоже работает. В самом счёте неверная ставка НДС, исправьте расчёт. Я не смог получить верный счёт повторным оформлением: ставка снова неправильная. Поддержка обещает попробовать ручной пересчёт завтра; готового исправленного счёта у меня нет."
+    },
+    "model": "jev-1.13.0",
+    "questions": {
+      "category": {
+        "type": "choice",
+        "instructions": "Classify the actual problem the customer asks to fix. Ignore features explicitly described as working normally.",
+        "criteria": {
+          "export": "Exporting, generating or downloading a document or file",
+          "account": "Signing in, authentication or access to an account",
+          "payment": "Billing, invoices, subscription payments or billing details",
+          "other": "A different problem outside the three categories above"
+        }
+      },
+      "has_workaround": {
+        "type": "noul",
+        "instructions": "Does this customer's message explicitly report an alternative method that they have actually used successfully to accomplish the affected task? Advice, an untried suggestion, a question, and a failed alternative do not count."
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "category": {
+        "type": "choice",
+        "choice": "payment",
+        "confidence": 0.97,
+        "probabilities": {
+          "export": 0.02,
+          "payment": 0.98,
+          "account": 0.0,
+          "other": 0.0
+        }
+      },
+      "has_workaround": {
+        "type": "noul",
+        "noul": 0.05
+      }
+    },
+    "usage": {
+      "input_tokens": 610,
+      "output_tokens": 66
+    }
+  },
+  "usage_reported": true,
+  "usage_complete": true,
+  "elapsed_ms": 921.21
+}

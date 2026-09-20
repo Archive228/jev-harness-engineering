@@ -100,9 +100,12 @@ class LiveEvalTests(unittest.TestCase):
             def __init__(self, *args, **kwargs):
                 self.remote_requests = 0
                 self.usage = {"input_tokens": 0, "output_tokens": 0}
+                self.usage_complete = True
+                self.usage_reported_requests = 0
                 self.total_ms = 0
             def ask(self, state, questions):
                 self.remote_requests += 1
+                self.usage_reported_requests += 1
                 self.usage["input_tokens"] += 11
                 self.usage["output_tokens"] += 3
                 self.total_ms += 2
@@ -128,6 +131,8 @@ class LiveEvalTests(unittest.TestCase):
             def __init__(self, *args, **kwargs):
                 self.remote_requests = 0
                 self.usage = {"input_tokens": 0, "output_tokens": 0}
+                self.usage_complete = False
+                self.usage_reported_requests = 0
                 self.total_ms = 7
             def ask(self, state, questions):
                 self.remote_requests += 1
@@ -139,6 +144,9 @@ class LiveEvalTests(unittest.TestCase):
         self.assertEqual(result["metrics"]["unanswered"], 28)
         self.assertEqual(sum(r["status"] == "skipped_after_error" for r in result["requests"]), 17)
         self.assertIsNone(result["metrics"]["accuracy_on_accepted"])
+        self.assertFalse(result["usage_complete"])
+        self.assertEqual(result["usage_unreported_requests"], 1)
+        self.assertIn("zero is not evidence", (self.out / "report.md").read_text())
 
     def test_existing_output_directory_not_overwritten(self):
         self.out.mkdir()

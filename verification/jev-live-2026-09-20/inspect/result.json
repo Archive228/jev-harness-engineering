@@ -1,0 +1,17 @@
+{
+  "status": "inspected",
+  "reason": "three_question_example",
+  "mode": "live",
+  "synthetic_judge_and_worker": false,
+  "checks_executed": 0,
+  "worker_iterations": 0,
+  "judge_invocations": 1,
+  "remote_jev_requests": 1,
+  "judge_elapsed_ms": 1066.97,
+  "usage": {
+    "input_tokens": 489,
+    "output_tokens": 79
+  },
+  "elapsed_ms": 1068.79,
+  "output_directory": "<workspace>/jev-harness-lab/runs/jev-live-inspect-2026-09-20"
+}

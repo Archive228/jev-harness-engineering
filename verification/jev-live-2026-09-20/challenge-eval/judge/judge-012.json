@@ -1,0 +1,57 @@
+{
+  "mode": "live",
+  "synthetic": false,
+  "request": {
+    "state": {
+      "source_snapshot": "rev-c-current",
+      "failure": "Description-only matches are absent from the UI search results.",
+      "runtime": {
+        "app_importable": true,
+        "both_diagnostics_executable": true
+      },
+      "observations": [
+        "On rev-c-current, D1 imported app.py, called the backend with both fields, and returned the expected description-only match.",
+        "A D2 attempt timed out while waiting for a runner slot, before importing app.py or inspecting any request. No fields parameter was observed.",
+        "The runner slot is available now. The already_run list includes attempted commands even when they produced no diagnostic evidence."
+      ],
+      "already_run": [
+        "D1",
+        "D2"
+      ]
+    },
+    "model": "jev-1.13.0",
+    "questions": {
+      "next_check": {
+        "type": "choice",
+        "instructions": "Select the next diagnostic that adds missing evidence about the observed failure on the CURRENT source snapshot. Do not repeat a diagnostic already completed with fresh evidence. Stale results do not count as fresh evidence. Select none_suitable when both diagnostics are already covered, neither can run, or neither addresses the failure.",
+        "criteria": {
+          "D1": "Bypass the UI request builder and call the backend with both title and description fields. This reveals backend filtering behavior. It requires importing app.py.",
+          "D2": "Inspect the outgoing search request built by the UI to reveal whether its fields parameter includes description. It requires importing app.py.",
+          "none_suitable": "Neither available diagnostic adds relevant, executable, fresh evidence for this failure."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "next_check": {
+        "type": "choice",
+        "choice": "D2",
+        "confidence": 0.96,
+        "probabilities": {
+          "D2": 0.97,
+          "none_suitable": 0.02,
+          "D1": 0.01
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 610,
+      "output_tokens": 45
+    }
+  },
+  "usage_reported": true,
+  "usage_complete": true,
+  "elapsed_ms": 950.84
+}

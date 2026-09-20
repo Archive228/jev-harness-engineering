@@ -1,0 +1,4 @@
+$ python3 -B worker_eval.py --selector jev --out runs/jev-codex-eval-2026-09-20
+<workspace>/jev-harness-lab/runs/jev-codex-eval-2026-09-20/evaluation.md
+
+Exit code: 2

@@ -1,0 +1,69 @@
+{
+  "harness": {
+    "status": "complete",
+    "reason": "acceptance_contract_satisfied",
+    "mode": "live",
+    "synthetic_judge_and_worker": false,
+    "checks_executed": 4,
+    "worker_iterations": 1,
+    "judge_invocations": 0,
+    "remote_jev_requests": 0,
+    "judge_elapsed_ms": 0.0,
+    "usage": {
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    "usage_complete": true,
+    "usage_reported_requests": 0,
+    "usage_unreported_requests": 0,
+    "elapsed_ms": 14696.05,
+    "output_directory": "<workspace>/jev-harness-lab/runs/jev-backend-recovery-2026-09-20/run"
+  },
+  "independent_acceptance": {
+    "passed": true,
+    "observations": [
+      {
+        "query": "blue",
+        "expected": [
+          1
+        ],
+        "actual": [
+          1
+        ],
+        "pass": true
+      },
+      {
+        "query": "export",
+        "expected": [
+          2
+        ],
+        "actual": [
+          2
+        ],
+        "pass": true
+      },
+      {
+        "query": "MILK",
+        "expected": [
+          1
+        ],
+        "actual": [
+          1
+        ],
+        "pass": true
+      },
+      {
+        "query": "does-not-exist",
+        "expected": [],
+        "actual": [],
+        "pass": true
+      }
+    ],
+    "execution_error": null,
+    "exit_code": 0,
+    "elapsed_ms": 57.89
+  },
+  "false_complete": false,
+  "elapsed_ms_including_oracle": 14799.51,
+  "snapshot_after": "c0ef34d5505bd60b55a3433bb36ab8e3158c41b82484b785056f006dc2a2c85c"
+}

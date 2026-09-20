@@ -1,0 +1,50 @@
+{
+  "captured_date": "2026-09-20",
+  "source": "verification/evidence-gallery.html",
+  "desktop_viewport": {
+    "width": 1100,
+    "height": 750
+  },
+  "mobile_viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "images": [
+    {
+      "file": "01-live-primitives.png",
+      "sha256": "88a4b727c8461b7cacf0ef8a554b25c904b7a493f8656cffd6bb6310f53fc371",
+      "bytes": 58376,
+      "capture": "Codex in-app browser via cua_repl; original screenshot bytes, no image editing"
+    },
+    {
+      "file": "02-live-evaluations.png",
+      "sha256": "7f8e901881d18f5fadf3643dd13306a1df3a0bb734629cbd3594da88b5e3dd4f",
+      "bytes": 71758,
+      "capture": "Codex in-app browser via cua_repl; original screenshot bytes, no image editing"
+    },
+    {
+      "file": "03-live-loop-and-recovery.png",
+      "sha256": "52a24f8f3cd853641518c4013d634fff1208fe6821a67aaffb6120a5884c009b",
+      "bytes": 59530,
+      "capture": "Codex in-app browser via cua_repl; original screenshot bytes, no image editing"
+    },
+    {
+      "file": "04-tests-and-terminal.png",
+      "sha256": "287a40531652f4bbebc38ee8ea74168111e02a3e05a8564343648949e72c5523",
+      "bytes": 62086,
+      "capture": "Codex in-app browser via cua_repl; original screenshot bytes, no image editing"
+    },
+    {
+      "file": "mobile-gallery-check.png",
+      "sha256": "c2ea2ac50800a9ea06de11bdabd6ec77ae1945a6f1d4e799831324599faec648",
+      "bytes": 46400,
+      "capture": "Codex in-app browser via cua_repl; original screenshot bytes, no image editing"
+    },
+    {
+      "file": "mobile-loop-check.png",
+      "sha256": "2ae65a5cf2a8d5fddbfc6bcb1d411c61650dcc5c292865976a30a48a0af46a49",
+      "bytes": 42277,
+      "capture": "Codex in-app browser via cua_repl; original screenshot bytes, no image editing"
+    }
+  ]
+}

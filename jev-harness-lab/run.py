@@ -2,6 +2,7 @@
 """One entry point for the three article mini-builds; Python 3.9+, no dependencies."""
 import argparse
 import json
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -17,6 +18,13 @@ from worker import WorkerError, run_worker
 
 def write_json(path, value):
     Path(path).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+
+
+def evidence_markdown(report):
+    text = report_markdown(report)
+    if report.get("scope_annotation_error"):
+        text += "\nShadow scope annotation unavailable: `%s`. Deterministic acceptance is unchanged.\n" % report["scope_annotation_error"]
+    return text
 
 
 class LimitError(RuntimeError):
@@ -39,6 +47,7 @@ class Lab:
         self.router_asked = False
         self.router_answer = None
         self.scope_cache = {}
+        self.scope_errors = {}
         self.events = []
         self.state = None
         self.report = None
@@ -94,7 +103,8 @@ class Lab:
 
     def save_state(self):
         try:
-            self.state["project_relative_to_state"] = str(Path(self.state["project"]).relative_to(self.directory))
+            self.state["project_relative_to_state"] = os.path.relpath(
+                Path(self.state["project"]).resolve(), self.directory.resolve())
         except ValueError:
             self.state["project_relative_to_state"] = None
         write_json(self.directory / "state.json", self.state)
@@ -106,13 +116,21 @@ class Lab:
             questions = {}  # Deterministic baselines make no model calls, including shadow calls.
         key = json.dumps([state, questions], sort_keys=True)
         if questions and key not in self.scope_cache:
-            self.scope_cache[key] = self.ask(state, questions)["answers"]
+            try:
+                self.scope_cache[key] = self.ask(state, questions)["answers"]
+            except JudgeError as exc:
+                # Optional scope annotations must not gate deterministic acceptance.
+                # Global budgets still apply: LimitError deliberately propagates.
+                self.scope_cache[key] = {}
+                self.scope_errors[key] = str(exc)
         answers = self.scope_cache.get(key, {})
         self.report = build_report(self.state, answers, self.policy["scope_threshold"])
         self.report["mode"] = self.args.mode
         self.report["synthetic_judgment"] = self.args.mode == "demo"
+        if key in self.scope_errors:
+            self.report["scope_annotation_error"] = self.scope_errors[key]
         write_json(self.directory / "evidence-report.json", self.report)
-        (self.directory / "evidence-report.md").write_text(report_markdown(self.report))
+        (self.directory / "evidence-report.md").write_text(evidence_markdown(self.report))
         self.save_state()
 
     def context(self):
@@ -161,6 +179,9 @@ class Lab:
                   "judge_invocations": self.judge.calls,
                   "remote_jev_requests": self.judge.remote_requests,
                   "judge_elapsed_ms": round(self.judge.total_ms, 2), "usage": self.judge.usage,
+                  "usage_complete": self.judge.usage_complete,
+                  "usage_reported_requests": self.judge.usage_reported_requests,
+                  "usage_unreported_requests": self.judge.remote_requests - self.judge.usage_reported_requests,
                   "elapsed_ms": round((time.monotonic() - self.started) * 1000, 2),
                   "output_directory": str(self.directory)}
         write_json(self.directory / "result.json", result)
@@ -169,7 +190,7 @@ class Lab:
                  "Executed checks: %d. Worker corrections: %d. Remote Jev requests: %d." %
                  (self.checks_used, self.iterations, result["remote_jev_requests"]), ""]
         if self.report:
-            lines.extend(report_markdown(self.report).splitlines()[2:])
+            lines.extend(evidence_markdown(self.report).splitlines()[2:])
         lines.extend(["", "Only the two declared acceptance criteria are covered. This is not a model-accuracy benchmark.", ""])
         (self.directory / "run-report.md").write_text("\n".join(lines))
         print(json.dumps(result, ensure_ascii=False, indent=2))
@@ -279,7 +300,7 @@ def main():
                 lab.report.update({"mode": args.mode, "synthetic_judgment": args.mode == "demo",
                                    "judge_error_or_limit": str(exc)})
                 write_json(lab.directory / "evidence-report.json", lab.report)
-                (lab.directory / "evidence-report.md").write_text(report_markdown(lab.report))
+                (lab.directory / "evidence-report.md").write_text(evidence_markdown(lab.report))
             return lab.finish("stop", str(exc))
         print(str(exc), file=sys.stderr)
         return 2

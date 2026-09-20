@@ -1,0 +1,30 @@
+{
+  "protocol": "jev-live-eval-v1",
+  "mode": "live",
+  "status": "prepared",
+  "started_at": "2026-09-20T10:04:18.587659+00:00",
+  "requested_model": "jev-1.13.0",
+  "endpoint": "https://api.typesafe.ai/v1/systemone",
+  "dataset_version": "authored-holdout-v1",
+  "dataset_sha256": "3f0559bb66fada242d686d91c0126d755cc2ae34c7396c19388aa63fbbd595ff",
+  "runner_sha256": "270d9f186a10197fa2ec1000fc788dafe7f18157d5d2eb75ce9cfb6e7c9d59ab",
+  "client_sha256": "d7f005cce8b00e1c38ad33f798a4336c86e201ecbeb937dc9ae2d8efd9ce747e",
+  "python_version": "3.9.6",
+  "questions_sha256": "ad42292735262af68ccc4ff9d386fb709f7b83cffddcd3e3d9208b519db59d6a",
+  "thresholds": {
+    "choice_confidence_min": 0.6,
+    "noul_no_max": 0.2,
+    "noul_yes_min": 0.8
+  },
+  "timeout_seconds": 20,
+  "max_requests": 18,
+  "automatic_retries": 0,
+  "remote_requests": 0,
+  "valid_responses": 0,
+  "request_errors": 0,
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "total_request_ms": 0
+}
