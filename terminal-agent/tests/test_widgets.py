@@ -1,4 +1,5 @@
 """Interaction checks for the terminal's reusable controls; no model calls."""
+from pathlib import Path
 import unittest
 
 from textual import events
@@ -141,3 +142,36 @@ class PickerTests(unittest.IsolatedAsyncioTestCase):
             await pilot.press("enter")
             await pilot.pause()
             self.assertEqual(picked, ["crypto"])
+
+
+class DeleteLineTests(unittest.IsolatedAsyncioTestCase):
+    """Cmd+Backspace reaches an application under several different names."""
+
+    def _binding(self):
+        return next(b for b in PromptEditor.BINDINGS if b.action == "delete_line")
+
+    def test_every_spelling_a_terminal_can_send_is_bound(self):
+        keys = set(self._binding().key.split(","))
+        # kitty keyboard protocol, meta-modified backspace and delete, and a
+        # fallback every terminal can produce without a Command modifier.
+        self.assertTrue({"super+backspace", "meta+backspace", "meta+delete", "ctrl+u"} <= keys)
+
+    def test_the_binding_survives_modal_screens(self):
+        self.assertTrue(self._binding().priority)
+
+    async def test_it_removes_the_line_the_cursor_is_on(self):
+        editor = PromptEditor(id="prompt")
+        app = WidgetApp(editor)
+        async with app.run_test():
+            editor.load_text("первая\nвторая\nтретья")
+            editor.cursor_location = (1, 3)
+            editor.action_delete_line()
+            await app.workers.wait_for_complete()
+            self.assertEqual(editor.text, "первая\nтретья")
+
+    async def test_the_on_screen_promise_names_a_key_that_is_actually_bound(self):
+        from jev_agent import tui
+        source = Path(tui.__file__).read_text(encoding="utf-8")
+        keys = set(self._binding().key.split(","))
+        self.assertIn("⌘⌫ или Ctrl+U", source)  # Promise the fallback too.
+        self.assertIn("ctrl+u", keys)

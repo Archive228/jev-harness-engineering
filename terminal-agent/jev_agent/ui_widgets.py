@@ -37,10 +37,13 @@ def plain(value: Any, limit: int = 14000) -> str:
 class PromptEditor(TextArea):
     BINDINGS = [Binding("enter", "submit", "Отправить", show=False, priority=True),
                 Binding("ctrl+j,shift+enter", "newline", "Новая строка", show=False, priority=True),
-                # Textual exposes macOS Command as ``meta``. Keep Ctrl+U as a
-                # terminal-friendly fallback for clients that don't forward
-                # the Command modifier.
-                Binding("meta+delete,ctrl+u", "delete_line", "Удалить строку", show=False, priority=True)]
+                # A terminal reports Command in more than one way: with the kitty
+                # keyboard protocol Cmd+Backspace arrives as ``super+backspace``,
+                # while other clients send it as a meta-modified Backspace or
+                # Delete, and some forward no Command modifier at all. Bind every
+                # spelling and keep Ctrl+U, which every terminal can produce.
+                Binding("super+backspace,meta+backspace,super+delete,meta+delete,ctrl+u",
+                        "delete_line", "Удалить строку", show=False, priority=True)]
 
     class Submitted(Message):
         def __init__(self, editor: "PromptEditor") -> None:
@@ -279,6 +282,7 @@ class HelpScreen(ModalScreen):
                 "Enter       отправить весь текст\n"
                 "Ctrl+J      новая строка; Shift+Enter — если поддерживает терминал\n"
                 "Ctrl+D      также отправить весь текст\n"
+                "⌘⌫ / Ctrl+U удалить текущую строку; Ctrl+U работает в любом терминале\n"
                 "F1 / Ctrl+P поиск команд\n"
                 "F2          вставить пример без запуска\n"
                 "F3          точный журнал событий\n"
