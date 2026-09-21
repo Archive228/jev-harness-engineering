@@ -219,6 +219,8 @@ class ConvenientChatTests(unittest.IsolatedAsyncioTestCase):
             with patch.object(app, "copy_to_clipboard") as clipboard:
                 await pilot.click("#result-copy")
                 clipboard.assert_called_once_with(answer)
+            fallback = self.session.directory / "exports" / "answer.txt"
+            self.assertEqual(fallback.read_text(encoding="utf-8"), answer)
             await pilot.click("#result-export")
             await pilot.pause()
             export = self.session.directory / "exports" / "session.md"
@@ -228,6 +230,16 @@ class ConvenientChatTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn("python -m unittest", content)
             self.assertIn('"status": "accepted"', content)
             self.assertEqual(self.session.calls, [])
+
+    async def test_copy_answer_keeps_file_fallback_when_terminal_clipboard_fails(self):
+        answer = self.saved_turn("Полный ответ\n" + "строка. " * 300)
+        app = JevApp(self.session)
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            with patch.object(app, "copy_to_clipboard", side_effect=RuntimeError("OSC52 disabled")):
+                await pilot.click("#result-copy")
+            fallback = self.session.directory / "exports" / "answer.txt"
+            self.assertEqual(fallback.read_text(encoding="utf-8"), answer)
 
     async def test_short_terminal_keeps_result_buttons_and_editor_inside_view(self):
         self.saved_turn()

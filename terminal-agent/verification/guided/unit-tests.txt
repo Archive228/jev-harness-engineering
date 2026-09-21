@@ -164,12 +164,12 @@ test_restored_turn_resets_elapsed_and_meters (test_tui.TerminalTests) ... ok
 test_send_button_submits_entire_multiline_draft (test_tui.TerminalTests) ... ok
 test_small_terminal_palette_scrolls_inside_dialog (test_tui.TerminalTests) ... ok
 test_stop_and_busy_input_preserve_followup (test_tui.TerminalTests) ... ok
-test_switch_session_restores_target_draft_and_resets_event_ids (test_tui.TerminalTests) ... Executing <Task pending name='Task-14462' coro=<IsolatedAsyncioTestCase._asyncioLoopRunner() running at /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/async_case.py:102> wait_for=<Future pending cb=[<TaskWakeupMethWrapper object at 0x1085fb370>()] created at /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/asyncio/base_events.py:424> created at /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/async_case.py:118> took 0.102 seconds
-ok
+test_switch_session_restores_target_draft_and_resets_event_ids (test_tui.TerminalTests) ... ok
 test_tab_moves_focus_without_inserting_into_draft (test_tui.TerminalTests) ... ok
 test_tool_finished_lifecycle_and_interruption_are_truthful (test_tui.TerminalTests) ... ok
 test_tool_lifecycle_coalesces_and_does_not_merge_attempts (test_tui.TerminalTests) ... ok
 test_wide_terminal_keeps_compact_live_logs_visible (test_tui.TerminalTests) ... ok
+test_copy_answer_keeps_file_fallback_when_terminal_clipboard_fails (test_ux.ConvenientChatTests) ... ok
 test_copy_keeps_full_answer_and_export_writes_real_saved_events (test_ux.ConvenientChatTests) ... ok
 test_ctrl_o_only_toggles_latest_turn_activity (test_ux.ConvenientChatTests) ... ok
 test_guided_picker_explains_default_and_direct_bypass (test_ux.ConvenientChatTests) ... ok
@@ -194,6 +194,6 @@ test_running_update_does_not_invent_exit_and_later_keeps_literal_command (test_w
 test_shell_title_is_readable_and_full_command_remains_literal (test_widgets.ToolCardTests) ... ok
 
 ----------------------------------------------------------------------
-Ran 190 tests in 53.750s
+Ran 191 tests in 46.837s
 
 OK

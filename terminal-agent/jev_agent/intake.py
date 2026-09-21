@@ -387,11 +387,15 @@ class IntakeController:
             self.session.meters["planner_calls"] = 1
             self.session.emit("meters", **self.session.meters)
 
-            def planner_event(kind, **data):
+            def planner_event(event_type, **data):
                 # Codex saves its final JSON in per-round raw evidence. Only
                 # structured brief events, not raw JSON, belong in the chat.
-                if kind != "message":
-                    self.session.emit(kind, **data)
+                # ``tool`` events themselves carry a ``kind`` field (for
+                # example ``command_execution``). Keep the callback's event
+                # name separate from that payload key; otherwise Python sees
+                # two values for ``kind`` before the event can be rendered.
+                if event_type != "message":
+                    self.session.emit(event_type, **data)
 
             output = await self.session.runner.run(
                 instruction, self.session.workspace, directory / "planner", planner_event,

@@ -1086,8 +1086,18 @@ class JevApp(App):
 
     def action_copy_answer(self) -> None:
         if self._last_answer:
-            self.copy_to_clipboard(self._last_answer)
-            self.notify("Ответ отправлен в буфер терминала. Если копирование недоступно — нажмите «Экспорт».", timeout=4)
+            fallback = Path(self.session.directory) / "exports" / "answer.txt"
+            fallback.parent.mkdir(parents=True, exist_ok=True)
+            fallback.write_text(self._last_answer, encoding="utf-8")
+            clipboard_error = None
+            try:
+                self.copy_to_clipboard(self._last_answer)
+            except Exception as exc:  # clipboard support depends on the terminal
+                clipboard_error = exc
+            if clipboard_error:
+                self.notify("Буфер терминала недоступен. Полный ответ сохранён: {}".format(fallback), timeout=6)
+            else:
+                self.notify("Ответ скопирован; полный текст также сохранён: {}".format(fallback), timeout=5)
 
     def action_mode_picker(self) -> None:
         self.push_screen(PickerScreen("Что разрешено агенту", [

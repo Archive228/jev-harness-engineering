@@ -50,6 +50,10 @@ class IntakeRunner:
         if isinstance(response, Exception):
             raise response
         text = json.dumps(response, ensure_ascii=False) if isinstance(response, dict) else response
+        # Real Codex tool events include their own ``kind`` payload key. Keep
+        # this regression in the fixture so the intake callback cannot regress
+        # to passing that key twice to Python.
+        emit("tool", kind="command_execution", status="running", command="python -m unittest")
         emit("message", role="assistant", text=text)
         return {"text": text, "completed": True, "usage": {"input_tokens": 10, "output_tokens": 3}}
 
