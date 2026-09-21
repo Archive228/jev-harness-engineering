@@ -9,7 +9,7 @@ POLICY_VERSION must be raised whenever a threshold or a rule changes, because a
 recorded decision is only comparable to a recomputed one under the same policy.
 """
 
-POLICY_VERSION = 1
+POLICY_VERSION = 2
 
 # Thresholds are data, not literals in the executor. Each one is named after the
 # decision it gates so that a verdict can report which bar actually applied.
@@ -25,6 +25,10 @@ THRESHOLDS = {
     "improve_min_confidence": 0.6,
     # Below this the observed work is not considered to answer the request.
     "addresses_request_min_noul": 0.5,
+    # Below this one requirement of the approved plan counts as still open. This
+    # bar names what to work on next; it does not decide acceptance, because a
+    # plan requirement is prose, not an executed check.
+    "requirement_closed_min_noul": 0.5,
 }
 
 # How the judge participated in this decision. The distinction matters: a judge
@@ -63,6 +67,30 @@ def triage_applies(answer, policy=None):
     policy = thresholds() if policy is None else policy
     return (answer["confidence"] >= policy["triage_min_confidence"]
             and answer["probabilities"][answer["choice"]] >= policy["triage_min_probability"])
+
+
+def requirement_gaps(answers, requirements, policy=None):
+    """Which approved requirements the observed work has not shown closed.
+
+    Advisory by construction: it says what the next attempt should address, and
+    never turns into acceptance or into a block. An unanswered requirement is
+    left out rather than assumed open, because a missing judgement is not a
+    finding.
+    """
+    policy = thresholds() if policy is None else policy
+    bar = policy["requirement_closed_min_noul"]
+    gaps = []
+    for index, text in enumerate(requirements or []):
+        answer = (answers or {}).get(requirement_key(index))
+        if isinstance(answer, dict) and isinstance(answer.get("noul"), (int, float)) \
+                and not isinstance(answer["noul"], bool) and answer["noul"] < bar:
+            gaps.append({"index": index + 1, "requirement": text,
+                         "closed_noul": round(float(answer["noul"]), 4)})
+    return gaps
+
+
+def requirement_key(index):
+    return "requirement_%02d" % (index + 1)
 
 
 def _verdict(outcome, status=None, reason=None, threshold=None, checks_blocked=False):

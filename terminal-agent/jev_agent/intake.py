@@ -484,8 +484,12 @@ class IntakeController:
             # Hand the lock to run_turn without yielding: Stop during the
             # snapshot must be observed before run_turn creates its own token.
             self.session.busy = False
+            plan = self._state["response"]["plan"]
             result = await self.session.run_turn(
-                compiled, emit, display_prompt="План принят: " + self._state["response"]["plan"]["title"])
+                compiled, emit, display_prompt="План принят: " + plan["title"],
+                # The points the user approved become the review's addressable
+                # questions, so "improve" can name what is still not shown closed.
+                requirements=list(plan["acceptance"]) + list(plan["deliverables"]))
             self._state.update(status="completed", result=clean(result))
             return result
         except BaseException as exc:

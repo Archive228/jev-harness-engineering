@@ -10,7 +10,8 @@ import unittest
 from jev_agent.cli import main
 from jev_agent.core import Session
 from jev_agent.decision import (POLICY_VERSION, THRESHOLDS, decide_turn, report_summary,
-                                review_summary, route_uncertain, thresholds, triage_applies)
+                                requirement_gaps, requirement_key, review_summary,
+                                route_uncertain, thresholds, triage_applies)
 from jev_agent.replay import read_decisions, replay_session
 from jev_agent.runtime import RuntimeFailure
 
@@ -35,7 +36,8 @@ class ThresholdTests(unittest.TestCase):
     def test_every_bar_the_executor_uses_lives_in_one_place(self):
         self.assertEqual(set(THRESHOLDS), {
             "max_attempts", "route_min_confidence", "triage_min_confidence",
-            "triage_min_probability", "improve_min_confidence", "addresses_request_min_noul"})
+            "triage_min_probability", "improve_min_confidence", "addresses_request_min_noul",
+            "requirement_closed_min_noul"})
         self.assertIsNot(thresholds(), THRESHOLDS)  # A caller cannot mutate the policy.
 
     def test_unknown_or_malformed_overrides_are_rejected_not_ignored(self):
@@ -139,6 +141,41 @@ class VerdictTests(unittest.TestCase):
                          {"action": "finish", "confidence": 0.8, "addresses_request": 0.7})
 
 
+class RequirementGapTests(unittest.TestCase):
+    REQUIREMENTS = ["CLI печатает отчёт", "Тесты проходят", "README обновлён"]
+
+    def _answers(self, *values):
+        return {requirement_key(i): {"type": "noul", "noul": v}
+                for i, v in enumerate(values) if v is not None}
+
+    def test_only_requirements_judged_below_the_bar_are_reported_open(self):
+        gaps = requirement_gaps(self._answers(0.9, 0.2, 0.49), self.REQUIREMENTS)
+        self.assertEqual([gap["index"] for gap in gaps], [2, 3])
+        self.assertEqual(gaps[0]["requirement"], "Тесты проходят")
+        self.assertEqual(gaps[0]["closed_noul"], 0.2)
+
+    def test_a_requirement_without_an_answer_is_not_treated_as_a_finding(self):
+        self.assertEqual(requirement_gaps(self._answers(0.9, None, 0.1), self.REQUIREMENTS)[0]["index"], 3)
+        self.assertEqual(requirement_gaps({}, self.REQUIREMENTS), [])
+        self.assertEqual(requirement_gaps(None, self.REQUIREMENTS), [])
+
+    def test_a_malformed_answer_is_ignored_rather_than_counted(self):
+        answers = {requirement_key(0): {"type": "noul", "noul": True},
+                   requirement_key(1): {"type": "noul", "noul": "0.1"},
+                   requirement_key(2): "not a dict"}
+        self.assertEqual(requirement_gaps(answers, self.REQUIREMENTS), [])
+
+    def test_the_bar_comes_from_the_policy(self):
+        strict = thresholds({"requirement_closed_min_noul": 0.95})
+        self.assertEqual(len(requirement_gaps(self._answers(0.9, 0.2, 0.99), self.REQUIREMENTS, strict)), 2)
+
+    def test_gaps_are_advisory_and_never_reach_the_verdict(self):
+        # Acceptance belongs to executed checks; an open requirement must not
+        # block a turn whose registered contract passed.
+        verdict = decide(report=PASSING, review=review())
+        self.assertEqual(verdict["status"], "accepted")
+
+
 class RoutingJudge:
     """Answers routing and context, then fails exactly like a lost review call."""
     def __init__(self, fail_on="review"):
@@ -168,11 +205,90 @@ class QuietRunner:
         self.calls = []
 
     async def run(self, prompt, workspace, directory, emit, cancel_event, readonly=False, schema=None):
-        self.calls.append({"readonly": readonly})
+        self.calls.append({"readonly": readonly, "prompt": prompt})
         if self.action:
             self.action(workspace)
         return {"text": "Готово: файл создан.", "usage": {"input_tokens": 9, "output_tokens": 4},
                 "completed": True}
+
+
+class GapJudge:
+    """Judges one approved requirement unmet and asks for another attempt."""
+    def __init__(self, action="improve"):
+        self.action = action
+        self.asked = []
+
+    async def ask(self, state, questions, directory, emit, cancel_event):
+        self.asked.append(sorted(questions))
+        answers = {}
+        for key, question in questions.items():
+            if question["type"] == "noul":
+                answers[key] = {"type": "noul", "noul": 0.1 if key == requirement_key(0) else 0.95}
+                continue
+            choice = "implement" if key == "route" else "code" if key == "category" else self.action
+            others = [name for name in question["criteria"] if name != choice]
+            share = round(0.1 / len(others), 4) if others else 0.0
+            probabilities = {name: share for name in others}
+            probabilities[choice] = round(1.0 - share * len(others), 4)
+            answers[key] = {"type": "choice", "choice": choice, "confidence": 0.9,
+                            "probabilities": probabilities}
+        return {"model": "fixture-only", "answers": answers,
+                "usage": {"input_tokens": 7, "output_tokens": 2}}
+
+
+class RequirementReviewTests(unittest.IsolatedAsyncioTestCase):
+    REQUIREMENTS = ["CLI печатает отчёт", "Тесты проходят"]
+
+    async def asyncSetUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.session = Session.create(Path(self.temporary.name) / "sessions")
+        self.session.judge = GapJudge()
+        self.written = []
+
+        def change(workspace):
+            self.written.append(True)
+            (workspace / ("step-%s.txt" % len(self.written))).write_text("работа", encoding="utf-8")
+
+        self.session.runner = QuietRunner(action=change)
+
+    async def asyncTearDown(self):
+        self.temporary.cleanup()
+
+    async def test_each_approved_requirement_becomes_its_own_question(self):
+        await self.session.run_turn("Сделай задачу.", requirements=self.REQUIREMENTS)
+        review = next(keys for keys in self.session.judge.asked if "next_action" in keys)
+        self.assertIn(requirement_key(0), review)
+        self.assertIn(requirement_key(1), review)
+        self.assertIn("addresses_request", review)
+
+    async def test_the_unmet_requirement_reaches_the_next_attempt_by_name(self):
+        result = await self.session.run_turn("Сделай задачу.", requirements=self.REQUIREMENTS)
+        self.assertEqual(result["reason"], "iteration_limit_or_no_progress")
+        self.assertEqual([gap["requirement"] for gap in result["open_requirements"]],
+                         ["CLI печатает отчёт"])
+        second = json.loads(self.session.runner.calls[1]["prompt"].split("\n\n", 1)[1])
+        self.assertEqual(second["open_requirements"][0]["requirement"], "CLI печатает отчёт")
+        self.assertEqual(second["open_requirements"][0]["closed_noul"], 0.1)
+        first = json.loads(self.session.runner.calls[0]["prompt"].split("\n\n", 1)[1])
+        self.assertEqual(first["open_requirements"], [])  # Nothing is open before the first review.
+
+    async def test_open_requirements_are_recorded_with_the_decision(self):
+        await self.session.run_turn("Сделай задачу.", requirements=self.REQUIREMENTS)
+        decisions = [e["data"] for e in self.session.events() if e["type"] == "decision"]
+        self.assertTrue(all(d["open_requirements"] for d in decisions))
+        self.assertEqual(json.loads((self.session.directory / "turn-001" / "request.json").read_text())
+                         ["requirements"], self.REQUIREMENTS)
+
+    async def test_requirements_are_bounded_in_count_and_length_before_they_travel(self):
+        from jev_agent.core import MAX_REQUIREMENTS, valid_requirements
+        bounded = valid_requirements(["x" * 900] + ["пункт %s" % i for i in range(20)] + ["", "   ", None])
+        self.assertEqual(len(bounded), MAX_REQUIREMENTS)
+        self.assertLessEqual(max(len(item) for item in bounded), 300)
+
+    async def test_a_turn_without_a_plan_asks_exactly_the_questions_it_did_before(self):
+        await self.session.run_turn("Просто ответь.")
+        review = next(keys for keys in self.session.judge.asked if "next_action" in keys)
+        self.assertEqual(review, ["addresses_request", "next_action"])
 
 
 class SessionDecisionTests(unittest.IsolatedAsyncioTestCase):
