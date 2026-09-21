@@ -11,6 +11,8 @@ import uuid
 
 from .runtime import CodexRunner, JevJudge, RuntimeFailure, clean, process, worker_environment
 from .context import shortlist, capture_texts, diff_details
+from .decision import (POLICY_VERSION, decide_turn, report_summary, review_summary,
+                       route_uncertain, thresholds, triage_applies)
 
 
 EXCLUDED = {".git", ".venv", "node_modules", "__pycache__", ".pytest_cache", ".jev", ".sessions", "dist", "build"}
@@ -145,6 +147,8 @@ class Session:
         self.cancel_event = asyncio.Event()
         self._seq = max([event["seq"] for event in self.events()] or [0])
         self._turn = 0
+        self._attempt = 0  # Stamped on every Jev event so a decision can be rebuilt per attempt.
+        self.policy = thresholds(metadata.get("thresholds"))
         self._started = time.monotonic()
         self._emit_callback = None
         self.active_phase = None
@@ -290,11 +294,10 @@ class Session:
         self.meters["jev_tokens"] += usage["input_tokens"] + usage["output_tokens"]
         applied = self.jev_mode == "assist" and not (purpose == "route" and self.execution_mode == "plan")
         if purpose == "triage":
-            answer = response["answers"]["category"]
-            applied = applied and answer["confidence"] >= 0.55 and answer["probabilities"][answer["choice"]] >= 0.65
-        self.emit("jev", purpose=purpose, answers=response["answers"], model=response["model"],
-                  usage=usage, elapsed_ms=response.get("_elapsed_ms"), mode=self.jev_mode,
-                  applied=applied)
+            applied = applied and triage_applies(response["answers"]["category"], self.policy)
+        self.emit("jev", purpose=purpose, attempt=self._attempt, answers=response["answers"],
+                  model=response["model"], usage=usage, elapsed_ms=response.get("_elapsed_ms"),
+                  mode=self.jev_mode, applied=applied)
         self.emit("meters", **self.meters)
         self.phase("JEV " + purpose.upper(), "done")
         return response["answers"]
@@ -352,7 +355,7 @@ class Session:
                                            "snapshot_fresh": report["fresh"]}, TRIAGE_QUESTIONS, "triage", turn_dir)
         if answers and self.jev_mode == "assist":
             answer = answers["category"]
-            if answer["confidence"] >= 0.55 and answer["probabilities"][answer["choice"]] >= 0.65:
+            if triage_applies(answer, self.policy):
                 return {"category": answer["choice"], "confidence": answer["confidence"],
                         "hint": TRIAGE_HINTS[answer["choice"]], "verified_root_cause": False}
         return None
@@ -407,6 +410,7 @@ class Session:
         return report
 
     async def _execute(self, prompt, turn_dir):
+        self._attempt = 0  # Routing happens before the first worker attempt.
         initial = snapshot(self.workspace)
         write_json(turn_dir / "snapshot-before.json", initial)
         self.emit("settings", execution_mode=self.execution_mode, jev_mode=self.jev_mode)
@@ -417,7 +421,7 @@ class Session:
         if self.jev_mode == "assist":
             route = await self.ask_jev(route_state, ROUTE_QUESTIONS, "route", turn_dir)
             mode = route["route"]["choice"]
-            if route["route"]["confidence"] < 0.25:
+            if route_uncertain(route["route"]["confidence"], self.policy):
                 mode = "inspect"
                 self.emit("message", role="policy", text="Jev не уверен в режиме: сначала чтение и уточнение, без изменения файлов.")
         elif self.jev_mode == "observe":
@@ -435,7 +439,8 @@ class Session:
         last_report = baseline
         last_text = ""
         triage = None
-        for attempt in range(1, 4):
+        for attempt in range(1, self.policy["max_attempts"] + 1):
+            self._attempt = attempt
             if self.cancel_event.is_set():
                 raise asyncio.CancelledError()
             if attempt > 1:
@@ -497,33 +502,39 @@ class Session:
                             "worker_claim": last_text[-14000:], "changed_files": changed,
                             "observed_checks": last_report}
             review = None
+            judge_state = "not_consulted"
             if self.jev_mode == "assist":
-                review = await self.ask_jev(review_state, REVIEW_QUESTIONS, "review", turn_dir)
+                judge_state = "applied"
+                try:
+                    review = await self.ask_jev(review_state, REVIEW_QUESTIONS, "review", turn_dir)
+                except Exception as exc:
+                    # The worker has already run; a judge outage here must not discard
+                    # its result. The turn continues, but it cannot claim acceptance
+                    # on a judgement that was never given.
+                    judge_state = "unavailable"
+                    self.meters["usage_complete"] = False
+                    self.phase("JEV REVIEW", "error")
+                    self.emit("message", role="policy", text=(
+                        "Jev review недоступен: приёмка не выдана, результат воркера сохранён. " + clean(str(exc))))
             elif self.jev_mode == "observe":
                 await self.advisory_jev(review_state, REVIEW_QUESTIONS, "review", turn_dir)
-            action = review["next_action"]["choice"] if review else "finish"
-            confidence = review["next_action"]["confidence"] if review else 1.0
-            failed = last_report and last_report["total"] and (last_report["passed"] != last_report["total"] or not last_report["fresh"])
-            if failed:
+            inputs = {"attempt": attempt, "readonly": readonly, "changed": len(changed),
+                      "report": report_summary(last_report), "review": review_summary(review),
+                      "judge_state": judge_state}
+            verdict = decide_turn(policy=self.policy, **inputs)
+            self.emit("decision", inputs=inputs, verdict=verdict,
+                      policy_version=POLICY_VERSION, thresholds=self.policy)
+            if verdict["checks_blocked"]:
                 # The model cannot turn a failed executable check into acceptance.
                 self.emit("message", role="policy", text="Есть проваленная или устаревшая проверка: завершение заблокировано кодом.")
-                if attempt == 3 or not changed:
-                    return {"status": "stopped", "reason": "checks_failed_or_no_progress", "summary": last_text}
-                triage = await self.triage_failure(prompt, last_report, turn_dir)
+            if verdict["outcome"] == "retry":
+                if verdict["checks_blocked"]:
+                    triage = await self.triage_failure(prompt, last_report, turn_dir)
                 continue
-            if action == "improve" and confidence >= 0.6 and not readonly:
-                if attempt == 3 or not changed:
-                    return {"status": "stopped", "reason": "iteration_limit_or_no_progress", "summary": last_text}
-                continue
-            if action == "ask_user":
-                return {"status": "needs_input", "reason": "review_requests_clarification", "summary": last_text}
-            if (review and review["addresses_request"]["noul"] < 0.5) or (action == "improve" and confidence < 0.6):
-                return {"status": "needs_input", "reason": "uncertain_request_correspondence", "summary": last_text}
-            if last_report and last_report["registered"] and last_report["total"] and last_report["fresh"]:
-                return {"status": "accepted", "reason": "registered_checks_passed",
-                        "acceptance_scope": "Только сохранённый контракт. Новое требование может выходить за его пределы.",
-                        "summary": last_text}
-            return {"status": "answered" if readonly else "ready", "reason": "response_prepared_without_independent_acceptance", "summary": last_text}
+            outcome = {"status": verdict["status"], "reason": verdict["reason"], "summary": last_text}
+            if verdict["status"] == "accepted":
+                outcome["acceptance_scope"] = "Только сохранённый контракт. Новое требование может выходить за его пределы."
+            return outcome
         raise RuntimeFailure("Исчерпан лимит попыток.")
 
     async def run_turn(self, prompt, emit=None, display_prompt=None):
@@ -568,7 +579,8 @@ class Session:
             self.busy = False
             if result is not None:
                 result.update(elapsed_ms=round((time.monotonic() - self._started) * 1000, 2), meters=self.meters,
-                              workspace=str(self.workspace), turn=self._turn)
+                              workspace=str(self.workspace), turn=self._turn,
+                              policy={"version": POLICY_VERSION, "thresholds": self.policy})
                 self.history.extend([{"role": "user", "text": prompt}, {"role": "assistant", "text": result["summary"][:16000]}])
                 self.save()
                 write_json(turn_dir / "result.json", result)

@@ -8,10 +8,19 @@ import sys
 
 from .core import Session
 from .catalog import export_session, list_sessions
+from .replay import replay_session
 from .runtime import clean, codex_binary
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def session_directory(base, name):
+    """Resolve last / ID / path the same way for --resume, --export and --replay."""
+    if name == "last":
+        name = (base / "last-session.txt").read_text(encoding="utf-8").strip()
+    requested = Path(name)
+    return requested if requested.is_absolute() or len(requested.parts) > 1 else base / requested
 
 
 def load_local_key():
@@ -42,7 +51,18 @@ def main(argv=None):
     parser.add_argument("--list", action="store_true", help="Список сохранённых сессий в JSON; без моделей")
     parser.add_argument("--export", action="store_true", help="Сохранить --resume SESSION в Markdown; без моделей")
     parser.add_argument("--doctor", action="store_true", help="Проверить зависимости и наличие ключа, не вызывая модели")
+    parser.add_argument("--replay", metavar="SESSION", help="Пересчитать решения сохранённой сессии; без моделей и без рабочей папки")
     args = parser.parse_args(argv)
+    if args.replay:
+        if args.run or args.project or args.mission or args.resume or args.export:
+            parser.error("--replay только читает журнал; не сочетайте его с запуском или выбором проекта")
+        try:
+            report = replay_session(session_directory(args.sessions, args.replay))
+        except (ValueError, OSError) as exc:
+            print(clean(str(exc)), file=sys.stderr)
+            return 2
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0 if report["mismatches"] == 0 else 2
     if args.list:
         print(json.dumps(list_sessions(args.sessions), ensure_ascii=False, indent=2))
         return 0
@@ -65,11 +85,7 @@ def main(argv=None):
         if args.resume:
             if args.project or args.mission:
                 parser.error("--resume уже определяет проект; не сочетайте с --project/--mission")
-            name = ((args.sessions / "last-session.txt").read_text().strip()
-                    if args.resume == "last" else args.resume)
-            requested = Path(name)
-            directory = requested if requested.is_absolute() or len(requested.parts) > 1 else args.sessions / requested
-            session = Session.load(directory, activate=not args.export)
+            session = Session.load(session_directory(args.sessions, args.resume), activate=not args.export)
         else:
             session = Session.create(args.sessions, project=args.project, mission=args.mission)
         if args.export:
