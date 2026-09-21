@@ -318,13 +318,16 @@ class Session:
         from judge import validate_response
         validate_response(response, questions)
         usage = response["usage"]
-        self.meters["jev_tokens"] += usage["input_tokens"] + usage["output_tokens"]
+        cached = bool(response.get("_cached"))
+        if not cached:
+            # A cached answer was billed once, when it was first received.
+            self.meters["jev_tokens"] += usage["input_tokens"] + usage["output_tokens"]
         applied = self.jev_mode == "assist" and not (purpose == "route" and self.execution_mode == "plan")
         if purpose == "triage":
             applied = applied and triage_applies(response["answers"]["category"], self.policy)
         self.emit("jev", purpose=purpose, attempt=self._attempt, answers=response["answers"],
                   model=response["model"], usage=usage, elapsed_ms=response.get("_elapsed_ms"),
-                  mode=self.jev_mode, applied=applied,
+                  mode=self.jev_mode, applied=applied, cached=cached,
                   synthetic=bool(response.get("synthetic")))
         self.emit("meters", **self.meters)
         self.phase("JEV " + purpose.upper(), "done")

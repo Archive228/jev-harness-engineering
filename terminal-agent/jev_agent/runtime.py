@@ -9,6 +9,8 @@ import signal
 import sys
 import time
 
+from . import transport
+
 
 class RuntimeFailure(RuntimeError):
     pass
@@ -209,17 +211,53 @@ class CodexRunner:
 
 
 class JevJudge:
+    """One decision: cache lookup, then the bounded HTTP exchange in a child."""
+
+    async def _wait(self, seconds, cancel_event):
+        """Back off without going deaf to a stop request."""
+        try:
+            await asyncio.wait_for(cancel_event.wait(), timeout=seconds)
+        except asyncio.TimeoutError:
+            return
+        raise asyncio.CancelledError()
+
     async def ask(self, state, questions, directory, emit, cancel_event):
         directory.mkdir(parents=True, exist_ok=True)
         request = {"model": "jev-1.13.0", "state": clean(state), "questions": questions}
+        transport.check_size(request)  # Refuse an impossible request before spawning anything.
+        key = transport.request_key(request)
         path = directory / "request.json"
         path.write_text(json.dumps(request, ensure_ascii=False, indent=2), encoding="utf-8")
+        response_path = directory / "response.json"
+        cached = transport.read_cache(key)
+        if cached is not None:
+            # A hit costs a file read, not a process: the saved answer is the
+            # answer to this exact state and question set.
+            response_path.write_text(json.dumps(cached, ensure_ascii=False, indent=2), encoding="utf-8")
+            return dict(cached, _cached=True, _elapsed_ms=0.0)
+        blocked = transport.breaker_block()
+        if blocked:
+            raise RuntimeFailure(blocked)
         helper = Path(__file__).with_name("judge_call.py")
-        result = await process([sys.executable, helper, path, directory / "response.json"],
-                               cwd=directory, cancel_event=cancel_event, timeout=25,
-                               environment=dict(os.environ))
-        if result["exit_code"]:
-            raise RuntimeFailure(clean(result["stderr"].strip()) or "Jev API недоступен.")
-        response = json.loads((directory / "response.json").read_text(encoding="utf-8"))
-        response["_elapsed_ms"] = result["elapsed_ms"]
-        return response
+        attempts = len(transport.RETRY_DELAYS) + 1
+        reason = "Jev API недоступен."
+        for attempt in range(attempts):
+            result = await process([sys.executable, helper, path, response_path],
+                                   cwd=directory, cancel_event=cancel_event, timeout=25,
+                                   environment=dict(os.environ))
+            if not result["exit_code"]:
+                response = json.loads(response_path.read_text(encoding="utf-8"))
+                transport.write_cache(key, response)  # Store the provider's answer, not our timing.
+                transport.record_success()
+                response["_elapsed_ms"] = result["elapsed_ms"]
+                return response
+            # The child reports the lab client's own message; that text is the
+            # only place the HTTP status survives the process boundary.
+            reason = clean(result["stderr"].strip()) or reason
+            if attempt + 1 == attempts or not transport.retryable(reason):
+                break
+            emit("message", role="policy",
+                 text="Jev: %s Повтор %s из %s." % (reason, attempt + 1, attempts - 1))
+            await self._wait(transport.RETRY_DELAYS[attempt], cancel_event)
+        transport.record_failure()
+        raise RuntimeFailure(reason)
