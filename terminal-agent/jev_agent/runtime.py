@@ -149,7 +149,7 @@ class CodexRunner:
             schema_path.write_text(json.dumps(schema), encoding="utf-8")
             argv[-1:-1] = ["--output-schema", str(schema_path)]
         (directory / "prompt.txt").write_text(clean(prompt), encoding="utf-8")
-        state = {"completed": False, "failed": False, "usage": None, "text": ""}
+        state = {"completed": False, "failed": False, "usage": None, "text": "", "error": ""}
         raw_log = directory / "events.jsonl"
 
         def line(stream, text):
@@ -166,7 +166,13 @@ class CodexRunner:
                 state["completed"], state["usage"] = True, event.get("usage")
             elif kind in ("turn.failed", "error"):
                 state["failed"] = True
-                emit("tool", kind="provider_error", status="error", output=clean(str(event.get("error", event))))
+                # Keep the provider's own words: usage limits and auth failures are
+                # reported here and never reach stderr, so pointing the user at an
+                # empty stderr.txt hides the only explanation there is.
+                detail = event.get("error", event)
+                message = detail.get("message") if isinstance(detail, dict) else None
+                state["error"] = clean(str(message or detail))
+                emit("tool", kind="provider_error", status="error", output=state["error"])
             elif kind in ("item.started", "item.updated", "item.completed"):
                 item = event.get("item", {})
                 item_kind = item.get("type", "unknown")
@@ -192,7 +198,9 @@ class CodexRunner:
                                timeout=480, on_line=line)
         (directory / "stderr.txt").write_text(clean(result["stderr"]), encoding="utf-8")
         if result["exit_code"] or not state["completed"] or state["failed"]:
-            raise RuntimeFailure("Codex не завершил ход. Подробности: %s" % (directory / "stderr.txt"))
+            reason = state["error"] or clean(result["stderr"].strip()).strip()
+            raise RuntimeFailure("Codex не завершил ход. " + (
+                reason if reason else "Подробности: %s" % (directory / "stderr.txt")))
         text = clean(last.read_text(encoding="utf-8") if last.is_file() else state["text"])
         last.write_text(text, encoding="utf-8")
         if not text.strip():

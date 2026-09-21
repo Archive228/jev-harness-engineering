@@ -665,6 +665,31 @@ class SessionTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(tools[0]["call_id"], tools[1]["call_id"])
         self.assertEqual([e["lifecycle"] for e in tools], ["started", "completed"])
 
+    async def test_provider_failure_is_reported_in_the_providers_own_words(self):
+        # A usage limit or an auth failure arrives on the event stream and never
+        # reaches stderr, so the old message pointed at an empty stderr.txt.
+        limit = "You've hit your usage limit. Try again at Sep 26th."
+        async def fake_process(argv, **kwargs):
+            kwargs["on_line"]("stdout", json.dumps({"type": "turn.failed", "error": {"message": limit}}))
+            return {"exit_code": 1, "stderr": ""}
+        directory = self.session.directory / "worker-limit"
+        with patch("jev_agent.runtime.process", fake_process), patch("jev_agent.runtime.codex_binary", return_value="codex"):
+            with self.assertRaises(RuntimeFailure) as caught:
+                await CodexRunner().run("test", self.session.workspace, directory,
+                                        lambda *a, **k: None, asyncio.Event())
+        self.assertIn(limit, str(caught.exception))
+        self.assertEqual((directory / "stderr.txt").read_text(), "")
+
+    async def test_a_failure_without_a_provider_message_still_names_the_log(self):
+        async def fake_process(argv, **kwargs):
+            return {"exit_code": 1, "stderr": ""}
+        directory = self.session.directory / "worker-silent"
+        with patch("jev_agent.runtime.process", fake_process), patch("jev_agent.runtime.codex_binary", return_value="codex"):
+            with self.assertRaises(RuntimeFailure) as caught:
+                await CodexRunner().run("test", self.session.workspace, directory,
+                                        lambda *a, **k: None, asyncio.Event())
+        self.assertIn("stderr.txt", str(caught.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

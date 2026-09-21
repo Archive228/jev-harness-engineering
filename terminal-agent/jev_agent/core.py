@@ -142,9 +142,13 @@ class Session:
         self.metadata = metadata
         self.contract_hashes = metadata.get("contract_hashes", {})
         self.busy = False
+        self.demo = False
         self.runner = CodexRunner()
         self.judge = JevJudge()
-        self.cancel_event = asyncio.Event()
+        # Built on first use, never at construction: on Python 3.9 asyncio.Event()
+        # binds to the current loop, and after an asyncio.run() has finished there
+        # is none, so constructing a second session in one process would raise.
+        self._cancel_event = None
         self._seq = max([event["seq"] for event in self.events()] or [0])
         self._turn = 0
         self._attempt = 0  # Stamped on every Jev event so a decision can be rebuilt per attempt.
@@ -253,6 +257,16 @@ class Session:
             except Exception:
                 pass  # A detached view must not kill the saved execution.
 
+    @property
+    def cancel_event(self):
+        if self._cancel_event is None:
+            self._cancel_event = asyncio.Event()
+        return self._cancel_event
+
+    @cancel_event.setter
+    def cancel_event(self, value):
+        self._cancel_event = value
+
     def cancel(self):
         self.cancel_event.set()
 
@@ -267,11 +281,24 @@ class Session:
         self.save()
         return self.status()
 
+    def use_demo(self):
+        """Run the real pipeline with local stand-ins for Codex and Jev.
+
+        Everything between the two stand-ins is the production path: routing,
+        retrieval, the executed checks and the stopping rules. Only the two
+        network edges are replaced, and both label their output as synthetic.
+        """
+        from .demo import DemoJudge, DemoWorker
+        self.demo = True
+        self.runner = DemoWorker()
+        self.judge = DemoJudge()
+        return self
+
     def status(self):
         return {"id": self.id, "workspace": str(self.workspace), "directory": str(self.directory),
                 "busy": self.busy, "mission": self.mission, "registered_checks": len(self.checks),
                 "execution_mode": self.execution_mode, "jev_mode": self.jev_mode,
-                **self.meters}
+                "demo": self.demo, **self.meters}
 
     def phase(self, name, status="running", detail=""):
         self.active_phase = name if status == "running" else None
@@ -297,7 +324,8 @@ class Session:
             applied = applied and triage_applies(response["answers"]["category"], self.policy)
         self.emit("jev", purpose=purpose, attempt=self._attempt, answers=response["answers"],
                   model=response["model"], usage=usage, elapsed_ms=response.get("_elapsed_ms"),
-                  mode=self.jev_mode, applied=applied)
+                  mode=self.jev_mode, applied=applied,
+                  synthetic=bool(response.get("synthetic")))
         self.emit("meters", **self.meters)
         self.phase("JEV " + purpose.upper(), "done")
         return response["answers"]
@@ -413,7 +441,7 @@ class Session:
         self._attempt = 0  # Routing happens before the first worker attempt.
         initial = snapshot(self.workspace)
         write_json(turn_dir / "snapshot-before.json", initial)
-        self.emit("settings", execution_mode=self.execution_mode, jev_mode=self.jev_mode)
+        self.emit("settings", execution_mode=self.execution_mode, jev_mode=self.jev_mode, demo=self.demo)
         route_state = {"user_request": prompt, "history": self.history[-6:],
                        "workspace_files": list(initial["files"])[:150]}
         route = None
@@ -579,7 +607,7 @@ class Session:
             self.busy = False
             if result is not None:
                 result.update(elapsed_ms=round((time.monotonic() - self._started) * 1000, 2), meters=self.meters,
-                              workspace=str(self.workspace), turn=self._turn,
+                              workspace=str(self.workspace), turn=self._turn, demo=self.demo,
                               policy={"version": POLICY_VERSION, "thresholds": self.policy})
                 self.history.extend([{"role": "user", "text": prompt}, {"role": "assistant", "text": result["summary"][:16000]}])
                 self.save()

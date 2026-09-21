@@ -52,6 +52,8 @@ def main(argv=None):
     parser.add_argument("--export", action="store_true", help="Сохранить --resume SESSION в Markdown; без моделей")
     parser.add_argument("--doctor", action="store_true", help="Проверить зависимости и наличие ключа, не вызывая модели")
     parser.add_argument("--replay", metavar="SESSION", help="Пересчитать решения сохранённой сессии; без моделей и без рабочей папки")
+    parser.add_argument("--demo", action="store_true",
+                        help="Полный ход без Codex и без ключа: ответы синтезируются локально и помечаются")
     args = parser.parse_args(argv)
     if args.replay:
         if args.run or args.project or args.mission or args.resume or args.export:
@@ -70,6 +72,10 @@ def main(argv=None):
         parser.error("--export требует --resume SESSION (или last)")
     if args.export and (args.run or args.mode or args.jev_mode or args.prompt):
         parser.error("--export не сочетается с запросом или изменением режима")
+    if args.demo and args.project:
+        # The demo worker writes example files; it may only do so in a workspace
+        # the session owns, never in a project the user pointed the agent at.
+        parser.error("--demo работает в своей рабочей папке; не сочетайте его с --project")
     if args.doctor:
         load_local_key()
         import textual
@@ -92,7 +98,9 @@ def main(argv=None):
             print(export_session(session))
             return 0
         session.configure(execution_mode=args.mode, jev_mode=args.jev_mode)
-        if session.jev_mode != "off":
+        if args.demo:
+            session.use_demo()
+        elif session.jev_mode != "off":
             load_local_key()
         if args.run:
             try:
