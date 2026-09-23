@@ -49,6 +49,19 @@ def codex_binary():
     return str(Path(path).resolve())
 
 
+def claude_binary():
+    """Claude Code ships inside the desktop app; it is usually not on PATH."""
+    path = os.environ.get("CLAUDE_WORKER_BIN") or shutil.which("claude")
+    if not path:
+        bundles = sorted(Path.home().glob(
+            "Library/Application Support/Claude/claude-code/*/claude.app/Contents/MacOS/claude"))
+        # Directory names are versions; the last one sorts highest.
+        path = str(bundles[-1]) if bundles else None
+    if not path or not Path(path).is_file():
+        raise RuntimeFailure("Claude Code не найден. Установите его или задайте CLAUDE_WORKER_BIN.")
+    return str(Path(path).resolve())
+
+
 async def process(argv, *, cwd, cancel_event, timeout=240, input_text=None,
                   environment=None, on_line=None, max_bytes=4_000_000):
     """Drain both pipes; a cancellation/timeout kills the whole process group."""
@@ -208,6 +221,191 @@ class CodexRunner:
         if not text.strip():
             raise RuntimeFailure("Codex завершился без ответа.")
         return {"text": text, "usage": state["usage"], "completed": True}
+
+
+class ClaudeRunner:
+    """Claude Code as the worker, with the same contract as CodexRunner.
+
+    Two differences from Codex drive every choice here. Claude Code has no
+    OS-level sandbox, so the only structural guarantee of "no network, no
+    installs, nothing outside the workspace" is withholding Bash; the harness
+    runs the checks anyway, so little is lost. And a failed run still exits 0
+    with subtype "success" - the lost-login probe proved it - so success is
+    decided by ``is_error`` and the presence of a final result, never by the
+    exit code.
+    """
+
+    # Only what a worker needs to read and edit. Bash, WebFetch, WebSearch and
+    # Task are absent on purpose: naming them here is what grants them.
+    TOOLS_WRITE = "Read,Glob,Grep,Edit,Write,TodoWrite"
+    TOOLS_READONLY = "Read,Glob,Grep,TodoWrite"
+    KINDS = {"Read": "read", "Glob": "read", "Grep": "read",
+             "Edit": "file_change", "Write": "file_change", "NotebookEdit": "file_change",
+             "Bash": "command_execution", "BashOutput": "command_execution",
+             "KillShell": "command_execution",
+             "WebFetch": "web_search", "WebSearch": "web_search"}
+
+    @staticmethod
+    def _command(name, arguments):
+        arguments = arguments if isinstance(arguments, dict) else {}
+        for field in ("command", "file_path", "pattern", "path", "url"):
+            value = arguments.get(field)
+            if isinstance(value, str) and value:
+                return value
+        return name
+
+    @staticmethod
+    def _text_of(content):
+        if isinstance(content, str):
+            return content
+        if isinstance(content, list):
+            return "\n".join(part.get("text", "") for part in content
+                             if isinstance(part, dict) and part.get("type") == "text")
+        return ""
+
+    def _usage(self, raw):
+        """Cached input is still input: a turn that reuses cache still cost it."""
+        if not isinstance(raw, dict):
+            return None
+        output = raw.get("output_tokens")
+        parts = [raw.get(name) for name in
+                 ("input_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")]
+        parts = [value for value in parts if type(value) is int and value >= 0]
+        if type(output) is not int or output < 0 or not parts:
+            return None
+        return {"input_tokens": sum(parts), "output_tokens": output}
+
+    def _failure(self, state, result):
+        """Say why in the provider's own words; the exit code says nothing."""
+        final = result.get("result") if isinstance(result, dict) else None
+        if isinstance(final, str) and final.strip():
+            return clean(final.strip())
+        # A denial names the actual obstacle; a subtype only names the category,
+        # so the specific reason is offered first.
+        denials = (result or {}).get("permission_denials")
+        if denials:
+            names = sorted({d.get("tool_name") or d.get("tool") or "?" for d in denials
+                            if isinstance(d, dict)})
+            return "Claude запросил запрещённые инструменты: " + ", ".join(names)
+        named = {"error_max_turns": "Claude исчерпал лимит шагов.",
+                 "error_max_budget": "Claude исчерпал бюджет запуска.",
+                 "error_during_execution": "Claude прервал выполнение."}
+        subtype = (result or {}).get("subtype")
+        if subtype in named:
+            return named[subtype]
+        return clean(state.get("stderr", "").strip())
+
+    async def run(self, prompt, workspace, directory, emit, cancel_event,
+                  readonly=False, schema=None):
+        directory.mkdir(parents=True, exist_ok=True)
+        argv = [claude_binary(), "-p", "--output-format", "stream-json", "--verbose",
+                # Ignores the user's own settings.json, which may allow Bash and
+                # bypassPermissions, and confines file tools to the working roots.
+                "--restricted",
+                # dontAsk denies anything that would need approval, and Write
+                # needs it - measured: a writing turn produced two Write denials
+                # and no files. acceptEdits approves edits without a prompt, and
+                # --restricted still confines them to the workspace (measured
+                # too: a write to /tmp was refused by the provider itself).
+                "--permission-mode", "dontAsk" if readonly else "acceptEdits",
+                "--permission-prompts", "none",
+                "--disallowedTools", "mcp__*", "--strict-mcp-config",
+                "--disable-slash-commands", "--no-session-persistence",
+                "--max-turns", "20" if readonly else "60",
+                "--tools", self.TOOLS_READONLY if readonly else self.TOOLS_WRITE]
+        if schema:
+            schema_path = directory / "schema.json"
+            schema_path.write_text(json.dumps(schema), encoding="utf-8")
+            argv += ["--json-schema", json.dumps(schema),
+                     "--append-system-prompt",
+                     "Return exactly one JSON object matching the supplied schema. "
+                     "No prose, no Markdown fences."]
+        (directory / "prompt.txt").write_text(clean(prompt), encoding="utf-8")
+        state = {"result": None, "text": "", "stderr": "", "calls": {}}
+        raw_log = directory / "events.jsonl"
+
+        def call_id(identifier):
+            # The turn/attempt prefix keeps cards from separate attempts apart.
+            return "%s:%s:%s" % (directory.parent.name, directory.name, identifier)
+
+        def line(stream, text):
+            if stream != "stdout":
+                return
+            try:
+                event = json.loads(text)
+            except ValueError:
+                raise RuntimeFailure("Claude вернул повреждённый JSON-поток.") from None
+            with raw_log.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(clean(event), ensure_ascii=False) + "\n")
+            kind = event.get("type")
+            if kind == "result":
+                state["result"] = event
+                return
+            if kind not in ("assistant", "user"):
+                # system/init, task summaries, rate-limit notices and whatever a
+                # later version adds: recorded, not fatal. Only an unparsable
+                # line means the stream itself is broken.
+                return
+            for block in (event.get("message") or {}).get("content") or []:
+                if isinstance(block, dict):
+                    self._handle(block, call_id, emit, state)
+
+        result = await process(argv, cwd=workspace, input_text=prompt,
+                               environment=worker_environment(), cancel_event=cancel_event,
+                               timeout=480, on_line=line)
+        state["stderr"] = result["stderr"]
+        (directory / "stderr.txt").write_text(clean(result["stderr"]), encoding="utf-8")
+        final = state["result"]
+        if final is None or final.get("is_error") or result["exit_code"]:
+            reason = self._failure(state, final)
+            raise RuntimeFailure("Claude не завершил ход. " + (
+                reason if reason else "Подробности: %s" % (directory / "stderr.txt")))
+        structured = final.get("structured_output")
+        if schema and structured is not None:
+            text = json.dumps(structured, ensure_ascii=False)
+        else:
+            text = clean(final.get("result") or state["text"])
+        (directory / "final.txt").write_text(text, encoding="utf-8")
+        if not text.strip():
+            raise RuntimeFailure("Claude завершился без ответа.")
+        return {"text": text, "usage": self._usage(final.get("usage")), "completed": True}
+
+    def _handle(self, block, call_id, emit, state):
+        kind = block.get("type")
+        if kind == "text":
+            text = block.get("text") or ""
+            if text.strip():
+                state["text"] = clean(text)
+                emit("message", role="assistant", text=state["text"])
+        elif kind == "tool_use":
+            name = block.get("name") or "unknown"
+            identifier = block.get("id") or name
+            arguments = block.get("input") if isinstance(block.get("input"), dict) else {}
+            if name == "TodoWrite":
+                emit("plan", steps=[{"id": str(index + 1), "title": item.get("content", ""),
+                                     "completed": item.get("status") == "completed"}
+                                    for index, item in enumerate(arguments.get("todos") or [])
+                                    if isinstance(item, dict)])
+                return
+            command = self._command(name, arguments)
+            state["calls"][identifier] = {"kind": self.KINDS.get(name, "mcp_tool_call"),
+                                          "command": command}
+            files = ([{"path": arguments["file_path"]}]
+                     if isinstance(arguments.get("file_path"), str) else [])
+            emit("tool", kind=state["calls"][identifier]["kind"], command=command,
+                 status="running", output="", exit_code=None, files=files,
+                 item_id=identifier, call_id=call_id(identifier), lifecycle="started")
+        elif kind == "tool_result":
+            identifier = block.get("tool_use_id") or ""
+            started = state["calls"].get(identifier)
+            if not started:
+                return  # A result without its call would open a card that never closes.
+            failed = bool(block.get("is_error"))
+            emit("tool", kind=started["kind"], command=started["command"],
+                 status="failed" if failed else "completed",
+                 output=clean(self._text_of(block.get("content")))[-6000:],
+                 exit_code=1 if failed else 0, item_id=identifier,
+                 call_id=call_id(identifier), lifecycle="completed")
 
 
 class JevJudge:

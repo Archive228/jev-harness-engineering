@@ -9,7 +9,7 @@ import sys
 from .core import Session
 from .catalog import export_session, list_sessions
 from .replay import replay_session
-from .runtime import clean, codex_binary
+from .runtime import claude_binary, clean, codex_binary
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,6 +52,8 @@ def main(argv=None):
     parser.add_argument("--export", action="store_true", help="Сохранить --resume SESSION в Markdown; без моделей")
     parser.add_argument("--doctor", action="store_true", help="Проверить зависимости и наличие ключа, не вызывая модели")
     parser.add_argument("--replay", metavar="SESSION", help="Пересчитать решения сохранённой сессии; без моделей и без рабочей папки")
+    parser.add_argument("--worker", choices=["codex", "claude"],
+                        help="Кто выполняет работу: codex или claude; сохраняется в сессии")
     parser.add_argument("--demo", action="store_true",
                         help="Полный ход без Codex и без ключа: ответы синтезируются локально и помечаются")
     args = parser.parse_args(argv)
@@ -79,12 +81,15 @@ def main(argv=None):
     if args.doctor:
         load_local_key()
         import textual
-        try:
-            binary = codex_binary()
-        except RuntimeError as exc:
-            binary = str(exc)
+        def probe(resolve):
+            try:
+                return resolve()
+            except RuntimeError as exc:
+                return str(exc)
+        binary = probe(codex_binary)
         print(json.dumps({"python": sys.version.split()[0], "textual": textual.__version__,
-                          "codex": binary, "typesafe_key_present": bool(os.environ.get("TYPESAFE_API_KEY")),
+                          "codex": binary, "claude": probe(claude_binary),
+                          "typesafe_key_present": bool(os.environ.get("TYPESAFE_API_KEY")),
                           "sessions": str(args.sessions.resolve())}, ensure_ascii=False, indent=2))
         return 0
     try:
@@ -98,6 +103,8 @@ def main(argv=None):
             print(export_session(session))
             return 0
         session.configure(execution_mode=args.mode, jev_mode=args.jev_mode)
+        if args.worker:
+            session.use_worker(args.worker)
         if args.demo:
             session.use_demo()
         elif session.jev_mode != "off":

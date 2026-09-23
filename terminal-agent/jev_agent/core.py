@@ -9,7 +9,8 @@ import re
 import time
 import uuid
 
-from .runtime import CodexRunner, JevJudge, RuntimeFailure, clean, process, worker_environment
+from .runtime import (ClaudeRunner, CodexRunner, JevJudge, RuntimeFailure, clean, process,
+                      worker_environment)
 from .context import shortlist, capture_texts, diff_details
 from .decision import (POLICY_VERSION, decide_turn, report_summary, requirement_gaps,
                        requirement_key, review_summary, route_uncertain, thresholds,
@@ -239,7 +240,10 @@ class Session:
         self.contract_hashes = metadata.get("contract_hashes", {})
         self.busy = False
         self.demo = False
-        self.runner = CodexRunner()
+        self.worker = metadata.get("worker", "codex")
+        if self.worker not in self.WORKERS:
+            raise ValueError("Некорректный сохранённый исполнитель сессии.")
+        self.runner = self.WORKERS[self.worker]()
         self.judge = JevJudge()
         # Built on first use, never at construction: on Python 3.9 asyncio.Event()
         # binds to the current loop, and after an asyncio.run() has finished there
@@ -378,6 +382,25 @@ class Session:
         self.save()
         return self.status()
 
+    WORKERS = {"codex": CodexRunner, "claude": ClaudeRunner}
+
+    def use_worker(self, name):
+        """Choose which coding agent executes the turn, and remember the choice.
+
+        The worker is a plain attribute, so switching providers costs one
+        assignment and no change to the turn itself: the routing, the checks and
+        the stopping rules do not know which one is behind it.
+        """
+        if name not in self.WORKERS:
+            raise ValueError("Исполнитель должен быть одним из: " + ", ".join(sorted(self.WORKERS)))
+        if self.busy:
+            raise ValueError("Исполнителя можно сменить после завершения или остановки хода.")
+        self.worker = name
+        self.runner = self.WORKERS[name]()
+        self.metadata["worker"] = name
+        self.save()
+        return self
+
     def use_demo(self):
         """Run the real pipeline with local stand-ins for Codex and Jev.
 
@@ -395,7 +418,7 @@ class Session:
         return {"id": self.id, "workspace": str(self.workspace), "directory": str(self.directory),
                 "busy": self.busy, "mission": self.mission, "registered_checks": len(self.checks),
                 "execution_mode": self.execution_mode, "jev_mode": self.jev_mode,
-                "demo": self.demo, **self.meters}
+                "demo": self.demo, "worker": self.worker, **self.meters}
 
     def phase(self, name, status="running", detail=""):
         self.active_phase = name if status == "running" else None
@@ -541,7 +564,8 @@ class Session:
         self._attempt = 0  # Routing happens before the first worker attempt.
         initial = snapshot(self.workspace)
         write_json(turn_dir / "snapshot-before.json", initial)
-        self.emit("settings", execution_mode=self.execution_mode, jev_mode=self.jev_mode, demo=self.demo)
+        self.emit("settings", execution_mode=self.execution_mode, jev_mode=self.jev_mode,
+                  demo=self.demo, worker=self.worker)
         # A route needs the request, a hint of what came just before and the shape
         # of the workspace. It does not need the transcript or a file listing:
         # six history entries of up to 16000 characters each used to dominate it.
@@ -594,7 +618,7 @@ class Session:
             instruction = (
                 "You are the real coding/chat worker in Jev Terminal. Respond in the user's language. "
                 "Architecture fact: Jev is TypeSafe's model returning typed Choice/Score/Noul values. "
-                "Jev routes and reviews; it does not generate conversational prose. You (Codex) generate "
+                "Jev routes and reviews; it does not generate conversational prose. You (the worker) generate "
                 "the prose/code and use tools. The Python harness owns execution, checks and stopping. "
                 "Work on the CURRENT request using the conversation for context. "
                 "For substantial work, maintain a concise plan with the plan tool if available. "
@@ -731,6 +755,7 @@ class Session:
             if result is not None:
                 result.update(elapsed_ms=round((time.monotonic() - self._started) * 1000, 2), meters=self.meters,
                               workspace=str(self.workspace), turn=self._turn, demo=self.demo,
+                              worker=self.worker,
                               policy={"version": POLICY_VERSION, "thresholds": self.policy})
                 self.history.extend([{"role": "user", "text": prompt}, {"role": "assistant", "text": result["summary"][:16000]}])
                 self.save()
