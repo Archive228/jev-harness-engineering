@@ -54,6 +54,8 @@ def main(argv=None):
     parser.add_argument("--replay", metavar="SESSION", help="Пересчитать решения сохранённой сессии; без моделей и без рабочей папки")
     parser.add_argument("--worker", choices=["codex", "claude"],
                         help="Кто выполняет работу: codex или claude; сохраняется в сессии")
+    parser.add_argument("--web", choices=["off", "on"],
+                        help="Разрешить исполнителю искать и читать в интернете; по умолчанию off")
     parser.add_argument("--demo", action="store_true",
                         help="Полный ход без Codex и без ключа: ответы синтезируются локально и помечаются")
     args = parser.parse_args(argv)
@@ -102,7 +104,7 @@ def main(argv=None):
         if args.export:
             print(export_session(session))
             return 0
-        session.configure(execution_mode=args.mode, jev_mode=args.jev_mode)
+        session.configure(execution_mode=args.mode, jev_mode=args.jev_mode, web=args.web)
         if args.worker:
             session.use_worker(args.worker)
         if args.demo:

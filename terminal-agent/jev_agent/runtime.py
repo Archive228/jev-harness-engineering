@@ -149,6 +149,11 @@ async def process(argv, *, cwd, cancel_event, timeout=240, input_text=None,
 
 
 class CodexRunner:
+    def __init__(self, allow_web=False):
+        # Web search is a separate tool from the sandbox network: granting it
+        # lets the worker read the internet without letting shell commands reach it.
+        self.allow_web = bool(allow_web)
+
     async def run(self, prompt, workspace, directory, emit, cancel_event,
                   readonly=False, schema=None):
         directory.mkdir(parents=True, exist_ok=True)
@@ -156,7 +161,8 @@ class CodexRunner:
         argv = [codex_binary(), "exec", "--sandbox", "read-only" if readonly else "workspace-write",
                 "-c", 'approval_policy="never"',
                 "-c", "sandbox_workspace_write.network_access=false",
-                "-c", 'web_search="disabled"', "-c", "agents.enabled=false",
+                "-c", 'web_search="enabled"' if self.allow_web else 'web_search="disabled"',
+                "-c", "agents.enabled=false",
                 "--skip-git-repo-check", "--ephemeral", "--json", "--color", "never",
                 "--cd", str(workspace), "--output-last-message", str(last), "-"]
         if schema:
@@ -239,6 +245,17 @@ class ClaudeRunner:
     # Task are absent on purpose: naming them here is what grants them.
     TOOLS_WRITE = "Read,Glob,Grep,Edit,Write,TodoWrite"
     TOOLS_READONLY = "Read,Glob,Grep,TodoWrite"
+    TOOLS_WEB = "WebSearch,WebFetch"
+
+    def __init__(self, allow_web=False):
+        """Reading the web is opt-in; Bash stays absent either way.
+
+        Web tools fetch and search, they do not run commands, so granting them
+        does not give the worker a shell, a package installer or a way to write
+        outside the workspace. What they do bring is untrusted text: a fetched
+        page is evidence for the turn, never an instruction to it.
+        """
+        self.allow_web = bool(allow_web)
     KINDS = {"Read": "read", "Glob": "read", "Grep": "read",
              "Edit": "file_change", "Write": "file_change", "NotebookEdit": "file_change",
              "Bash": "command_execution", "BashOutput": "command_execution",
@@ -312,7 +329,13 @@ class ClaudeRunner:
                 "--disallowedTools", "mcp__*", "--strict-mcp-config",
                 "--disable-slash-commands", "--no-session-persistence",
                 "--max-turns", "20" if readonly else "60",
-                "--tools", self.TOOLS_READONLY if readonly else self.TOOLS_WRITE]
+                "--tools", ((self.TOOLS_READONLY if readonly else self.TOOLS_WRITE)
+                            + ("," + self.TOOLS_WEB if self.allow_web else ""))]
+        if self.allow_web:
+            # Naming a tool in --tools only makes it available; acceptEdits
+            # approves edits, not fetches, so without this the worker is handed
+            # web tools it is then refused permission to use. Measured, twice.
+            argv += ["--allowedTools", self.TOOLS_WEB]
         if schema:
             schema_path = directory / "schema.json"
             schema_path.write_text(json.dumps(schema), encoding="utf-8")

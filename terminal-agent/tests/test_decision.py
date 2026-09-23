@@ -116,9 +116,15 @@ class VerdictTests(unittest.TestCase):
         unaddressed = decide(review=review(addresses=0.49))
         self.assertEqual(unaddressed["reason"], "uncertain_request_correspondence")
         self.assertEqual(unaddressed["threshold"], "addresses_request_min_noul")
-        unsure = decide(review=review("improve", 0.59))
-        self.assertEqual(unsure["reason"], "uncertain_request_correspondence")
-        self.assertEqual(unsure["threshold"], "improve_min_confidence")
+
+    def test_an_unconfident_improve_does_not_send_the_user_away(self):
+        # It means "no opinion", not "something is wrong": the turn ends on its
+        # own merits, and correspondence to the request is what can still stop it.
+        unsure = decide(review=review("improve", 0.26, addresses=0.75))
+        self.assertEqual((unsure["status"], unsure["reason"]),
+                         ("ready", "response_prepared_without_independent_acceptance"))
+        still_asks = decide(review=review("improve", 0.26, addresses=0.2))
+        self.assertEqual(still_asks["reason"], "uncertain_request_correspondence")
 
     def test_acceptance_requires_a_registered_contract(self):
         self.assertEqual(decide(report=PASSING)["status"], "accepted")
@@ -366,15 +372,20 @@ class SessionDecisionTests(unittest.IsolatedAsyncioTestCase):
         for line in path.read_text(encoding="utf-8").splitlines():
             event = json.loads(line)
             if event.get("type") == "decision":
-                event["data"]["inputs"]["review"] = review("improve", 0.55)
+                # Recorded under a lax correspondence bar, which today is stricter.
+                event["data"]["inputs"]["review"] = review("finish", 1.0, addresses=0.2)
                 event["data"]["verdict"] = dict(event["data"]["verdict"], status="ready", outcome="return")
-                event["data"]["thresholds"] = dict(event["data"]["thresholds"], improve_min_confidence=0.5)
+                event["data"]["thresholds"] = dict(event["data"]["thresholds"],
+                                                   addresses_request_min_noul=0.1)
             lines.append(json.dumps(event, ensure_ascii=False))
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
         report = replay_session(self.session.directory)
-        self.assertEqual(report["mismatches"], 1)  # Recorded verdict no longer follows from its own inputs.
+        # The verdict still follows from its own inputs under its own thresholds,
+        # so this is drift, not a regression - replay keeps the two apart.
+        self.assertEqual(report["mismatches"], 0)
         self.assertEqual(report["changed_by_current_policy"], 1)
         drift = report["turns"][0]["policy_drift"]
+        self.assertEqual(drift["reason"]["recorded"], "response_prepared_without_independent_acceptance")
         self.assertEqual(drift["reason"]["recomputed"], "uncertain_request_correspondence")
 
     async def test_replay_survives_a_truncated_journal_and_a_session_without_decisions(self):

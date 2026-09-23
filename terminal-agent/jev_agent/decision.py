@@ -9,7 +9,7 @@ POLICY_VERSION must be raised whenever a threshold or a rule changes, because a
 recorded decision is only comparable to a recomputed one under the same policy.
 """
 
-POLICY_VERSION = 2
+POLICY_VERSION = 3
 
 # Thresholds are data, not literals in the executor. Each one is named after the
 # decision it gates so that a verdict can report which bar actually applied.
@@ -152,12 +152,14 @@ def decide_turn(attempt, readonly, changed, report, review, judge_state, policy=
         return _verdict("retry", threshold="improve_min_confidence")
     if action == "ask_user":
         return _verdict("return", "needs_input", "review_requests_clarification")
-    unaddressed = bool(review) and review["addresses_request"] < policy["addresses_request_min_noul"]
-    unsure_improve = (action == "improve" and confidence is not None
-                      and confidence < policy["improve_min_confidence"])
-    if unaddressed or unsure_improve:
+    # An "improve" below the bar is not a weak finding, it is the absence of one:
+    # low confidence means the judge has no opinion, so it must not by itself send
+    # the user away from a result that does answer them. Only weak correspondence
+    # to the request does that. Measured case: improve at 0.26 confidence with
+    # addresses_request 0.75 used to end a correct answered turn in needs_input.
+    if bool(review) and review["addresses_request"] < policy["addresses_request_min_noul"]:
         return _verdict("return", "needs_input", "uncertain_request_correspondence",
-                        threshold="addresses_request_min_noul" if unaddressed else "improve_min_confidence")
+                        threshold="addresses_request_min_noul")
     if report and report["registered"] and report["total"] and report["fresh"]:
         return _verdict("return", "accepted", "registered_checks_passed")
     return _verdict("return", "answered" if readonly else "ready",

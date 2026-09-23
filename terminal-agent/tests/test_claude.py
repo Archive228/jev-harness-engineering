@@ -267,11 +267,32 @@ class WorkerSelectionTests(unittest.TestCase):
             session.use_worker("claude")
 
     def test_a_corrupted_saved_worker_does_not_load(self):
+        # Corrupt the file itself: save() writes authoritative state, so it
+        # would normalise a bad value away before it ever reached disk.
         session = Session.create(self.base)
-        session.metadata["worker"] = "whatever"
-        session.save()
+        path = session.directory / "session.json"
+        saved = json.loads(path.read_text(encoding="utf-8"))
+        path.write_text(json.dumps(dict(saved, worker="whatever")), encoding="utf-8")
         with self.assertRaises(ValueError):
             Session.load(session.directory)
+
+    def test_a_corrupted_saved_web_setting_does_not_load(self):
+        session = Session.create(self.base)
+        path = session.directory / "session.json"
+        saved = json.loads(path.read_text(encoding="utf-8"))
+        path.write_text(json.dumps(dict(saved, web="maybe")), encoding="utf-8")
+        with self.assertRaises(ValueError):
+            Session.load(session.directory)
+
+    def test_web_access_is_off_until_asked_for_and_reaches_the_runner(self):
+        session = Session.create(self.base)
+        self.assertEqual(session.status()["web"], "off")
+        self.assertFalse(session.runner.allow_web)
+        session.configure(web="on")
+        self.assertTrue(session.runner.allow_web)
+        session.use_worker("claude")
+        self.assertTrue(session.runner.allow_web)  # Survives a change of worker.
+        self.assertEqual(Session.load(session.directory).status()["web"], "on")
 
 
 if __name__ == "__main__":
@@ -322,3 +343,30 @@ class WorkerCommandTests(unittest.IsolatedAsyncioTestCase):
         values = {item["value"] for item in captured}
         self.assertIn("/worker claude", values)
         self.assertIn("/worker codex", values)
+
+
+class WebAccessTests(StreamHarness):
+    """Reading the web is a grant; a shell is not part of it."""
+
+    async def _run_web(self, allow_web, readonly=False):
+        with patch("jev_agent.runtime.process", self._process(HAPPY)), \
+                patch("jev_agent.runtime.claude_binary", return_value="claude"):
+            await ClaudeRunner(allow_web=allow_web).run(
+                "задача", self.workspace, self.directory, lambda *a, **k: None,
+                asyncio.Event(), readonly=readonly)
+        return set(self.argv[self.argv.index("--tools") + 1].split(","))
+
+    async def test_without_the_grant_there_are_no_web_tools(self):
+        self.assertFalse(await self._run_web(False) & {"WebSearch", "WebFetch"})
+
+    async def test_with_the_grant_the_worker_can_search_and_read_pages(self):
+        tools = await self._run_web(True)
+        self.assertEqual(tools & {"WebSearch", "WebFetch"}, {"WebSearch", "WebFetch"})
+
+    async def test_the_grant_never_brings_a_shell_with_it(self):
+        for readonly in (False, True):
+            tools = await self._run_web(True, readonly=readonly)
+            self.assertNotIn("Bash", tools)
+
+    async def test_a_reading_turn_may_still_read_the_web(self):
+        self.assertIn("WebSearch", await self._run_web(True, readonly=True))

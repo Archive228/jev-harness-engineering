@@ -869,13 +869,14 @@ class JevApp(App):
                 self.action_files()
             elif command == "/export":
                 self.action_export()
-            elif command in ("/mode", "/jev", "/worker"):
+            elif command in ("/mode", "/jev", "/worker", "/web"):
                 parts = prompt.split()
-                field = {"/mode": "execution_mode", "/jev": "jev_mode", "/worker": "worker"}[command]
+                field = {"/mode": "execution_mode", "/jev": "jev_mode",
+                         "/worker": "worker", "/web": "web"}[command]
                 if len(parts) == 2:
                     self._configure(field, parts[1])
                 else:
-                    self._chat("SYSTEM", "/mode auto|plan   /jev assist|observe|off   /worker codex|claude", MUTED)
+                    self._chat("SYSTEM", "/mode auto|plan   /jev assist|observe|off   /worker codex|claude   /web on|off", MUTED)
             elif command == "/stop":
                 self._stop()
             elif command == "/clear":
@@ -1181,6 +1182,8 @@ class JevApp(App):
             {"title": "Jev: выключить", "description": "/jev off · без вызовов Jev", "value": "/jev off"},
             {"title": "Исполнитель: Codex", "description": "/worker codex · песочница ОС, сеть выключена", "value": "/worker codex"},
             {"title": "Исполнитель: Claude", "description": "/worker claude · без Bash, правки только в рабочей папке", "value": "/worker claude"},
+            {"title": "Интернет: включить", "description": "/web on · поиск и чтение страниц; страницы — данные, не команды", "value": "/web on"},
+            {"title": "Интернет: выключить", "description": "/web off · работать только по локальным файлам", "value": "/web off"},
             {"title": "Пример задачи", "description": "F2 · вставить, не запускать", "value": "/example"},
             {"title": "Помощь и сочетания клавиш", "description": "/help", "value": "/help"},
             {"title": "Состояние сессии", "description": "/status", "value": "/status"},
@@ -1199,12 +1202,15 @@ class JevApp(App):
         try:
             if name == "worker":
                 self.session.use_worker(value)
+            elif name == "web":
+                self.session.configure(web=value)
             else:
                 self.session.configure(**{name: value})
         except (ValueError, RuntimeError) as exc:
             self._chat("ERROR", str(exc), YELLOW)
             return
-        titles = {"execution_mode": "Исполнение", "jev_mode": "Jev", "worker": "Исполнитель"}
+        titles = {"execution_mode": "Исполнение", "jev_mode": "Jev",
+                  "worker": "Исполнитель", "web": "Интернет"}
         self._chat("РЕЖИМ", "{} → {}".format(titles[name], value), AMBER)
         self._refresh_status()
 
