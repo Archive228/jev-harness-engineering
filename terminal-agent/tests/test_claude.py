@@ -276,3 +276,49 @@ class WorkerSelectionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class WorkerCommandTests(unittest.IsolatedAsyncioTestCase):
+    """The switch has to exist where the user is: inside the chat, not only at launch."""
+
+    async def asyncSetUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.session = Session.create(Path(self.temporary.name) / "sessions")
+
+    async def asyncTearDown(self):
+        self.temporary.cleanup()
+
+    async def test_the_command_switches_the_worker_and_says_so(self):
+        from jev_agent.tui import JevApp
+        app = JevApp(self.session, guided=False)
+        async with app.run_test():
+            app._configure("worker", "claude")
+            await app.workers.wait_for_complete()
+        self.assertEqual(self.session.status()["worker"], "claude")
+        self.assertIsInstance(self.session.runner, ClaudeRunner)
+
+    async def test_an_unknown_worker_is_refused_without_changing_anything(self):
+        from jev_agent.tui import JevApp
+        app = JevApp(self.session, guided=False)
+        async with app.run_test():
+            app._configure("worker", "gemini")
+            await app.workers.wait_for_complete()
+        self.assertEqual(self.session.status()["worker"], "codex")
+
+    async def test_the_command_menu_offers_both_workers(self):
+        # Capture what the palette is built from; opening the modal is Textual's
+        # business, and mounting it adds nothing to what this checks.
+        from jev_agent.tui import JevApp
+        captured = []
+
+        class Capture:
+            def __init__(self, title, items, *rest, **kwargs):
+                captured.extend(items)
+
+        app = JevApp(self.session, guided=False)
+        async with app.run_test():
+            with patch("jev_agent.tui.PickerScreen", Capture), patch.object(app, "push_screen"):
+                app.action_palette()
+        values = {item["value"] for item in captured}
+        self.assertIn("/worker claude", values)
+        self.assertIn("/worker codex", values)

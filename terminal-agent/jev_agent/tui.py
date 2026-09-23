@@ -869,12 +869,13 @@ class JevApp(App):
                 self.action_files()
             elif command == "/export":
                 self.action_export()
-            elif command in ("/mode", "/jev"):
+            elif command in ("/mode", "/jev", "/worker"):
                 parts = prompt.split()
+                field = {"/mode": "execution_mode", "/jev": "jev_mode", "/worker": "worker"}[command]
                 if len(parts) == 2:
-                    self._configure("execution_mode" if command == "/mode" else "jev_mode", parts[1])
+                    self._configure(field, parts[1])
                 else:
-                    self._chat("SYSTEM", "/mode auto|plan   /jev assist|observe|off", MUTED)
+                    self._chat("SYSTEM", "/mode auto|plan   /jev assist|observe|off   /worker codex|claude", MUTED)
             elif command == "/stop":
                 self._stop()
             elif command == "/clear":
@@ -1178,6 +1179,8 @@ class JevApp(App):
             {"title": "Jev: помощь", "description": "/jev assist · применять решения", "value": "/jev assist"},
             {"title": "Jev: наблюдение", "description": "/jev observe · оценивать без управления", "value": "/jev observe"},
             {"title": "Jev: выключить", "description": "/jev off · без вызовов Jev", "value": "/jev off"},
+            {"title": "Исполнитель: Codex", "description": "/worker codex · песочница ОС, сеть выключена", "value": "/worker codex"},
+            {"title": "Исполнитель: Claude", "description": "/worker claude · без Bash, правки только в рабочей папке", "value": "/worker claude"},
             {"title": "Пример задачи", "description": "F2 · вставить, не запускать", "value": "/example"},
             {"title": "Помощь и сочетания клавиш", "description": "/help", "value": "/help"},
             {"title": "Состояние сессии", "description": "/status", "value": "/status"},
@@ -1194,11 +1197,15 @@ class JevApp(App):
             self._chat("SYSTEM", "Режим можно изменить только в живой сессии, когда задача завершена.", YELLOW)
             return
         try:
-            self.session.configure(**{name: value})
+            if name == "worker":
+                self.session.use_worker(value)
+            else:
+                self.session.configure(**{name: value})
         except (ValueError, RuntimeError) as exc:
             self._chat("ERROR", str(exc), YELLOW)
             return
-        self._chat("РЕЖИМ", "{} → {}".format("Исполнение" if name == "execution_mode" else "Jev", value), AMBER)
+        titles = {"execution_mode": "Исполнение", "jev_mode": "Jev", "worker": "Исполнитель"}
+        self._chat("РЕЖИМ", "{} → {}".format(titles[name], value), AMBER)
         self._refresh_status()
 
     def action_sessions(self) -> None:
