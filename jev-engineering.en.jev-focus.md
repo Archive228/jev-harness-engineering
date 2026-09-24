@@ -200,7 +200,7 @@ The layers differ by primitive.
 
 An honest caveat, better made here than at the end. In the three builds ahead, decisions run on Choice and Noul; Score appears only in this first call.
 
-Not because it is worse. A scale belongs where the answer is continuous and gets a fractional threshold: which failure to repair first when several checks are red, how severe a defect is, how finished a result is. Every decision in our task turned out to be either a pick from a closed set or a check on a single statement — and stretching a scale over those means inventing levels the domain does not have.
+Not because it is worse. A scale belongs where the answer is continuous and gets a fractional threshold: which failure to repair first when several checks are red, how severe a defect is, how finished a result is. Every decision in our task turned out to be either a pick from a closed set or a check on a single statement. Stretching a scale over those means inventing levels the domain does not have.
 
 Keep in mind too that a `1.5` sitting between "works" and "broken" is a disagreement inside the answer, not a fact about the world.
 
@@ -208,14 +208,14 @@ Keep in mind too that a `1.5` sitting between "works" and "broken" is a disagree
 
 ![One ticket, two phrasings of the same question: 0.95 and 0.89](./assets/06-phrasing-en.svg)
 
-One ticket, one `state`, one meaning of the question — is a working workaround stated. Two phrasings:
+One ticket, one `state`, one meaning of the question: is a working workaround stated. Two phrasings:
 
 ```text
 RU:  Указан ли в обращении рабочий обход проблемы?                      -> noul 0.95
 EN:  Does the message explicitly state a working workaround?            -> noul 0.89
 ```
 
-The difference is not the language. It is one word: **explicitly**. The customer writes "I use Chrome for now" — a genuine workaround, but mentioned in passing rather than stated. Demanding explicitness honestly lowers the number.
+The difference is not the language. It is one word: **explicitly**. The customer writes "I use Chrome for now". The workaround is genuine, but mentioned in passing rather than stated. Demanding explicitness honestly lowers the number.
 
 The graded sets use a third and stricter version, which spells out what does not count:
 
@@ -253,12 +253,12 @@ One call shape supports quite different products. What changes is the material, 
 
 The call shape is identical across these; the domains are not:
 
-- **Browser agent.** The DOM becomes a numbered table of actions and Choice picks an index. The model emits no selectors and no code — only a number from a set the program built. The decision is bound to a fingerprint of the page: if the state changed, the answer is stale and observation repeats.
-- **Context compaction without paraphrase.** Two Nouls per tool call: does the call itself still matter, and is its full output needed verbatim. Three outcomes rather than two — keep it whole, keep a head of the output with a note, drop it along with the result. Nothing is rewritten: whatever stays, stays word for word.
-- **Model routing.** Instead of one question over a crossed set of options, three independent Choices in one request: is a frontier model required, what capability tier, what depth. Overall confidence is the minimum of the three — the weakest of the independent judgements.
+- **Browser agent.** The DOM becomes a numbered table of actions and Choice picks an index. The model emits no selectors and no code, only a number from a set the program built. The decision is bound to a fingerprint of the page: if the state changed, the answer is stale and observation repeats.
+- **Context compaction without paraphrase.** Two Nouls per tool call: does the call itself still matter, and is its full output needed verbatim. Three outcomes rather than two: keep it whole, keep a head of the output with a note, drop it along with the result. Nothing is rewritten: whatever stays, stays word for word.
+- **Model routing.** Instead of one question over a crossed set of options, three independent Choices in one request: is a frontier model required, what capability tier, what depth. Overall confidence is the minimum of the three, the weakest of the independent judgements.
 - **Knowledge-graph traversal.** Here the distribution is used whole: probabilities become hypothesis scores in a beam search accumulating log-probabilities, with a cutoff and a beam width. The argmax is never taken.
-- **Code review triage.** A file × dimension matrix asked as five Nouls in one request — correctness, security, reliability, compatibility, test gaps. Five probabilities for one round trip, then a funnel with early exits.
-- **Completion verification.** The question is phrased not as "is the work done" but as "does the message claim the work is done" — a narrow fact about text instead of a judgement about quality. The difference matters: the first invites an opinion, the second an observation.
+- **Code review triage.** A file × dimension matrix asked as five Nouls in one request: correctness, security, reliability, compatibility, test gaps. Five probabilities for one round trip, then a funnel with early exits.
+- **Completion verification.** The question is phrased not as "is the work done" but as "does the message claim the work is done". A narrow fact about text instead of a judgement about quality. The difference matters: the first invites an opinion, the second an observation.
 
 What runs through all six: **the program builds the options, the model does not.** Jev picks from a closed set you assembled and returns a distribution over it. Anything the model cannot physically propose never enters the set.
 
@@ -376,7 +376,7 @@ Three rules, each learned by getting it wrong first.
 
 **Low confidence is the absence of an opinion, not a weak finding.** We got `improve` at a confidence of 0.26 against a 0.6 bar and wrote a rule that read it as a signal that something was off. The correct reading is the opposite: at 0.26 the model does not know, and something else has to decide. The rule was rewritten, and it got shorter.
 
-**An absent judgement is not agreement.** It is easy to write "if there is no answer, treat confidence as maximal" — and end up with a system where Jev being unreachable **raises** the chance of finishing automatically. The judge's participation has to be an explicit state: asked and answered, not asked at all, asked and unavailable. The third case must differ from the first.
+**An absent judgement is not agreement.** It is easy to write "if there is no answer, treat confidence as maximal", and end up with a system where Jev being unreachable raises the chance of finishing automatically. The judge's participation has to be an explicit state: asked and answered, not asked at all, asked and unavailable. The third case must differ from the first.
 
 **Two thresholds where the answer is advice.** A diagnostic hint is forwarded only if confidence is above 0.55 **and** the probability of the chosen category is above 0.65. One threshold misses "confidently picked between two near-equals"; the other misses "sharp distribution, but the model does not trust itself".
 
