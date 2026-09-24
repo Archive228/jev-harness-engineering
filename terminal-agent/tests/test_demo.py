@@ -109,7 +109,7 @@ class DemoWorkerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(names, ["demo_tool.py", "test_demo_tool.py"])
         second = await self._run()
         self.assertEqual(sorted(p.name for p in self.workspace.iterdir()), names)
-        self.assertIn("Файлы", second["text"] + " ")
+        self.assertIn("No files changed", second["text"] + " ")
 
     async def test_artifacts_match_the_shape_a_real_worker_leaves_behind(self):
         await self._run()

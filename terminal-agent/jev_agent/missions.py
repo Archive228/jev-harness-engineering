@@ -19,7 +19,7 @@ def prepare_mission(name: str, workspace: Path) -> dict:
     shutil.copytree(source / "seed", workspace, dirs_exist_ok=True)
     if name == "cryptolab":
         return {"prompt": (source / "task.txt").read_text(encoding="utf-8"),
-                "checks": [{"id": "ledger-contract", "title": "Crypto Ledger: семь заранее заданных тестов",
+                "checks": [{"id": "ledger-contract", "title": "Crypto Ledger: seven predefined tests",
                             "argv": [sys.executable, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"]}],
                 "protected": []}
     oracle = source / "oracle.py"

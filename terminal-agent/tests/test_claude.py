@@ -113,7 +113,7 @@ class HappyPathTests(StreamHarness):
     async def test_a_broken_line_means_a_broken_stream(self):
         with self.assertRaises(RuntimeFailure) as caught:
             await self._run(["{not json"])
-        self.assertIn("повреждённый", str(caught.exception))
+        self.assertIn("corrupted JSON stream", str(caught.exception))
 
 
 class ToolMappingTests(StreamHarness):
@@ -171,7 +171,7 @@ class FailureTests(StreamHarness):
     async def test_a_stopped_turn_is_named_by_its_subtype(self):
         with self.assertRaises(RuntimeFailure) as caught:
             await self._run([result(is_error=True, subtype="error_max_turns", result="")])
-        self.assertIn("лимит шагов", str(caught.exception))
+        self.assertIn("step limit", str(caught.exception))
 
     async def test_denied_tools_are_named_because_they_appear_nowhere_else(self):
         with self.assertRaises(RuntimeFailure) as caught:
@@ -182,7 +182,7 @@ class FailureTests(StreamHarness):
     async def test_an_empty_answer_is_not_a_result(self):
         with self.assertRaises(RuntimeFailure) as caught:
             await self._run([result(result="   ")])
-        self.assertIn("без ответа", str(caught.exception))
+        self.assertIn("with no answer", str(caught.exception))
 
     async def test_unusable_usage_is_reported_as_unknown_not_as_zero(self):
         output = await self._run([result(usage={"input_tokens": True, "output_tokens": 5})])

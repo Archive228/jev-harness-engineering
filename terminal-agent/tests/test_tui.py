@@ -263,7 +263,7 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
             rail = app.query_one("#rail")
             self.assertTrue(rail.display)
             self.assertEqual(app.query_one("#details-tabs", TabbedContent).active, "events-tab")
-            self.assertIn("ЖИВЫЕ ЛОГИ", str(app.query_one("#drawer-title").renderable))
+            self.assertIn("LIVE LOGS", str(app.query_one("#drawer-title").renderable))
             self.assertTrue(app.query_one("#event-log", RichLog).display)
 
     async def test_command_delete_removes_current_line_and_keeps_other_lines(self):
@@ -348,7 +348,7 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
             status = app.query_one("#status", Static).renderable.plain
             self.assertIn("72.0s", status)
             self.assertNotIn("301.0s", status)
-            self.assertNotIn("usage неполный", status)
+            self.assertNotIn("usage incomplete", status)
 
     async def test_end_meters_mark_incomplete_usage_without_standalone_event(self):
         self.session.recorded = [{
@@ -363,11 +363,11 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(app._meters["worker_calls"], 1)
             self.assertFalse(app._meters["usage_complete"])
             status = app.query_one("#status", Static).renderable.plain
-            self.assertIn("usage неполный", status)
-            self.assertLess(status.index("usage неполный"), 30)
+            self.assertIn("usage incomplete", status)
+            self.assertLess(status.index("usage incomplete"), 30)
             evidence = app.query_one("#evidence", Static).renderable.plain
             self.assertIn("Jev 2", evidence)
-            self.assertIn("usage неполный", evidence)
+            self.assertIn("usage incomplete", evidence)
 
     async def test_graph_shows_all_seven_observed_phases(self):
         self.session.recorded = [
@@ -444,8 +444,8 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
         async with app.run_test(size=(120, 40)) as pilot:
             await pilot.pause()
             cards = list(app.query(ConversationCard))
-            user = next(card for card in cards if card.role == "ВЫ")
-            worker = next(card for card in cards if card.role == "АГЕНТ")
+            user = next(card for card in cards if card.role == "YOU")
+            worker = next(card for card in cards if card.role == "WORKER")
             self.assertEqual(user.content, "[red]User[/red]")
             self.assertFalse(user.markdown)
             self.assertIsInstance(worker.query_one(".message-body", Static).renderable, Markdown)
@@ -456,7 +456,7 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
         async with app.run_test(size=(120, 40)) as pilot:
             await pilot.press("ctrl+p")
             self.assertIsInstance(app.screen, PickerScreen)
-            app.screen.query_one(Input).value = "режим план"
+            app.screen.query_one(Input).value = "mode plan"
             await pilot.pause()
             self.assertEqual(app.screen.query_one(OptionList).option_count, 1)
             await pilot.press("enter")
@@ -548,7 +548,7 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
             await pilot.pause()
             text = "\n".join(card.content for card in app.query(ConversationCard))
             self.assertIn("src/a.py", text)
-            self.assertIn("решение не применяется", text)
+            self.assertIn("the decision is not applied", text)
             self.assertEqual(self.session.calls, [])
 
     async def test_context_decision_ids_resolve_to_real_file_lines_and_reset_next_turn(self):
@@ -595,7 +595,7 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
         async with app.run_test(size=(120, 40)) as pilot:
             app._submit("/status")
             await pilot.pause()
-            card = next(item for item in app.query(ConversationCard) if item.role == "СЕССИЯ")
+            card = next(item for item in app.query(ConversationCard) if item.role == "SESSION")
             report = json.loads(card.content)
             self.assertEqual(report["jev_calls"], 3)
             self.assertEqual(report["worker_calls"], 2)
@@ -633,7 +633,7 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(cards[0].is_terminal)
             self.assertTrue(cards[0].has_class("tool-done"))
             self.assertTrue(cards[1].is_terminal)
-            self.assertIn("остановлено", cards[1].title)
+            self.assertIn("stopped", cards[1].title)
             self.assertFalse(cards[1].has_class("tool-done"))
 
     async def test_legacy_unmatched_tool_not_left_running_in_restored_history(self):
@@ -646,19 +646,19 @@ class TerminalTests(unittest.IsolatedAsyncioTestCase):
             await pilot.pause()
             card = app.query_one(ToolCard)
             self.assertTrue(card.is_terminal)
-            self.assertIn("статус неизвестен", card.title)
+            self.assertIn("status unknown", card.title)
             self.assertNotIn("●", card.title)
             self.assertFalse(card.has_class("tool-done"))
             header = app.query_one("#masthead", Static).renderable.plain
-            self.assertIn("Готов к сообщению", header)
+            self.assertIn("Ready for a message", header)
             self.assertNotIn("LIVE", header)
 
     def test_outcome_labels_distinguish_prepared_and_contract_checked(self):
-        self.assertEqual(status_label("ready"), "Результат подготовлен")
-        self.assertEqual(status_label("accepted"), "Проверки контракта пройдены")
-        self.assertEqual(status_label("idle"), "Жду задачу")
+        self.assertEqual(status_label("ready"), "Result prepared")
+        self.assertEqual(status_label("accepted"), "Contract checks passed")
+        self.assertEqual(status_label("idle"), "Waiting")
 
     def test_external_text_is_literal_and_control_bytes_removed(self):
         self.assertEqual(plain("[red]x[/red]"), "[red]x[/red]")
         self.assertEqual(plain("\x1b[2Jhello\r\x00"), "[2Jhello")
-        self.assertIn("полный вывод", plain("x" * 200, limit=20))
+        self.assertIn("full output", plain("x" * 200, limit=20))

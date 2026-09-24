@@ -42,16 +42,16 @@ def thresholds(overrides=None):
     values = dict(THRESHOLDS)
     for name, value in (overrides or {}).items():
         if name not in THRESHOLDS:
-            raise ValueError("Неизвестный порог политики: " + str(name))
+            raise ValueError("Unknown policy threshold: " + str(name))
         if isinstance(value, bool) or not isinstance(value, (int, float)):
-            raise ValueError("Порог %s должен быть числом." % name)
+            raise ValueError("Threshold %s must be a number." % name)
         if name == "max_attempts":
             if int(value) != value or value < 1:
-                raise ValueError("max_attempts должен быть целым числом не меньше 1.")
+                raise ValueError("max_attempts must be an integer of at least 1.")
             values[name] = int(value)
             continue
         if not 0.0 <= float(value) <= 1.0:
-            raise ValueError("Порог %s должен лежать в диапазоне 0..1." % name)
+            raise ValueError("Threshold %s must lie in the range 0..1." % name)
         values[name] = float(value)
     return values
 
@@ -124,7 +124,7 @@ def decide_turn(attempt, readonly, changed, report, review, judge_state, policy=
     ``status``/``reason``) or "retry" (run another worker attempt).
     """
     if judge_state not in JUDGE_STATES:
-        raise ValueError("judge_state должен быть одним из " + ", ".join(JUDGE_STATES))
+        raise ValueError("judge_state must be one of " + ", ".join(JUDGE_STATES))
     policy = thresholds() if policy is None else policy
     last_attempt = attempt >= policy["max_attempts"]
     progress = bool(changed)

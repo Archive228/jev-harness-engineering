@@ -15,7 +15,7 @@ class ActivityGroup(Collapsible):
         self.tool_count = 0
         self.jev_count = 0
         self.checks = None
-        super().__init__(self.body, title="Ход работы", collapsed=False,
+        super().__init__(self.body, title="Activity", collapsed=False,
                          collapsed_symbol="▸", expanded_symbol="▾", classes="activity-group")
 
     def _watch_collapsed(self, collapsed):
@@ -58,12 +58,12 @@ class ActivityGroup(Collapsible):
     def update_summary(self, finished=False, status=""):
         parts = []
         if self.tool_count:
-            parts.append("действия: {}".format(self.tool_count))
+            parts.append("actions: {}".format(self.tool_count))
         if self.jev_count:
-            parts.append("решения Jev: {}".format(self.jev_count))
+            parts.append("Jev decisions: {}".format(self.jev_count))
         if self.checks is not None:
-            parts.append("проверки {}/{}".format(self.checks.get("passed", 0), self.checks.get("total", 0)))
-        self.title = "Ход работы" + (" · " + " · ".join(parts) if parts else "")
+            parts.append("checks {}/{}".format(self.checks.get("passed", 0), self.checks.get("total", 0)))
+        self.title = "Activity" + (" · " + " · ".join(parts) if parts else "")
         if finished:
             failed = status in ("error", "failed", "cancelled", "stopped", "needs_input", "blocked")
             self.title = ("× " if failed else "✓ ") + self.title

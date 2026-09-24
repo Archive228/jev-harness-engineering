@@ -17,7 +17,7 @@ def read_decisions(directory):
     """Decision events of a saved session, oldest first."""
     path = Path(directory) / "events.jsonl"
     if not path.is_file():
-        raise ValueError("В сессии нет журнала событий: " + str(path))
+        raise ValueError("session has no event journal: " + str(path))
     decisions = []
     for line in path.read_text(encoding="utf-8").splitlines():
         try:

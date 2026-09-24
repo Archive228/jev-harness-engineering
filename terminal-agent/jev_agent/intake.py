@@ -75,59 +75,59 @@ INTAKE_SCHEMA = {
 
 def _text(value, name, limit, required=True):
     if not isinstance(value, str) or len(value) > limit or (required and not value.strip()):
-        raise ValueError("Некорректное поле %s: нужен текст%s, до %s символов." %
-                         (name, " без пустой строки" if required else "", limit))
+        raise ValueError("Invalid field %s: needs text%s, up to %s characters." %
+                         (name, " that is not blank" if required else "", limit))
     return clean(value.strip())
 
 
 def _keys(value, required, name):
     if not isinstance(value, dict) or set(value) != set(required):
-        raise ValueError("Некорректная структура %s." % name)
+        raise ValueError("Invalid %s structure." % name)
 
 
 def validate_response(value):
     """Validate injected runners too; provider schema is not a trust boundary."""
-    _keys(value, INTAKE_SCHEMA["required"], "ответа планировщика")
+    _keys(value, INTAKE_SCHEMA["required"], "planner response")
     kind = value["kind"]
     if kind not in _ACTIVE_STATUSES:
-        raise ValueError("Неизвестный вид ответа планировщика.")
+        raise ValueError("Unknown planner response kind.")
     # A blank provider summary is not a user mistake. Keep the structured
     # branch usable and give the UI a short explanation instead of surfacing an
     # implementation-level validation error (the old screen showed this as
-    # «нужен текст без пустой строки»).
+    # "needs text that is not blank").
     message = _text(value["message"], "message", 2000, required=False)
     if not message:
         message = {
-            "questions": "Уточним несколько деталей, чтобы составить точный план.",
-            "plan": "План готов к проверке перед запуском.",
-            "answer": "Ответ готов.",
+            "questions": "Let's clarify a few details to make the plan precise.",
+            "plan": "The plan is ready for review before the run.",
+            "answer": "The answer is ready.",
         }[kind]
     result = {"kind": kind, "message": message,
               "questions": [], "plan": None,
               "answer": _text(value["answer"], "answer", 16000, required=False)}
     questions = value["questions"]
     if not isinstance(questions, list) or len(questions) > 3:
-        raise ValueError("Планировщик должен вернуть не более трёх вопросов.")
+        raise ValueError("The planner must return at most three questions.")
     if kind == "questions":
         if not questions or value["plan"] is not None or result["answer"]:
-            raise ValueError("Ответ с вопросами содержит несовместимые поля.")
+            raise ValueError("A questions response carries incompatible fields.")
         ids = set()
         for question in questions:
-            _keys(question, ("id", "header", "question", "options"), "вопроса")
+            _keys(question, ("id", "header", "question", "options"), "question")
             qid = _text(question["id"], "question.id", 40)
             if not re.fullmatch(r"[a-z][a-z0-9_]{0,39}", qid) or qid in ids:
-                raise ValueError("Вопросам нужны разные стабильные id в snake_case.")
+                raise ValueError("Questions need distinct stable ids in snake_case.")
             ids.add(qid)
             options = question["options"]
             if not isinstance(options, list) or not 2 <= len(options) <= 3:
-                raise ValueError("У вопроса должно быть два или три варианта.")
+                raise ValueError("A question must have two or three options.")
             normalized = []
             labels = set()
             for option in options:
-                _keys(option, ("label", "description"), "варианта ответа")
+                _keys(option, ("label", "description"), "answer option")
                 label = strip_recommended(_text(option["label"], "option.label", 180))
                 if not label or label.casefold() in labels:
-                    raise ValueError("Варианты ответа должны быть непустыми и разными.")
+                    raise ValueError("Answer options must be non-empty and distinct.")
                 labels.add(label.casefold())
                 normalized.append({"label": label,
                                    "description": _text(option["description"], "option.description", 400)})
@@ -136,23 +136,23 @@ def validate_response(value):
                                         "options": normalized})
     elif kind == "plan":
         if questions or result["answer"]:
-            raise ValueError("План содержит несовместимые поля ответа.")
+            raise ValueError("The plan carries incompatible response fields.")
         plan = value["plan"]
-        _keys(plan, PLAN_FIELDS, "плана")
+        _keys(plan, PLAN_FIELDS, "plan")
         normalized = {"title": _text(plan["title"], "plan.title", 160),
                       "goal": _text(plan["goal"], "plan.goal", 1600)}
         for field in PLAN_FIELDS[2:]:
             items = plan[field]
             if not isinstance(items, list) or len(items) > 8:
-                raise ValueError("В разделе плана %s должно быть не более восьми пунктов." % field)
+                raise ValueError("Plan section %s must have at most eight items." % field)
             if field in {"deliverables", "steps", "acceptance"} and not items:
-                raise ValueError("В плане отсутствует раздел %s." % field)
+                raise ValueError("The plan is missing section %s." % field)
             limit = _PLAN_SCHEMA["properties"][field]["items"]["maxLength"]
             normalized[field] = [_text(item, "plan." + field, limit) for item in items]
         result["plan"] = normalized
     else:
         if questions or value["plan"] is not None or not result["answer"]:
-            raise ValueError("Текстовый ответ содержит несовместимые поля.")
+            raise ValueError("A text answer carries incompatible fields.")
     return result
 
 
@@ -160,32 +160,32 @@ def compile_brief(state):
     """A deterministic complete request; user intent and assumptions stay distinct."""
     response = validate_response(state["response"])
     if response["kind"] != "plan":
-        raise ValueError("Сначала нужен готовый план.")
+        raise ValueError("A ready plan is needed first.")
     plan = response["plan"]
-    parts = ["Выполни согласованную задачу: " + plan["title"],
-             "## Исходный запрос\n" + state["original"]]
+    parts = ["Carry out the agreed task: " + plan["title"],
+             "## Original request\n" + state["original"]]
     if state.get("answers"):
-        parts.append("## Ответы пользователя\n" + "\n\n".join(
-            "Вопрос: %s\nОтвет: %s" % (item["question"], item["answer"])
+        parts.append("## User answers\n" + "\n\n".join(
+            "Question: %s\nAnswer: %s" % (item["question"], item["answer"])
             for item in state["answers"]))
     if state.get("revisions"):
-        parts.append("## Дополнения пользователя\n" + "\n\n".join(state["revisions"]))
-    parts.append("## Цель\n" + plan["goal"])
-    headings = {"deliverables": "Что должно получиться", "steps": "План работы",
-                "acceptance": "Критерии готовности", "constraints": "Ограничения",
-                "assumptions": "Предположения, а не факты или ответы пользователя",
-                "out_of_scope": "За пределами задачи"}
+        parts.append("## User additions\n" + "\n\n".join(state["revisions"]))
+    parts.append("## Goal\n" + plan["goal"])
+    headings = {"deliverables": "Deliverables", "steps": "Work plan",
+                "acceptance": "Acceptance criteria", "constraints": "Constraints",
+                "assumptions": "Assumptions, not facts or user answers",
+                "out_of_scope": "Out of scope"}
     for field in PLAN_FIELDS[2:]:
         if plan[field]:
             parts.append("## " + headings[field] + "\n" + "\n".join(
                 "%s. %s" % (index + 1, item) for index, item in enumerate(plan[field])))
-    parts.append("Выполняй этот план в выбранной рабочей папке. Проверяй результат реальными "
-                 "командами. Критерии плана описывают желаемый результат, но не являются "
-                 "уже пройденными проверками. Сохрани действующий контракт проверок; "
-                 "не ослабляй тесты. Если существенный блокер остался, сообщи о нём.")
+    parts.append("Carry out this plan in the chosen workspace. Verify the result with real "
+                 "commands. The plan's criteria describe the desired result and are not "
+                 "checks that have already passed. Keep the check contract in force; "
+                 "do not weaken tests. If a material blocker remains, report it.")
     rendered = clean("\n\n".join(parts))
     if len(rendered) > MAX_PROMPT_CHARS:
-        raise ValueError("Собранное задание длиннее 20000 символов. Сократите план или уточнения; данные сохранены.")
+        raise ValueError("The compiled brief is longer than 20000 characters. Shorten the plan or the clarifications; your data is saved.")
     return rendered
 
 
@@ -212,82 +212,82 @@ class IntakeController:
             return initial
         try:
             if self.path.is_symlink() or self.path.stat().st_size > MAX_STATE_BYTES:
-                raise ValueError("Сохранённое задание имеет недопустимый размер или путь.")
+                raise ValueError("The saved brief has an invalid size or path.")
             with self.path.open("rb") as stream:
                 raw = stream.read(MAX_STATE_BYTES + 1)
             if len(raw) > MAX_STATE_BYTES:
-                raise ValueError("Сохранённое задание слишком велико.")
+                raise ValueError("The saved brief is too large.")
             value = json.loads(raw)
             if not isinstance(value, dict) or value.get("version") != 1:
-                raise ValueError("Неизвестная версия задания.")
+                raise ValueError("Unknown brief version.")
             if value.get("status") not in _STATUSES:
-                raise ValueError("Неизвестное состояние задания.")
+                raise ValueError("Unknown brief status.")
             for name in ("revision", "round"):
                 if type(value.get(name)) is not int or value[name] < 0:
-                    raise ValueError("Некорректная ревизия задания.")
+                    raise ValueError("Invalid brief revision.")
             _text(value.get("original"), "original", MAX_PROMPT_CHARS, required=False)
             _text(value.get("refined_prompt"), "refined_prompt", MAX_PROMPT_CHARS, required=False)
             if value.get("response") is not None:
                 value["response"] = validate_response(value["response"])
             if value["status"] in _ACTIVE_STATUSES:
                 if not value.get("response") or value["response"]["kind"] != value["status"]:
-                    raise ValueError("Состояние не соответствует сохранённому ответу.")
+                    raise ValueError("The status does not match the saved response.")
             for name in ("conversation", "answers", "revisions"):
                 if not isinstance(value.get(name), list) or len(value[name]) > 48:
-                    raise ValueError("Повреждена история уточнений.")
+                    raise ValueError("The clarification history is damaged.")
             for item in value["conversation"]:
-                _keys(item, ("role", "text"), "истории")
+                _keys(item, ("role", "text"), "history")
                 if item["role"] not in {"user", "assistant"}:
-                    raise ValueError("Повреждена роль в истории уточнений.")
+                    raise ValueError("A role in the clarification history is damaged.")
                 _text(item["text"], "conversation.text", MAX_RESPONSE_CHARS)
             for item in value["answers"]:
-                _keys(item, ("id", "question", "answer"), "истории ответов")
+                _keys(item, ("id", "question", "answer"), "answer history")
                 for name, limit in (("id", 40), ("question", 600), ("answer", 4000)):
                     _text(item[name], "answers." + name, limit)
             for revision in value["revisions"]:
                 _text(revision, "revisions", MAX_PROMPT_CHARS)
             if not isinstance(value.get("draft_answers"), dict) or len(value["draft_answers"]) > 3:
-                raise ValueError("Повреждены черновики ответов.")
+                raise ValueError("The answer drafts are damaged.")
             for key, answer in value["draft_answers"].items():
                 _text(key, "draft.id", 40)
                 _text(answer, "draft.answer", 4000, required=False)
             digest = value.get("snapshot_digest")
             if digest is not None and (not isinstance(digest, str) or not re.fullmatch(r"[a-f0-9]{64}", digest)):
-                raise ValueError("Повреждён снимок проекта.")
+                raise ValueError("The project snapshot is damaged.")
             result = {**initial, **clean(value)}
             if result["status"] in {"preparing", "executing"}:
                 previous = (result.get("response") or {}).get("kind")
                 result["status"] = previous if previous in _ACTIVE_STATUSES else "idle"
-                result["last_error"] = "Предыдущая операция прервана. Задание сохранено; обновите план перед запуском."
+                result["last_error"] = "The previous operation was interrupted. The brief is saved; refresh the plan before running."
                 result["interrupted"] = True
             if (result["status"] == "plan" and not result.get("last_error")
                     and compile_brief(result) != result["refined_prompt"]):
-                raise ValueError("Текст задания не соответствует сохранённому плану.")
+                raise ValueError("The brief text does not match the saved plan.")
             return result
         except (OSError, ValueError, TypeError, KeyError, UnicodeError) as exc:
-            initial["last_error"] = "Не удалось восстановить задание: " + clean(str(exc))
+            initial["last_error"] = "Could not restore the brief: " + clean(str(exc))
             return initial
 
     def _save(self):
         payload = json.dumps(clean(self._state), ensure_ascii=False).encode("utf-8")
         if len(payload) > MAX_STATE_BYTES:
-            raise ValueError("История уточнений слишком велика; начните новое задание.")
+            raise ValueError("The clarification history is too large; start a new brief.")
         write_json(self.path, self._state)
 
     def _answers(self, answers, *, complete):
         if self._state["status"] != "questions":
-            raise ValueError("Сейчас нет вопросов, ожидающих ответа.")
+            raise ValueError("There are no questions waiting for an answer.")
         if not isinstance(answers, dict):
-            raise ValueError("Ответы должны быть объектом question_id → текст.")
+            raise ValueError("Answers must be an object of question_id → text.")
         questions = {q["id"]: q for q in self._state["response"]["questions"]}
         if set(answers) - set(questions):
-            raise ValueError("Ответ относится к другому вопросу или старой форме.")
+            raise ValueError("This answer belongs to another question or an old form.")
         if complete and set(answers) != set(questions):
-            raise ValueError("Ответьте на все вопросы или измените исходный запрос.")
-        normalized = {qid: strip_recommended(_text(answer, "ответ", 4000, required=complete))
+            raise ValueError("Answer every question, or change the original request.")
+        normalized = {qid: strip_recommended(_text(answer, "answer", 4000, required=complete))
                       for qid, answer in answers.items()}
         if complete and any(not answer.strip() for answer in normalized.values()):
-            raise ValueError("Пустой ответ не подтверждает выбор. Выберите вариант или напишите свой ответ.")
+            raise ValueError("A blank answer does not confirm a choice. Pick an option or write your own answer.")
         return normalized
 
     def save_draft_answers(self, answers):
@@ -303,8 +303,8 @@ class IntakeController:
 
     async def prepare(self, text, emit=None, answers=None):
         if self.session.busy or self._state["status"] in {"preparing", "executing"}:
-            raise ValueError("Сначала дождитесь текущего хода или остановите его.")
-        text = _text(text, "запрос", MAX_PROMPT_CHARS, required=answers is None)
+            raise ValueError("Wait for the current turn to finish, or stop it.")
+        text = _text(text, "request", MAX_PROMPT_CHARS, required=answers is None)
         locked = self._answers(answers, complete=True) if answers is not None else None
         before_state = self.state
         state = self.state
@@ -328,7 +328,7 @@ class IntakeController:
             state["conversation"].append({"role": "user", "text": answer_text})
             state["draft_answers"] = dict(locked)
         if any(len(state[name]) > 46 for name in ("conversation", "answers", "revisions")):
-            raise ValueError("Слишком много уточнений в одном задании. Начните новое задание.")
+            raise ValueError("Too many clarifications in one brief. Start a new brief.")
         old_status = state["status"]
         state.update(status="preparing", revision=state["revision"] + 1, last_error=None)
         state.pop("interrupted", None)
@@ -362,7 +362,7 @@ class IntakeController:
         previous_digest = state["snapshot_digest"]
         try:
             self.session.emit("user", text=text or answer_text)
-            self.session.phase("BRIEF", detail="Уточнение задачи · только чтение")
+            self.session.phase("BRIEF", detail="Clarifying the task · read only")
             self._emit_brief()
             before = await asyncio.to_thread(snapshot, self.session.workspace)
             write_json(directory / "snapshot-before.json", before)
@@ -415,10 +415,10 @@ class IntakeController:
             if self.session.cancel_event.is_set():
                 raise asyncio.CancelledError()
             if not output.get("completed"):
-                raise RuntimeFailure("Планировщик не завершил ответ.")
+                raise RuntimeFailure("The planner did not finish its response.")
             raw = output.get("text")
             if not isinstance(raw, str) or len(raw) > MAX_RESPONSE_CHARS:
-                raise RuntimeFailure("Планировщик вернул пустой или слишком большой ответ.")
+                raise RuntimeFailure("The planner returned an empty or oversized response.")
             usage = output.get("usage")
             if isinstance(usage, dict) and all(type(usage.get(k)) is int and usage[k] >= 0
                                               for k in ("input_tokens", "output_tokens")):
@@ -430,7 +430,7 @@ class IntakeController:
             after = await asyncio.to_thread(snapshot, self.session.workspace)
             write_json(directory / "snapshot-after.json", after)
             if after["digest"] != before["digest"]:
-                raise RuntimeFailure("Во время подготовки изменились файлы проекта. План не принят; обновите его.")
+                raise RuntimeFailure("Project files changed during preparation. The plan is not accepted; refresh it.")
             state.update(status=response["kind"], response=response, snapshot_digest=after["digest"],
                          refined_prompt="")
             if response["kind"] == "plan":
@@ -442,7 +442,7 @@ class IntakeController:
             self.session.meters["usage_complete"] = False
             state.update(status=old_status, response=previous_response, refined_prompt=previous_prompt,
                          snapshot_digest=previous_digest,
-                         last_error="Подготовка остановлена. Выполнение не запускалось; ответы сохранены.")
+                         last_error="Preparation stopped. Nothing was run; your answers are saved.")
             self.session.phase("BRIEF", "cancelled")
         except Exception as exc:
             self.session.meters["usage_complete"] = False
@@ -472,16 +472,16 @@ class IntakeController:
 
     async def execute(self, revision, emit=None):
         if self.session.busy or self._state["status"] != "plan":
-            raise ValueError("Запустить можно только готовый план после завершения текущего хода.")
+            raise ValueError("Only a ready plan can run, and only after the current turn finishes.")
         if self.session.execution_mode == "plan":
-            raise ValueError("Включён режим «Только план». Переключитесь на выполнение перед запуском.")
+            raise ValueError("Plan only mode is on. Switch to execution before running.")
         if type(revision) is not int or revision != self._state["revision"]:
-            raise ValueError("Этот план уже изменился. Откройте и примите текущую версию.")
+            raise ValueError("This plan has changed. Open and accept the current version.")
         if self._state.get("last_error"):
-            raise ValueError("Сначала обновите план: предыдущая подготовка не завершена.")
+            raise ValueError("Refresh the plan first: the previous preparation did not finish.")
         compiled = compile_brief(self._state)
         if compiled != self._state["refined_prompt"]:
-            raise ValueError("Текст задания изменился. Подготовьте план заново.")
+            raise ValueError("The brief text changed. Prepare the plan again.")
         # Lock before the first await: two clicks must not launch two workers.
         self._state["status"] = "executing"
         self.session.busy = True
@@ -490,22 +490,22 @@ class IntakeController:
             self._save()
             current = await asyncio.to_thread(snapshot, self.session.workspace)
             if self.session.cancel_event.is_set():
-                raise RuntimeFailure("Запуск остановлен пользователем. Выполнение не начиналось; обновите план перед запуском.")
+                raise RuntimeFailure("The run was stopped by the user. Nothing started; refresh the plan before running.")
             if current["digest"] != self._state["snapshot_digest"]:
-                raise ValueError("После подготовки плана проект изменился. Обновите план перед запуском.")
+                raise ValueError("The project changed after the plan was prepared. Refresh the plan before running.")
             # Hand the lock to run_turn without yielding: Stop during the
             # snapshot must be observed before run_turn creates its own token.
             self.session.busy = False
             plan = self._state["response"]["plan"]
             result = await self.session.run_turn(
-                compiled, emit, display_prompt="План принят: " + plan["title"],
+                compiled, emit, display_prompt="Plan accepted: " + plan["title"],
                 # The points the user approved become the review's addressable
                 # questions, so "improve" can name what is still not shown closed.
                 requirements=list(plan["acceptance"]) + list(plan["deliverables"]))
             self._state.update(status="completed", result=clean(result))
             return result
         except BaseException as exc:
-            self._state.update(status="plan", last_error=("Выполнение прервано; обновите план." if
+            self._state.update(status="plan", last_error=("Execution interrupted; refresh the plan." if
                                isinstance(exc, asyncio.CancelledError) else clean(str(exc)) or type(exc).__name__))
             raise
         finally:

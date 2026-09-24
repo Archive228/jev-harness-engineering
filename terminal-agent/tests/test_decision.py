@@ -318,7 +318,7 @@ class SessionDecisionTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(result["meters"]["usage_complete"])
         notes = [e for e in self.session.events()
                  if e["type"] == "message" and e["data"].get("role") == "policy"]
-        self.assertTrue(any("приёмка не выдана" in e["data"]["text"] for e in notes))
+        self.assertTrue(any("no acceptance given" in e["data"]["text"] for e in notes))
 
     async def test_every_decision_records_its_inputs_policy_and_verdict(self):
         self.session.judge = RoutingJudge(fail_on=None)

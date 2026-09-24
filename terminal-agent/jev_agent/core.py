@@ -120,7 +120,7 @@ def clip(text, head, tail):
     text = text or ""
     if len(text) <= head + tail + 80:
         return text
-    return "%s\n[… пропущено %s символов …]\n%s" % (
+    return "%s\n[… %s characters skipped …]\n%s" % (
         text[:head], len(text) - head - tail, text[-tail:] if tail else "")
 
 
@@ -176,7 +176,7 @@ def snapshot(directory):
                 continue
             rel = p.relative_to(directory).as_posix()
             if len(files) >= 5000:
-                raise RuntimeFailure("В рабочей папке больше 5000 файлов; выберите более узкий проект.")
+                raise RuntimeFailure("The workspace holds more than 5000 files; choose a narrower project.")
             with p.open("rb") as f:
                 h = hashlib.sha256()
                 for block in iter(lambda: f.read(65536), b""):
@@ -188,7 +188,7 @@ def snapshot(directory):
 
 def valid_checks(checks):
     if not isinstance(checks, list) or len(checks) > 20:
-        raise ValueError("checks должен быть массивом из не более 20 команд.")
+        raise ValueError("checks must be an array of at most 20 commands.")
     ids = set()
     result = []
     for check in checks:
@@ -196,7 +196,7 @@ def valid_checks(checks):
                 or not check["id"] or check["id"] in ids
                 or not isinstance(check.get("argv"), list) or not check["argv"]
                 or not all(isinstance(a, str) and a for a in check["argv"])):
-            raise ValueError("Каждой проверке нужны уникальный id и argv: массив аргументов без shell.")
+            raise ValueError("Each check needs a unique id and argv: an array of arguments, no shell.")
         ids.add(check["id"])
         result.append({"id": check["id"], "title": str(check.get("title", check["id"])),
                        "argv": check["argv"], "origin": check.get("origin", "registered")})
@@ -235,7 +235,7 @@ class Session:
         self.execution_mode = metadata.get("execution_mode", "auto")
         self.jev_mode = metadata.get("jev_mode", "assist")
         if self.execution_mode not in ("auto", "plan") or self.jev_mode not in ("assist", "observe", "off"):
-            raise ValueError("Некорректные сохранённые режимы сессии.")
+            raise ValueError("Invalid saved session modes.")
         self.metadata = metadata
         self.contract_hashes = metadata.get("contract_hashes", {})
         self.busy = False
@@ -243,7 +243,7 @@ class Session:
         self.worker = metadata.get("worker", "codex")
         self.web = metadata.get("web", "off")
         if self.worker not in self.WORKERS or self.web not in ("off", "on"):
-            raise ValueError("Некорректный сохранённый исполнитель или доступ в сеть.")
+            raise ValueError("Invalid saved worker or web access.")
         self.runner = self.WORKERS[self.worker](allow_web=self.web == "on")
         self.judge = JevJudge()
         # Built on first use, never at construction: on Python 3.9 asyncio.Event()
@@ -269,9 +269,9 @@ class Session:
         directory.mkdir(parents=True, mode=0o700)
         workspace = Path(project).expanduser().resolve() if project else directory / "workspace"
         if project and not workspace.is_dir():
-            raise ValueError("Рабочий проект не существует: " + str(workspace))
+            raise ValueError("Working project does not exist: " + str(workspace))
         if project and mission:
-            raise ValueError("Миссия создаёт свою копию; не сочетайте --mission с --project.")
+            raise ValueError("A mission creates its own copy; do not combine --mission with --project.")
         workspace.mkdir(parents=True, exist_ok=True)
         metadata = {"id": session_id, "workspace": str(workspace), "history": [],
                     "checks": [], "mission": mission, "created_at": datetime.now(timezone.utc).isoformat()}
@@ -303,7 +303,7 @@ class Session:
             metadata["contract_hashes"] = {relocated(p): h for p, h in metadata.get("contract_hashes", {}).items()}
         session = cls(directory, metadata)
         if not session.workspace.is_dir():
-            raise ValueError("Рабочая папка сессии недоступна.")
+            raise ValueError("The session workspace is unavailable.")
         if activate:
             session.activate()
         return session
@@ -375,7 +375,7 @@ class Session:
 
     def configure(self, execution_mode=None, jev_mode=None, web=None):
         if self.busy:
-            raise ValueError("Режим можно изменить после завершения или остановки текущего хода.")
+            raise ValueError("The mode can change once the current turn finishes or is stopped.")
         execution_mode = self.execution_mode if execution_mode is None else execution_mode
         jev_mode = self.jev_mode if jev_mode is None else jev_mode
         web = self.web if web is None else web
@@ -400,9 +400,9 @@ class Session:
         the stopping rules do not know which one is behind it.
         """
         if name not in self.WORKERS:
-            raise ValueError("Исполнитель должен быть одним из: " + ", ".join(sorted(self.WORKERS)))
+            raise ValueError("Worker must be one of: " + ", ".join(sorted(self.WORKERS)))
         if self.busy:
-            raise ValueError("Исполнителя можно сменить после завершения или остановки хода.")
+            raise ValueError("The worker can change once the turn finishes or is stopped.")
         self.worker = name
         self.runner = self.WORKERS[name](allow_web=self.web == "on")
         self.metadata["worker"] = name
@@ -469,7 +469,7 @@ class Session:
             # A request may have consumed tokens before failing; zero is not a complete usage account.
             self.meters["usage_complete"] = False
             self.phase("JEV " + purpose.upper(), "error")
-            self.emit("message", role="policy", text="Jev %s недоступен; используется политика Python: %s" % (purpose, clean(str(exc))))
+            self.emit("message", role="policy", text="Jev %s is unavailable; using the Python policy: %s" % (purpose, clean(str(exc))))
             return None
 
     async def retrieve_context(self, prompt, turn_dir, attempt=1):
@@ -529,7 +529,7 @@ class Session:
                     or hashlib.sha256(path.read_bytes()).hexdigest() != expected):
                 contract_changes.append(filename)
         if contract_changes:
-            raise RuntimeFailure("Контракт проверок изменён; приёмка запрещена: " + ", ".join(contract_changes))
+            raise RuntimeFailure("The check contract changed; acceptance is refused: " + ", ".join(contract_changes))
         checks = self.checks
         if not checks:
             # Useful real execution, explicitly weaker than a predeclared independent contract.
@@ -537,7 +537,7 @@ class Session:
             test_root = "tests" if tests.is_dir() and list(tests.glob("test*.py")) else "." if list(self.workspace.glob("test*.py")) else None
             if test_root:
                 import sys
-                checks = [{"id": "generated-tests", "title": "Тесты проекта (могли быть созданы worker)",
+                checks = [{"id": "generated-tests", "title": "Project tests (may have been created by the worker)",
                            "argv": [sys.executable, "-B", "-m", "unittest", "discover", "-s", test_root, "-v"],
                            "origin": "worker_generated"}]
         items = []
@@ -590,15 +590,15 @@ class Session:
             mode = route["route"]["choice"]
             if route_uncertain(route["route"]["confidence"], self.policy):
                 mode = "inspect"
-                self.emit("message", role="policy", text="Jev не уверен в режиме: сначала чтение и уточнение, без изменения файлов.")
+                self.emit("message", role="policy", text="Jev is unsure of the mode: read and clarify first, no file changes.")
         elif self.jev_mode == "observe":
             await self.advisory_jev(route_state, ROUTE_QUESTIONS, "route", turn_dir)
-            self.emit("message", role="policy", text="Jev observe: решения записываются без влияния. Python разрешает работу в проекте по запросу пользователя; plan остаётся только для чтения.")
+            self.emit("message", role="policy", text="Jev observe: decisions are recorded without effect. Python allows work in the project on the user's request; plan stays read-only.")
         else:
-            self.emit("message", role="policy", text="Jev off: API-вызовов Jev нет. Python разрешает работу в проекте по запросу пользователя; plan остаётся только для чтения.")
+            self.emit("message", role="policy", text="Jev off: no Jev API calls. Python allows work in the project on the user's request; plan stays read-only.")
         if self.execution_mode == "plan":
             mode = "inspect"
-            self.emit("message", role="policy", text="Plan: только чтение и планирование; выбор Jev не может разрешить изменение файлов.")
+            self.emit("message", role="policy", text="Plan: reading and planning only; Jev's choice cannot permit file changes.")
         self.phase("POLICY", "done", "mode=" + mode)
         readonly = mode != "implement"
         snippets = await self.retrieve_context(prompt, turn_dir)
@@ -658,7 +658,7 @@ class Session:
             output = await self.runner.run(instruction, self.workspace, turn_dir / ("worker-%02d" % attempt),
                                            self.emit, self.cancel_event, readonly=readonly)
             if not output.get("completed") or not output.get("text"):
-                raise RuntimeFailure("Worker не предоставил завершённый ответ.")
+                raise RuntimeFailure("The worker did not return a completed response.")
             last_text = clean(output["text"])
             usage = output.get("usage")
             if isinstance(usage, dict) and all(isinstance(usage.get(k), int) and not isinstance(usage[k], bool)
@@ -670,7 +670,7 @@ class Session:
             changed = sorted(k for k in set(before["files"]) | set(after["files"])
                              if before["files"].get(k) != after["files"].get(k))
             if readonly and changed:
-                raise RuntimeFailure("Worker изменил файлы в режиме чтения; результат не принят.")
+                raise RuntimeFailure("The worker changed files in a read-only turn; the result is not accepted.")
             details = diff_details(self.workspace, changed, before, after, before_texts)
             write_json(turn_dir / ("attempt-%02d-diffs.json" % attempt), details)
             self.emit("files", changed=changed, details=details)
@@ -697,7 +697,7 @@ class Session:
                     self.meters["usage_complete"] = False
                     self.phase("JEV REVIEW", "error")
                     self.emit("message", role="policy", text=(
-                        "Jev review недоступен: приёмка не выдана, результат воркера сохранён. " + clean(str(exc))))
+                        "Jev review unavailable: no acceptance given, the worker's result is saved. " + clean(str(exc))))
             elif self.jev_mode == "observe":
                 await self.advisory_jev(review_state, questions, "review", turn_dir)
             # Advisory by design: gaps say what the next attempt should address,
@@ -711,7 +711,7 @@ class Session:
                       policy_version=POLICY_VERSION, thresholds=self.policy)
             if verdict["checks_blocked"]:
                 # The model cannot turn a failed executable check into acceptance.
-                self.emit("message", role="policy", text="Есть проваленная или устаревшая проверка: завершение заблокировано кодом.")
+                self.emit("message", role="policy", text="A check failed or is stale: finishing is blocked by code.")
             if verdict["outcome"] == "retry":
                 if verdict["checks_blocked"]:
                     triage = await self.triage_failure(prompt, last_report, turn_dir)
@@ -719,15 +719,15 @@ class Session:
             outcome = {"status": verdict["status"], "reason": verdict["reason"], "summary": last_text,
                        "open_requirements": open_requirements}
             if verdict["status"] == "accepted":
-                outcome["acceptance_scope"] = "Только сохранённый контракт. Новое требование может выходить за его пределы."
+                outcome["acceptance_scope"] = "The saved contract only. A new requirement may fall outside it."
             return outcome
-        raise RuntimeFailure("Исчерпан лимит попыток.")
+        raise RuntimeFailure("Attempt limit exhausted.")
 
     async def run_turn(self, prompt, emit=None, display_prompt=None, requirements=None):
         if self.busy:
-            raise ValueError("Сначала дождитесь текущего хода или остановите его.")
+            raise ValueError("Wait for the current turn to finish, or stop it.")
         if not isinstance(prompt, str) or not prompt.strip() or len(prompt) > 20000:
-            raise ValueError("Введите запрос от 1 до 20000 символов.")
+            raise ValueError("Enter a request of 1 to 20000 characters.")
         self.cancel_event = asyncio.Event()
         self._requirements = valid_requirements(requirements)
         self._started = time.monotonic()
@@ -755,7 +755,7 @@ class Session:
             self.meters["usage_complete"] = False
             if self.active_phase:
                 self.phase(self.active_phase, "cancelled")
-            result = {"status": "cancelled", "reason": "user_cancelled", "summary": "Ход остановлен. Уже сделанные изменения сохранены."}
+            result = {"status": "cancelled", "reason": "user_cancelled", "summary": "Turn stopped. Changes already made are kept."}
         except Exception as exc:
             self.meters["usage_complete"] = False
             if self.active_phase:
@@ -776,7 +776,7 @@ class Session:
                 try:
                     write_json(turn_dir / "snapshot-after.json", snapshot(self.workspace))
                 except (OSError, RuntimeFailure) as exc:
-                    self.emit("error", message="Не удалось сохранить финальный snapshot: " + clean(str(exc)))
+                    self.emit("error", message="Could not save the final snapshot: " + clean(str(exc)))
                 self.phase("RESULT", "done", result["status"])
                 self.emit("end", **result)
             self._emit_callback = None

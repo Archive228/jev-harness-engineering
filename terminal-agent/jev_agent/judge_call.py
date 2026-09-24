@@ -13,7 +13,7 @@ def main():
     request_path, response_path = map(Path, sys.argv[1:3])
     try:
         if not os.environ.get("TYPESAFE_API_KEY"):
-            raise JudgeError("TYPESAFE_API_KEY не задан. Передайте ключ TypeSafe через окружение.")
+            raise JudgeError("TYPESAFE_API_KEY is not set. Pass the TypeSafe key through the environment.")
         request = json.loads(request_path.read_text(encoding="utf-8"))
         judge = Judge("live", response_path.parent / "provider", timeout=20, model=request["model"])
         response = judge.ask(request["state"], request["questions"])

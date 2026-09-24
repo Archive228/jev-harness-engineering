@@ -70,7 +70,7 @@ def check_size(request):
     size = len(json.dumps(request, ensure_ascii=False, default=str).encode("utf-8"))
     if size > MAX_REQUEST_BYTES:
         raise TransportRefusal(
-            "Запрос к Jev слишком велик: %s из %s байт. Сократите состояние." % (size, MAX_REQUEST_BYTES))
+            "Jev request too large: %s of %s bytes. Shorten the state." % (size, MAX_REQUEST_BYTES))
     return size
 
 
@@ -140,7 +140,7 @@ def breaker_block(now=None):
     state = _read_breaker()
     remaining = state["open_until"] - (time.time() if now is None else now)
     if remaining > 0:
-        return ("Jev недоступен после %s неудач подряд; повтор через %s с."
+        return ("Jev unavailable after %s failures in a row; retry in %ss."
                 % (state["failures"], int(remaining) + 1))
     return None
 

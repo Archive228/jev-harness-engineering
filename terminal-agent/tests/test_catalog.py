@@ -88,7 +88,7 @@ class CatalogTests(unittest.TestCase):
             result = read_artifact(self.session, "a.py")
         self.assertEqual(result["text"], "")
         self.assertNotIn("outside-canary", str(result))
-        self.assertIn("недоступен", result["notice"])
+        self.assertIn("unavailable", result["notice"])
 
     def test_latest_captured_diff_is_available_even_for_deleted_file(self):
         for number, diff in ((1, "old"), (2, "--- a.py\n+++ /dev/null\n-x")):
@@ -98,7 +98,7 @@ class CatalogTests(unittest.TestCase):
                 "a.py": {"status": "deleted", "diff": diff, "truncated": False}}))
         result = read_artifact(self.session, "a.py")
         self.assertIn("/dev/null", result["diff"])
-        self.assertIn("удалён", result["notice"])
+        self.assertIn("deleted", result["notice"])
         self.assertIn({"path": "a.py", "status": "deleted"}, list_artifacts(self.session))
 
     def test_file_listing_skips_private_and_generated_directories(self):

@@ -31,19 +31,19 @@ def plain(value: Any, limit: int = 14000) -> str:
     """Remove terminal controls; callers choose literal text or Markdown."""
     result = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False, default=str)
     result = "".join(ch for ch in result if ch in "\n\t" or (ord(ch) >= 32 and not 127 <= ord(ch) <= 159))
-    return result if len(result) <= limit else result[:limit] + "\n… полный вывод в events.jsonl сессии"
+    return result if len(result) <= limit else result[:limit] + "\n… full output in the session events.jsonl"
 
 
 class PromptEditor(TextArea):
-    BINDINGS = [Binding("enter", "submit", "Отправить", show=False, priority=True),
-                Binding("ctrl+j,shift+enter", "newline", "Новая строка", show=False, priority=True),
+    BINDINGS = [Binding("enter", "submit", "Send", show=False, priority=True),
+                Binding("ctrl+j,shift+enter", "newline", "New line", show=False, priority=True),
                 # A terminal reports Command in more than one way: with the kitty
                 # keyboard protocol Cmd+Backspace arrives as ``super+backspace``,
                 # while other clients send it as a meta-modified Backspace or
                 # Delete, and some forward no Command modifier at all. Bind every
                 # spelling and keep Ctrl+U, which every terminal can produce.
                 Binding("super+backspace,meta+backspace,super+delete,meta+delete,ctrl+u",
-                        "delete_line", "Удалить строку", show=False, priority=True)]
+                        "delete_line", "Delete line", show=False, priority=True)]
 
     class Submitted(Message):
         def __init__(self, editor: "PromptEditor") -> None:
@@ -146,32 +146,32 @@ class ToolCard(Collapsible):
         symbol = "?" if unknown else "×" if failed else "✓" if done else "●"
         command = plain(self.data.get("command") or "", 18000)
         kind = str(self.data.get("kind") or "tool")
-        label = {"command_execution": "Терминал", "shell": "Терминал", "acceptance": "Проверка",
-                 "file_change": "Файлы", "mcp_tool_call": "Инструмент", "web_search": "Поиск",
-                 "provider_error": "Ошибка провайдера", "read": "Чтение"}.get(kind, kind)
+        label = {"command_execution": "Terminal", "shell": "Terminal", "acceptance": "Check",
+                 "file_change": "Files", "mcp_tool_call": "Tool", "web_search": "Search",
+                 "provider_error": "Provider error", "read": "Read"}.get(kind, kind)
         files = self.data.get("files")
         if kind == "file_change" and isinstance(files, list):
             count = len(files)
-            noun = "файл" if count % 10 == 1 and count % 100 != 11 else "файла" if count % 10 in (2, 3, 4) and count % 100 not in (12, 13, 14) else "файлов"
+            noun = "file" if count == 1 else "files"
             summary = "{} {}".format(count, noun)
             if len(files) == 1 and isinstance(files[0], dict):
-                summary = plain(files[0].get("path") or "1 файл", 500)
+                summary = plain(files[0].get("path") or "1 file", 500)
         else:
             summary = command_summary(command)
         title = symbol
         if code is not None:
             title += " exit {}".format(code)
         elif state in ("cancelled", "stopped"):
-            title += " остановлено"
+            title += " stopped"
         elif unknown:
-            title += " статус неизвестен"
+            title += " status unknown"
         title += "  ·  " + label
         if summary:
             title += "  ·  " + summary[:76] + ("…" if len(summary) > 76 else "")
         self.title = escape(title)
         self.set_class(failed, "tool-failed")
         self.set_class(done and not failed and not unknown, "tool-done")
-        output = Text(("Команда\n" + command if command else "Тип события: " + kind) + "\n", style="bold " + CREAM)
+        output = Text(("Command\n" + command if command else "Event type: " + kind) + "\n", style="bold " + CREAM)
         if isinstance(files, list) and files:
             output.append("\n" + plain(files, 14000) + "\n", style=MUTED)
         if self.data.get("output"):
@@ -179,20 +179,20 @@ class ToolCard(Collapsible):
             output.append("\n" + plain(raw_output, 18000), style=MUTED)
             lines = raw_output.splitlines()
             first_line = next((line for line in lines if line.strip()), "")
-            preview = "{} стр. · {}".format(len(lines), " ".join(plain(first_line, 300).split()))
+            preview = "{} lines · {}".format(len(lines), " ".join(plain(first_line, 300).split()))
         else:
-            note = "В этой записи нет сопоставленного события завершения." if unknown else "Команда завершилась без текстового вывода." if done else "Выполнение остановлено." if failed else "Ожидаю фактический вывод процесса…"
+            note = "No matching completion event for this record." if unknown else "The command finished with no text output." if done else "Execution stopped." if failed else "Waiting for the actual process output…"
             output.append("\n" + note, style=MUTED)
-            preview = "Без текстового вывода · нажмите, чтобы раскрыть" if done and not unknown and not failed else "Нажмите, чтобы раскрыть подробности" if failed or unknown else "Выполняется · нажмите, чтобы раскрыть"
+            preview = "No text output · click to expand" if done and not unknown and not failed else "Click to expand the details" if failed or unknown else "Running · click to expand"
         self.preview_view.update(Text(preview[:130] + ("…" if len(preview) > 130 else ""), style=MUTED))
         self.output_view.update(output)
 
 
 class PickerScreen(ModalScreen):
     """Searchable keyboard-first picker, shared by commands, sessions and files."""
-    BINDINGS = [Binding("escape", "cancel", "Закрыть", show=False),
-                Binding("down", "next", "Вниз", show=False, priority=True),
-                Binding("up", "previous", "Вверх", show=False, priority=True)]
+    BINDINGS = [Binding("escape", "cancel", "Close", show=False),
+                Binding("down", "next", "Down", show=False, priority=True),
+                Binding("up", "previous", "Up", show=False, priority=True)]
     DEFAULT_CSS = """
     PickerScreen { align: center middle; background: #18151d 90%; }
     #picker-box { width: 86; max-width: 94%; height: 80%; max-height: 34;
@@ -207,7 +207,7 @@ class PickerScreen(ModalScreen):
     #picker-hint { height: 1; margin-top: 1; color: #aaa0b2; }
     """
 
-    def __init__(self, title: str, choices: List[Dict[str, Any]], placeholder: str = "Поиск…") -> None:
+    def __init__(self, title: str, choices: List[Dict[str, Any]], placeholder: str = "Search…") -> None:
         super().__init__()
         self.heading, self.choices, self.placeholder = title, choices, placeholder
         self.filtered = list(choices)
@@ -215,10 +215,10 @@ class PickerScreen(ModalScreen):
     def compose(self) -> ComposeResult:
         with Vertical(id="picker-box"):
             yield Static(Text(self.heading), id="picker-heading")
-            yield Static(Text("Начните вводить название или выберите строку ниже."), id="picker-description")
+            yield Static(Text("Start typing a name or pick a row below."), id="picker-description")
             yield Input(placeholder=self.placeholder, id="picker-search")
             yield OptionList(id="picker-options")
-            yield Static("↑ ↓ выбрать   Enter открыть   Escape закрыть", id="picker-hint")
+            yield Static("↑ ↓ select   Enter open   Escape close", id="picker-hint")
 
     def on_mount(self) -> None:
         self._filter("")
@@ -238,8 +238,8 @@ class PickerScreen(ModalScreen):
             options.add_option(label)
         options.highlighted = 0 if self.filtered else None
         self.query_one("#picker-hint", Static).update(
-            "{} из {} · ↑ ↓ выбрать   Enter открыть   Esc закрыть".format(len(self.filtered), len(self.choices))
-            if self.filtered else "Ничего не найдено · измените запрос или Esc закрыть")
+            "{} of {} · ↑ ↓ select   Enter open   Esc close".format(len(self.filtered), len(self.choices))
+            if self.filtered else "Nothing found · change the query or Esc to close")
 
     def on_input_changed(self, event: Input.Changed) -> None:
         self._filter(event.value)
@@ -266,7 +266,7 @@ class PickerScreen(ModalScreen):
 
 
 class HelpScreen(ModalScreen):
-    BINDINGS = [Binding("escape,f1", "dismiss", "Закрыть", show=False)]
+    BINDINGS = [Binding("escape,f1", "dismiss", "Close", show=False)]
     DEFAULT_CSS = """
     HelpScreen { align: center middle; background: #18151d 90%; }
     #help-box { width: 80; max-width: 94%; height: auto; max-height: 90%;
@@ -277,38 +277,38 @@ class HelpScreen(ModalScreen):
         with VerticalScroll(id="help-box"):
             yield Static(Text("JEVIS / HARNESS\n", style="bold " + AMBER))
             yield Static(Text(
-                "Пишите обычную задачу. Jev выбирает ограниченные решения; исполнитель "
-                "создаёт ответ и файлы; harness проверяет фактический результат.\n\n"
-                "Enter       отправить весь текст\n"
-                "Ctrl+J      новая строка; Shift+Enter — если поддерживает терминал\n"
-                "Ctrl+D      также отправить весь текст\n"
-                "⌘⌫ / Ctrl+U удалить текущую строку; Ctrl+U работает в любом терминале\n"
-                "F1 / Ctrl+P поиск команд\n"
-                "F2          вставить пример без запуска\n"
-                "F3          точный журнал событий\n"
-                "F4          развернуть редактор\n"
-                "F6          решения Jev, граф, проверки и файлы\n"
-                "Ctrl+S      сохранить реальный экран в SVG\n"
-                "Ctrl+C      остановить работу; в ожидании — выйти\n\n"
-                "Вставка сохраняет все абзацы и ничего не отправляет.\n"
-                "Сессии, файлы и детали Jev доступны кнопками в чате.\n\n"
-                "/sessions   продолжить сохранённую сессию\n"
-                "/files      открыть созданные файлы и diff\n"
-                "/export     сохранить разговор в Markdown\n"
-                "/mode auto  исполнитель может менять файлы\n"
-                "/mode plan  только чтение и план\n"
-                "/jev assist применять решения Jev\n"
-                "/jev observe показывать решения, не применять\n"
-                "/jev off    не вызывать Jev\n\n"
+                "Write the task in plain words. Jev picks bounded decisions; the worker "
+                "produces the answer and files; the harness verifies the actual result.\n\n"
+                "Enter       send the whole text\n"
+                "Ctrl+J      new line, or Shift+Enter if the terminal supports it\n"
+                "Ctrl+D      also sends the whole text\n"
+                "⌘⌫ / Ctrl+U delete the current line; Ctrl+U works in any terminal\n"
+                "F1 / Ctrl+P command search\n"
+                "F2          insert an example without running it\n"
+                "F3          exact event log\n"
+                "F4          expand the editor\n"
+                "F6          Jev decisions, graph, checks and files\n"
+                "Ctrl+S      save the real screen to SVG\n"
+                "Ctrl+C      stop the run; when idle, quit\n\n"
+                "A paste keeps every paragraph and sends nothing.\n"
+                "Sessions, files and Jev details are on the chat buttons.\n\n"
+                "/sessions   resume a saved session\n"
+                "/files      open the created files and diff\n"
+                "/export     save the conversation to Markdown\n"
+                "/mode auto  the worker may change files\n"
+                "/mode plan  read only and plan\n"
+                "/jev assist apply Jev decisions\n"
+                "/jev observe show decisions, do not apply\n"
+                "/jev off    do not call Jev\n\n"
                 "/status  /stop  /clear  /example  /help  /quit\n\n"
-                "Режимы и сессии переключаются только в ожидании.\n"
-                "Карточка инструмента раскрывается по клику или Enter.\n"
-                "Статус «подготовлено» не означает независимую приёмку.\n"
-                "Escape — вернуться к разговору.", style=CREAM))
+                "Modes and sessions switch only when idle.\n"
+                "A tool card expands on click or Enter.\n"
+                "A 'prepared' status is not independent acceptance.\n"
+                "Escape returns to the conversation.", style=CREAM))
 
 
 class ArtifactScreen(ModalScreen):
-    BINDINGS = [Binding("escape", "dismiss", "Закрыть", show=False)]
+    BINDINGS = [Binding("escape", "dismiss", "Close", show=False)]
     DEFAULT_CSS = """
     ArtifactScreen { align: center middle; background: #18151d 90%; }
     #artifact-box { width: 94%; height: 90%; padding: 1 2;
@@ -331,16 +331,16 @@ class ArtifactScreen(ModalScreen):
     def compose(self) -> ComposeResult:
         data = self.artifact
         with Vertical(id="artifact-box"):
-            yield Static(Text(plain(data.get("path", "Файл")) + "  ·  Escape закрыть"), id="artifact-title")
+            yield Static(Text(plain(data.get("path", "File")) + "  ·  Escape to close"), id="artifact-title")
             yield Static(Text(plain(data.get("notice", ""))), id="artifact-notice")
             with TabbedContent(id="artifact-tabs"):
-                with TabPane("Файл", id="artifact-source-tab"):
+                with TabPane("File", id="artifact-source-tab"):
                     with VerticalScroll(classes="artifact-scroll"):
                         text = plain(data.get("text", ""), 65536)
                         yield Static(Syntax(text, data.get("language") or "text", theme="dracula",
                                             background_color="#221c29", word_wrap=True, line_numbers=True), classes="artifact-source")
                 with TabPane("Diff", id="artifact-diff-tab"):
                     with VerticalScroll(classes="artifact-scroll"):
-                        diff = data.get("diff") or "Для этой записи diff не сохранён."
+                        diff = data.get("diff") or "No diff was saved for this record."
                         yield Static(Syntax(plain(diff, 65536), "diff", theme="dracula",
                                             background_color="#221c29", word_wrap=True), classes="artifact-source")

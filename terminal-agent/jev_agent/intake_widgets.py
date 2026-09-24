@@ -26,7 +26,7 @@ def _question_id(question: Dict[str, Any], index: int) -> str:
 class QuestionsScreen(ModalScreen):
     """Collect answers, retaining drafts; dismissal can never authorize execution."""
 
-    BINDINGS = [Binding("escape", "cancel", "Позже", show=False)]
+    BINDINGS = [Binding("escape", "cancel", "Later", show=False)]
     DEFAULT_CSS = """
     QuestionsScreen * { scrollbar-color: #684763; scrollbar-color-active: #f2a0cc;
         scrollbar-background: #211a28; }
@@ -57,7 +57,7 @@ class QuestionsScreen(ModalScreen):
                  on_draft: Optional[Callable[[Dict[str, str]], None]] = None) -> None:
         super().__init__()
         if not questions or len(questions) > 3:
-            raise ValueError("Опрос должен содержать от одного до трёх вопросов.")
+            raise ValueError("Intake must contain one to three questions.")
         self.questions = questions
         self.request = {"id": "intake-" + uuid4().hex, "questions": questions}
         self.on_draft = on_draft
@@ -78,7 +78,7 @@ class QuestionsScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         with Vertical(id="questions-box"):
-            yield Static("Уточним задачу", id="questions-heading")
+            yield Static("Refine the task", id="questions-heading")
             yield Static(id="questions-progress")
             with VerticalScroll(id="questions-body"):
                 yield Static(id="question-text")
@@ -87,12 +87,12 @@ class QuestionsScreen(ModalScreen):
                 yield Static(id="question-review")
             yield Static(id="questions-notice")
             with Horizontal(id="questions-actions"):
-                yield Button("← Назад", id="question-back")
-                yield Button("Далее →", id="question-next")
-                yield Button("Позже", id="question-cancel")
+                yield Button("← Back", id="question-back")
+                yield Button("Next →", id="question-next")
+                yield Button("Later", id="question-cancel")
 
     def on_mount(self) -> None:
-        self.query_one("#question-custom").border_title = "Свой ответ · Ctrl+J — новая строка"
+        self.query_one("#question-custom").border_title = "Your answer · Ctrl+J: new line"
         self._render_question()
 
     def _answers(self, include_draft: bool = True) -> Dict[str, str]:
@@ -113,28 +113,28 @@ class QuestionsScreen(ModalScreen):
         had_error = bool(self._draft_error)
         try:
             if any(len(answer) > 4000 for answer in answers.values()):
-                raise ValueError("Ответ слишком длинный: максимум 4000 символов. Текст оставлен в редакторе.")
+                raise ValueError("Answer too long: 4000 characters max. The text stays in the editor.")
             if self.on_draft:
                 self.on_draft(answers)
         except (ValueError, OSError) as exc:
-            self._draft_error = "Не удалось сохранить: " + plain(str(exc), 400)
+            self._draft_error = "Could not save: " + plain(str(exc), 400)
             if self.is_mounted:
                 self.query_one("#questions-notice", Static).update(Text(self._draft_error))
             return False
         self._draft_error = ""
         if had_error and self.is_mounted:
-            self.query_one("#questions-notice", Static).update("Черновик сохранён. Можно продолжить.")
+            self.query_one("#questions-notice", Static).update("Draft saved. You can continue.")
         return True
 
     def _render_question(self) -> None:
         review = question_confirm(self.request, self.state)
         self.set_class(self.state.editing or review, "expanded")
         self.query_one("#questions-progress", Static).update(
-            "Проверьте ответы · затем составим план" if review else
-            "Вопрос %d из %d · %s" % (self.state.tab + 1, len(self.questions),
+            "Review your answers · then we plan" if review else
+            "Question %d of %d · %s" % (self.state.tab + 1, len(self.questions),
                                       plain(self.questions[self.state.tab].get("header", ""), 80)))
         self.query_one("#question-back", Button).disabled = self.state.tab == 0
-        self.query_one("#question-next", Button).label = "Составить план →" if review else "Далее →"
+        self.query_one("#question-next", Button).label = "Build the plan →" if review else "Next →"
         self.query_one("#question-review").display = review
         self.query_one("#question-text").display = not review
         self.query_one("#question-options").display = not review and not self.state.editing
@@ -143,10 +143,10 @@ class QuestionsScreen(ModalScreen):
             result = Text()
             for i, question in enumerate(self.questions):
                 result.append(plain(question.get("question", ""), 800) + "\n", style="bold " + CREAM)
-                answer = self._answers(False).get(_question_id(question, i), "Ответ не выбран")
+                answer = self._answers(False).get(_question_id(question, i), "No answer chosen")
                 result.append(plain(answer, 12000) + "\n\n", style=PINK)
             self.query_one("#question-review", Static).update(result)
-            self.query_one("#questions-notice", Static).update("Это ответы для плана. Работа ещё не начинается.")
+            self.query_one("#questions-notice", Static).update("These answers go into the plan. Work has not started yet.")
             self.query_one("#question-next").focus()
         else:
             question = self.questions[self.state.tab]
@@ -164,7 +164,7 @@ class QuestionsScreen(ModalScreen):
                 if option.get("description"):
                     label.append("\n" + plain(option["description"], 700), style="not bold " + MUTED)
                 options.add_option(label)
-            options.add_option(Text("Свой ответ…", style=PINK))
+            options.add_option(Text("Your answer…", style=PINK))
             if answer and answer not in [o["label"] for o in question.get("options", [])]:
                 selected = len(question.get("options", []))
             options.highlighted = selected
@@ -174,10 +174,10 @@ class QuestionsScreen(ModalScreen):
                 editor.load_text(question_input(self.state))
                 self._loading_editor = False
                 editor.focus()
-                self.query_one("#questions-notice", Static).update("Enter — сохранить ответ · Ctrl+J — новая строка")
+                self.query_one("#questions-notice", Static).update("Enter: save the answer · Ctrl+J: new line")
             else:
                 options.focus()
-                self.query_one("#questions-notice", Static).update("↑ ↓ и Enter — выбрать · свой ответ можно написать целиком")
+                self.query_one("#questions-notice", Static).update("↑ ↓ and Enter: choose · or write your own answer in full")
         self.query_one("#questions-body", VerticalScroll).scroll_home(animate=False)
         if self._draft_error:
             self.query_one("#questions-notice", Static).update(Text(self._draft_error))
@@ -242,7 +242,7 @@ class QuestionsScreen(ModalScreen):
                 return
             self.state = question_set_tab(self.state, previous + 1)
         if self.state.tab == previous:
-            self.query_one("#questions-notice", Static).update("Выберите вариант или напишите свой ответ.")
+            self.query_one("#questions-notice", Static).update("Choose an option or write your own answer.")
             return
         self._persist()
         self._render_question()
@@ -256,10 +256,10 @@ class QuestionsScreen(ModalScreen):
 
 def plan_text(plan: Dict[str, Any]) -> Text:
     result = Text()
-    sections = [("goal", "Результат"), ("deliverables", "Что получите"),
-                ("steps", "Как сделаем"), ("acceptance", "Как проверим"),
-                ("constraints", "Условия"), ("assumptions", "Предположения"),
-                ("out_of_scope", "За пределами задачи")]
+    sections = [("goal", "Outcome"), ("deliverables", "What you get"),
+                ("steps", "How we do it"), ("acceptance", "How we check"),
+                ("constraints", "Constraints"), ("assumptions", "Assumptions"),
+                ("out_of_scope", "Out of scope")]
     for key, title in sections:
         value = plan.get(key)
         if not value:
@@ -276,7 +276,7 @@ def plan_text(plan: Dict[str, Any]) -> Text:
 class PlanScreen(ModalScreen):
     """A reviewed plan, its exact execution prompt, and an explicit start action."""
 
-    BINDINGS = [Binding("escape", "cancel", "Позже", show=False)]
+    BINDINGS = [Binding("escape", "cancel", "Later", show=False)]
     DEFAULT_CSS = """
     PlanScreen * { scrollbar-color: #684763; scrollbar-color-active: #f2a0cc;
         scrollbar-background: #211a28; }
@@ -314,25 +314,25 @@ class PlanScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         with Vertical(id="plan-box"):
-            yield Static(Text(plain(self.plan.get("title") or "План задачи", 200)), id="plan-heading")
+            yield Static(Text(plain(self.plan.get("title") or "Task plan", 200)), id="plan-heading")
             with TabbedContent(id="plan-tabs"):
-                with TabPane("План", id="plan-summary-tab"):
+                with TabPane("Plan", id="plan-summary-tab"):
                     with VerticalScroll(classes="plan-scroll"):
                         yield Static(plan_text(self.plan), classes="plan-text", id="plan-summary")
-                with TabPane("Запрос агенту", id="plan-prompt-tab"):
+                with TabPane("Agent request", id="plan-prompt-tab"):
                     with VerticalScroll(classes="plan-scroll"):
                         yield Static(Text(plain(self.refined_prompt or self.original_request, 30000)),
                                      classes="plan-text", id="plan-exact-prompt")
             yield PromptEditor(id="plan-feedback")
-            yield Static(Text(plain(self.notice or "↑↓ — читать план · «Уточнить» — изменить задачу", 1000)),
+            yield Static(Text(plain(self.notice or "↑↓: read the plan · «Refine»: change the task", 1000)),
                          id="plan-notice")
             with Horizontal(id="plan-actions"):
-                yield Button("Начать работу", id="plan-execute", disabled=not self.can_execute)
-                yield Button("Уточнить", id="plan-revise")
-                yield Button("Позже", id="plan-cancel")
+                yield Button("Start work", id="plan-execute", disabled=not self.can_execute)
+                yield Button("Refine", id="plan-revise")
+                yield Button("Later", id="plan-cancel")
 
     def on_mount(self) -> None:
-        self.query_one("#plan-feedback").border_title = "Что изменить? · Ctrl+J — новая строка"
+        self.query_one("#plan-feedback").border_title = "What to change? · Ctrl+J: new line"
         self.query_one("#plan-summary-tab .plan-scroll").focus()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -348,8 +348,8 @@ class PlanScreen(ModalScreen):
                 self._revising = True
                 self.query_one("#plan-execute", Button).disabled = True
                 self.query_one("#plan-feedback").display = True
-                self.query_one("#plan-revise", Button).label = "Отправить уточнение"
-                self.query_one("#plan-notice", Static).update("Напишите, что изменить. Агент пересоберёт план.")
+                self.query_one("#plan-revise", Button).label = "Send refinement"
+                self.query_one("#plan-notice", Static).update("Write what to change. The agent rebuilds the plan.")
                 self.query_one("#plan-feedback").focus()
 
     def on_prompt_editor_submitted(self, event: PromptEditor.Submitted) -> None:
@@ -362,7 +362,7 @@ class PlanScreen(ModalScreen):
         if feedback:
             self._finish({"action": "revise", "feedback": feedback})
         else:
-            self.query_one("#plan-notice", Static).update("Напишите, что именно изменить в плане.")
+            self.query_one("#plan-notice", Static).update("Write exactly what to change in the plan.")
 
     def _finish(self, value: Optional[Dict[str, str]]) -> None:
         if not self._dismissed:

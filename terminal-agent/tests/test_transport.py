@@ -119,7 +119,7 @@ class ClassificationTests(unittest.TestCase):
         for message in ("Jev: HTTP 401", "Jev: HTTP 400",
                         "Jev: API transport/JSON failure: JSONDecodeError",
                         "Jev: Choice outside registered options",
-                        "Jev: TYPESAFE_API_KEY не задан.", ""):
+                        "Jev: TYPESAFE_API_KEY is not set.", ""):
             self.assertFalse(transport.retryable(message), message)
 
 
@@ -191,7 +191,7 @@ class JudgeTransportTests(IsolatedCache, unittest.IsolatedAsyncioTestCase):
             with self.assertRaises(RuntimeFailure) as caught:
                 await JevJudge().ask({"q": "next"}, QUESTIONS, self.directory / "blocked",
                                      lambda *a, **k: None, asyncio.Event())
-        self.assertIn("недоступен", str(caught.exception))
+        self.assertIn("unavailable", str(caught.exception))
         self.assertEqual(len(self.spawns), spawned)  # Blocked without touching the network.
 
     async def test_an_oversized_state_is_refused_before_spawning(self):

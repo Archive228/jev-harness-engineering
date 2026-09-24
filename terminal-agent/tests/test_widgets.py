@@ -29,12 +29,12 @@ class ToolCardTests(unittest.IsolatedAsyncioTestCase):
                          "status": "completed", "exit_code": 0,
                          "output": "[red]literal[/red]\nsecond line\n"})
         async with WidgetApp(card).run_test(size=(110, 25)):
-            self.assertIn("Терминал", card.title)
+            self.assertIn("Terminal", card.title)
             self.assertIn("python -m unittest -v", card.title)
             self.assertNotIn("zsh", card.title)
             self.assertIn(command, card.output_view.renderable.plain)
             self.assertIn("[red]literal[/red]", card.output_view.renderable.plain)
-            self.assertIn("2 стр.", card.preview_view.renderable.plain)
+            self.assertIn("2 lines", card.preview_view.renderable.plain)
             self.assertTrue(card.collapsed)
 
     async def test_collapsed_preview_opens_and_hidden_when_expanded(self):
@@ -53,9 +53,9 @@ class ToolCardTests(unittest.IsolatedAsyncioTestCase):
                          "output": ("test_record ... ok\n" * 2000), "exit_code": 7})
         async with WidgetApp(card).run_test(size=(100, 25)):
             self.assertTrue(card.title.startswith("× exit 7"))
-            self.assertIn("Проверка", card.title)
-            self.assertIn("2000 стр.", card.preview_view.renderable.plain)
-            self.assertIn("полный вывод в events.jsonl", card.output_view.renderable.plain)
+            self.assertIn("Check", card.title)
+            self.assertIn("2000 lines", card.preview_view.renderable.plain)
+            self.assertIn("full output in the session events.jsonl", card.output_view.renderable.plain)
             self.assertLess(len(card.output_view.renderable.plain), 18500)
             self.assertTrue(card.has_class("tool-failed"))
 
@@ -64,11 +64,11 @@ class ToolCardTests(unittest.IsolatedAsyncioTestCase):
                  {"path": "tests/test_main.py", "kind": "add"}]
         card = ToolCard({"kind": "file_change", "files": files, "status": "completed"})
         async with WidgetApp(card).run_test(size=(110, 25)):
-            self.assertIn("Файлы", card.title)
-            self.assertIn("2 файла", card.title)
+            self.assertIn("Files", card.title)
+            self.assertIn("2 files", card.title)
             self.assertIn("src/main.py", card.output_view.renderable.plain)
             self.assertIn("tests/test_main.py", card.output_view.renderable.plain)
-            self.assertNotIn("Команда\n", card.output_view.renderable.plain)
+            self.assertNotIn("Command\n", card.output_view.renderable.plain)
 
     async def test_running_update_does_not_invent_exit_and_later_keeps_literal_command(self):
         command = "/bin/zsh -lc 'echo $(untrusted) && printf \"[green]\"'"
@@ -80,7 +80,7 @@ class ToolCardTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn(command, card.output_view.renderable.plain)
             card.update_event({"status": "unknown"})
             self.assertTrue(card.is_terminal)
-            self.assertIn("статус неизвестен", card.title)
+            self.assertIn("status unknown", card.title)
             self.assertFalse(card.has_class("tool-done"))
             self.assertIn(command, card.output_view.renderable.plain)
 
@@ -116,7 +116,7 @@ class EditorTests(unittest.IsolatedAsyncioTestCase):
         app = WidgetApp(editor)
         picked = []
         async with app.run_test(size=(100, 35)) as pilot:
-            app.push_screen(PickerScreen("Сессии", [{"title": "Крипто", "description": "Сохранённый анализ", "value": "crypto"}]), picked.append)
+            app.push_screen(PickerScreen("Sessions", [{"title": "Крипто", "description": "Сохранённый анализ", "value": "crypto"}]), picked.append)
             await pilot.pause()
             await pilot.press("enter")
             await pilot.pause()
@@ -134,11 +134,11 @@ class PickerTests(unittest.IsolatedAsyncioTestCase):
         async with app.run_test(size=(100, 35)) as pilot:
             app.push_screen(PickerScreen("Примеры", choices), picked.append)
             await pilot.pause()
-            self.assertIn("2 из 2", str(app.screen.query_one("#picker-hint", Static).renderable))
+            self.assertIn("2 of 2", str(app.screen.query_one("#picker-hint", Static).renderable))
             app.screen.query_one(Input).value = "csv"
             await pilot.pause()
             self.assertEqual(app.screen.query_one(OptionList).option_count, 1)
-            self.assertIn("1 из 2", str(app.screen.query_one("#picker-hint", Static).renderable))
+            self.assertIn("1 of 2", str(app.screen.query_one("#picker-hint", Static).renderable))
             await pilot.press("enter")
             await pilot.pause()
             self.assertEqual(picked, ["crypto"])
@@ -173,5 +173,5 @@ class DeleteLineTests(unittest.IsolatedAsyncioTestCase):
         from jev_agent import tui
         source = Path(tui.__file__).read_text(encoding="utf-8")
         keys = set(self._binding().key.split(","))
-        self.assertIn("⌘⌫ или Ctrl+U", source)  # Promise the fallback too.
+        self.assertIn("⌘⌫ or Ctrl+U", source)  # Promise the fallback too.
         self.assertIn("ctrl+u", keys)

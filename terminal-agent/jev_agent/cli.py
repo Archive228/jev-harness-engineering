@@ -38,30 +38,30 @@ def load_local_key():
 
 def main(argv=None):
     os.umask(0o077)
-    parser = argparse.ArgumentParser(description="JEVIS — терминальный агент: идея, план, работа и наблюдаемые проверки")
-    parser.add_argument("--project", type=Path, help="Рабочий проект: агент сможет изменять файлы здесь")
-    parser.add_argument("--mission", choices=["loglab", "cryptolab"], help="Создать новую копию учебного проекта; запрос отправляете вы")
-    parser.add_argument("--resume", metavar="SESSION", help="Продолжить сессию: last, ID или путь")
-    parser.add_argument("--sessions", type=Path, default=ROOT / ".sessions", help="Где сохранять историю и протоколы")
-    parser.add_argument("--prompt", help="Только заполнить поле; не запускает агента автоматически")
-    parser.add_argument("--direct", action="store_true", help="Чат без предварительного опроса и согласования плана")
-    parser.add_argument("--run", metavar="TEXT", help="Явно запустить один запрос без TUI; JSONL для интеграций")
-    parser.add_argument("--mode", choices=["auto", "plan"], help="auto: выполнение; plan: только чтение и план")
-    parser.add_argument("--jev-mode", choices=["assist", "observe", "off"], help="Как применять решения Jev; по умолчанию assist")
-    parser.add_argument("--list", action="store_true", help="Список сохранённых сессий в JSON; без моделей")
-    parser.add_argument("--export", action="store_true", help="Сохранить --resume SESSION в Markdown; без моделей")
-    parser.add_argument("--doctor", action="store_true", help="Проверить зависимости и наличие ключа, не вызывая модели")
-    parser.add_argument("--replay", metavar="SESSION", help="Пересчитать решения сохранённой сессии; без моделей и без рабочей папки")
+    parser = argparse.ArgumentParser(description="JEVIS, a terminal agent: idea, plan, work and observable checks")
+    parser.add_argument("--project", type=Path, help="Working project: the agent may change files here")
+    parser.add_argument("--mission", choices=["loglab", "cryptolab"], help="Create a fresh copy of a practice project; you send the request")
+    parser.add_argument("--resume", metavar="SESSION", help="Resume a session: last, ID or path")
+    parser.add_argument("--sessions", type=Path, default=ROOT / ".sessions", help="Where to save history and logs")
+    parser.add_argument("--prompt", help="Only fill the field; does not start the agent automatically")
+    parser.add_argument("--direct", action="store_true", help="Chat without the upfront questions and plan acceptance")
+    parser.add_argument("--run", metavar="TEXT", help="Run one request explicitly without the TUI; JSONL for integrations")
+    parser.add_argument("--mode", choices=["auto", "plan"], help="auto: execution; plan: read only and a plan")
+    parser.add_argument("--jev-mode", choices=["assist", "observe", "off"], help="How to apply Jev decisions; assist by default")
+    parser.add_argument("--list", action="store_true", help="List saved sessions as JSON; no models")
+    parser.add_argument("--export", action="store_true", help="Save --resume SESSION as Markdown; no models")
+    parser.add_argument("--doctor", action="store_true", help="Check dependencies and the key without calling models")
+    parser.add_argument("--replay", metavar="SESSION", help="Recompute the decisions of a saved session; no models, no workspace")
     parser.add_argument("--worker", choices=["codex", "claude"],
-                        help="Кто выполняет работу: codex или claude; сохраняется в сессии")
+                        help="Who does the work: codex or claude; saved in the session")
     parser.add_argument("--web", choices=["off", "on"],
-                        help="Разрешить исполнителю искать и читать в интернете; по умолчанию off")
+                        help="Let the worker search and read on the web; off by default")
     parser.add_argument("--demo", action="store_true",
-                        help="Полный ход без Codex и без ключа: ответы синтезируются локально и помечаются")
+                        help="A full turn without Codex or a key: answers are synthesised locally and flagged")
     args = parser.parse_args(argv)
     if args.replay:
         if args.run or args.project or args.mission or args.resume or args.export:
-            parser.error("--replay только читает журнал; не сочетайте его с запуском или выбором проекта")
+            parser.error("--replay only reads the log; do not combine it with a run or a project")
         try:
             report = replay_session(session_directory(args.sessions, args.replay))
         except (ValueError, OSError) as exc:
@@ -73,13 +73,13 @@ def main(argv=None):
         print(json.dumps(list_sessions(args.sessions), ensure_ascii=False, indent=2))
         return 0
     if args.export and not args.resume:
-        parser.error("--export требует --resume SESSION (или last)")
+        parser.error("--export requires --resume SESSION (or last)")
     if args.export and (args.run or args.mode or args.jev_mode or args.prompt):
-        parser.error("--export не сочетается с запросом или изменением режима")
+        parser.error("--export does not combine with a request or a mode change")
     if args.demo and args.project:
         # The demo worker writes example files; it may only do so in a workspace
         # the session owns, never in a project the user pointed the agent at.
-        parser.error("--demo работает в своей рабочей папке; не сочетайте его с --project")
+        parser.error("--demo works in its own workspace; do not combine it with --project")
     if args.doctor:
         load_local_key()
         import textual
@@ -97,7 +97,7 @@ def main(argv=None):
     try:
         if args.resume:
             if args.project or args.mission:
-                parser.error("--resume уже определяет проект; не сочетайте с --project/--mission")
+                parser.error("--resume already sets the project; do not combine with --project/--mission")
             session = Session.load(session_directory(args.sessions, args.resume), activate=not args.export)
         else:
             session = Session.create(args.sessions, project=args.project, mission=args.mission)

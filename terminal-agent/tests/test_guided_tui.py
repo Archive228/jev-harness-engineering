@@ -23,10 +23,10 @@ from test_engine import FixtureJudge
 
 ROUGH_REQUEST = "Хочу что-то полезное про крипту"
 QUESTIONS = [
-    {"id": "outcome", "header": "Результат", "question": "Что хотите получить?",
+    {"id": "outcome", "header": "Outcome", "question": "Что хотите получить?",
      "options": [
          {"label": "Локальный отчёт", "description": "Сверять сделки и комиссии из файла."},
-         {"label": "Объяснение", "description": "Разобраться в данных без программы."}]},
+         {"label": "Explanation", "description": "Разобраться в данных без программы."}]},
     {"id": "input", "header": "Данные", "question": "Какие данные возьмём для первого запуска?",
      "options": [
          {"label": "Пример CSV", "description": "Небольшой файл с известным результатом."},

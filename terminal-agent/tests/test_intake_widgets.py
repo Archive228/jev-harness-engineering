@@ -14,9 +14,9 @@ from jev_agent.ui_widgets import PromptEditor
 
 
 QUESTIONS = [
-    {"id": "result", "header": "Результат", "question": "Что хотите получить для работы с криптой?",
+    {"id": "result", "header": "Outcome", "question": "Что хотите получить для работы с криптой?",
      "options": [{"label": "Локальный отчёт", "description": "Файл с балансом и комиссиями по вашим сделкам."},
-                 {"label": "Объяснение", "description": "Разобраться в данных без создания программы."}]},
+                 {"label": "Explanation", "description": "Разобраться в данных без создания программы."}]},
     {"id": "input", "header": "Данные", "question": "Откуда возьмём сделки?",
      "options": [{"label": "Пример CSV", "description": "Создадим понятный пример для первого запуска."},
                  {"label": "Мой файл", "description": "Используем уже подготовленные сделки."}]},
@@ -243,7 +243,7 @@ class PlanScreenTests(unittest.IsolatedAsyncioTestCase):
             await pilot.pause()
             self.assertEqual(app.results, [])
             self.assertEqual(screen.query_one("#plan-exact-prompt", Static).renderable.plain, prompt)
-            self.assertIn("Как проверим", screen.query_one("#plan-summary", Static).renderable.plain)
+            self.assertIn("How we check", screen.query_one("#plan-summary", Static).renderable.plain)
             region = screen.query_one("#plan-execute").region
             self.assertLessEqual(region.bottom, 24)
             self.assertLessEqual(region.right, 80)

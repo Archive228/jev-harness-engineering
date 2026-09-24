@@ -8,7 +8,7 @@ class ChoiceLabelTests(unittest.TestCase):
     def test_decorating_does_not_mutate_or_alias_bare_values(self):
         choices = ["  Анализ CSV  ", "Отчёт"]
         shown = mark_recommended(choices)
-        self.assertEqual(shown, ["Анализ CSV (Рекомендуется)", "Отчёт"])
+        self.assertEqual(shown, ["Анализ CSV (Recommended)", "Отчёт"])
         self.assertEqual(choices, ["  Анализ CSV  ", "Отчёт"])
         shown[1] = "changed"
         self.assertEqual(choices[1], "Отчёт")
@@ -26,7 +26,7 @@ class ChoiceLabelTests(unittest.TestCase):
         self.assertEqual(mark_recommended(["", "JSON"]), ["", "JSON"])
 
     def test_only_suffix_is_removed_and_unicode_answer_is_preserved(self):
-        self.assertEqual(strip_recommended("  BTC/ETH · отчёт (Рекомендуется)  "), "BTC/ETH · отчёт")
+        self.assertEqual(strip_recommended("  BTC/ETH · отчёт (Recommended)  "), "BTC/ETH · отчёт")
         self.assertEqual(strip_recommended("(Recommended) — это название"), "(Recommended) — это название")
         self.assertEqual(strip_recommended("  Цена (USD)  "), "Цена (USD)")
 

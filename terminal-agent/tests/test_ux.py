@@ -127,9 +127,9 @@ class ConvenientChatTests(unittest.IsolatedAsyncioTestCase):
         async with app.run_test(size=(120, 40)) as pilot:
             prompt = app.query_one("#prompt", TextArea)
             prompt.load_text(CRYPTO_PROMPT)
-            for selector, heading in (("#nav-files", "Файлы сессии"),
-                                      ("#nav-menu", "Команды"),
-                                      ("#nav-sessions", "Сессии")):
+            for selector, heading in (("#nav-files", "Session files"),
+                                      ("#nav-menu", "Commands"),
+                                      ("#nav-sessions", "Sessions")):
                 self.assertTrue(app.query_one(selector, Button).display)
                 await pilot.click(selector)
                 await pilot.pause()
@@ -147,8 +147,8 @@ class ConvenientChatTests(unittest.IsolatedAsyncioTestCase):
             await pilot.pause()
             self.assertIsInstance(app.screen, PickerScreen)
             text = "\n".join(str(item) for item in app.screen.choices)
-            self.assertIn("Обсуждение и план", text)
-            self.assertIn("Прямо к задаче", text)
+            self.assertIn("Discussion and plan", text)
+            self.assertIn("Straight to the task", text)
             await pilot.press("escape")
             self.assertEqual(self.session.calls, [])
 

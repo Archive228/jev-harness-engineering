@@ -129,7 +129,7 @@ class ProcessTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_output_limit_is_detected_before_process_timeout(self):
         started = time.monotonic()
-        with self.assertRaisesRegex(RuntimeFailure, "Вывод процесса"):
+        with self.assertRaisesRegex(RuntimeFailure, "Process output exceeded the limit"):
             await process(
                 [sys.executable, "-c", "import time; print('x'*200,flush=True); time.sleep(5)"],
                 cwd=self.directory, cancel_event=asyncio.Event(), timeout=1,
@@ -348,7 +348,7 @@ class SessionTests(unittest.IsolatedAsyncioTestCase):
         session.runner = FixtureRunner(action=lambda workspace: (workspace / "oracle.py").write_text("raise SystemExit(0)\n"))
         result = await session.run_turn("Repair the failing project.")
         self.assertEqual(result["status"], "error")
-        self.assertIn("Контракт проверок изменён", result["summary"])
+        self.assertIn("The check contract changed", result["summary"])
         self.assertEqual(result["meters"]["checks"], 1, "only the original failing check may execute")
 
     async def test_root_level_generated_tests_are_executed_but_not_independent(self):
@@ -538,7 +538,7 @@ class SessionTests(unittest.IsolatedAsyncioTestCase):
         self.session.runner.action = lambda workspace: (workspace / "app.py").write_text("changed")
         result = await self.session.run_turn("Plan a change.")
         self.assertEqual(result["status"], "error")
-        self.assertIn("режиме чтения", result["summary"])
+        self.assertIn("read-only turn", result["summary"])
 
     async def test_off_calls_no_judge_and_failed_checks_still_block_completion(self):
         self.session.configure(jev_mode="off")

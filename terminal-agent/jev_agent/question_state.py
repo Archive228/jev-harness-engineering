@@ -116,7 +116,7 @@ def question_save(state: QuestionState, request: Dict[str, Any]) -> QuestionStat
 def question_submit(request: Dict[str, Any], state: QuestionState) -> Dict[str, Any]:
     answers = question_answers(state, len(request["questions"]))
     if not question_confirm(request, state) or any(not a or not a[0].strip() for a in answers):
-        raise ValueError("Ответьте на вопросы перед продолжением.")
+        raise ValueError("Answer the questions before continuing.")
     return {"requestID": request["id"], "answers": answers}
 
 

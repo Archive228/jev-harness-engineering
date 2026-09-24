@@ -120,11 +120,11 @@ class DemoJudge:
 
 
 def _placeholder(name, limit):
-    text = {"title": "Демо-задача: небольшая утилита с тестом",
-            "goal": "Показать полный ход агента без Codex и без ключа Jev.",
-            "message": "Демо-режим: ответы синтезированы локально, модели не вызывались.",
-            "answer": "Демо-ответ: ход прошёл через маршрут, контекст, воркер, проверки и правила завершения."}.get(name)
-    return (text or ("демо: " + name))[:limit]
+    text = {"title": "Demo task: a small utility with a test",
+            "goal": "Show the agent's full turn with no Codex and no Jev key.",
+            "message": "Demo mode: answers synthesised locally, no model was called.",
+            "answer": "Demo answer: the turn ran through route, context, worker, checks and stopping rules."}.get(name)
+    return (text or ("demo: " + name))[:limit]
 
 
 def synthesize(schema, name="value"):
@@ -177,33 +177,33 @@ class DemoWorker:
         if sum(1 for call in self.calls if call["schema"]) <= 1:
             return {
                 "kind": "questions",
-                "message": "Демо-режим: вопросы заданы локально, планировщик не вызывался.",
+                "message": "Demo mode: questions asked locally, no planner was called.",
                 "questions": [
-                    {"id": "scope", "header": "Объём",
-                     "question": "Насколько широкой должна быть работа?",
-                     "options": [{"label": "Минимальный пример",
-                                  "description": "Один файл и тест к нему."},
-                                 {"label": "Полноценный модуль",
-                                  "description": "Несколько файлов, тесты и команда запуска."}]},
-                    {"id": "output_form", "header": "Формат",
-                     "question": "Что должно получиться на выходе?",
-                     "options": [{"label": "Код в проекте",
-                                  "description": "Агент создаёт и меняет файлы."},
-                                 {"label": "Объяснение",
-                                  "description": "Только разбор, без изменения файлов."}]}],
+                    {"id": "scope", "header": "Scope",
+                     "question": "How broad should the work be?",
+                     "options": [{"label": "Minimal example",
+                                  "description": "One file and a test for it."},
+                                 {"label": "Full module",
+                                  "description": "Several files, tests and a run command."}]},
+                    {"id": "output_form", "header": "Output",
+                     "question": "What should the output be?",
+                     "options": [{"label": "Code in the project",
+                                  "description": "The agent creates and changes files."},
+                                 {"label": "Explanation",
+                                  "description": "Analysis only, no file changes."}]}],
                 "plan": None, "answer": ""}
         return {
             "kind": "plan",
-            "message": "Демо-режим: план составлен локально, планировщик не вызывался.",
+            "message": "Demo mode: plan made locally, no planner was called.",
             "questions": [], "answer": "",
-            "plan": {"title": "Демо-задача: утилита с тестом",
-                     "goal": "Показать полный ход агента без Codex и без ключа Jev.",
-                     "deliverables": ["Файл demo_tool.py", "Файл test_demo_tool.py"],
-                     "steps": ["Создать утилиту", "Создать тест", "Запустить проверки"],
-                     "acceptance": ["Тесты проекта проходят"],
-                     "constraints": ["Только стандартная библиотека"],
-                     "assumptions": ["Ответы синтезированы локально, модели не вызывались"],
-                     "out_of_scope": ["Сеть и установка зависимостей"]}}
+            "plan": {"title": "Demo task: a utility with a test",
+                     "goal": "Show the agent's full turn with no Codex and no Jev key.",
+                     "deliverables": ["File demo_tool.py", "File test_demo_tool.py"],
+                     "steps": ["Create the utility", "Create the test", "Run the checks"],
+                     "acceptance": ["The project tests pass"],
+                     "constraints": ["Standard library only"],
+                     "assumptions": ["Answers synthesised locally, no model was called"],
+                     "out_of_scope": ["Network and installing dependencies"]}}
 
     async def run(self, prompt, workspace, directory, emit, cancel_event,
                   readonly=False, schema=None):
@@ -221,8 +221,8 @@ class DemoWorker:
         if schema:
             text = json.dumps(self._intake(schema), ensure_ascii=False)
         else:
-            emit("plan", steps=[{"id": "1", "title": "Прочитать запрос", "completed": True},
-                                {"id": "2", "title": "Изменить проект" if not readonly else "Изучить проект",
+            emit("plan", steps=[{"id": "1", "title": "Read the request", "completed": True},
+                                {"id": "2", "title": "Change the project" if not readonly else "Inspect the project",
                                  "completed": True}])
             written = []
             if not readonly:
@@ -236,11 +236,11 @@ class DemoWorker:
             emit("tool", kind="command_execution", command=command, status="running",
                  output="", exit_code=None, item_id="demo", call_id=call_id, lifecycle="started")
             emit("tool", kind="command_execution", command=command, status="completed",
-                 output="демо-режим: команда не выполнялась, проверки запустит harness",
+                 output="demo mode: no command was run, the harness runs the checks",
                  exit_code=0, item_id="demo", call_id=call_id, lifecycle="completed")
-            text = ("Демо-режим: Codex не вызывался. " + (
-                "Созданы файлы: " + ", ".join(written) + ". Их проверит настоящий harness."
-                if written else "Файлы не изменялись; это ход только для чтения."))
+            text = ("Demo mode: Codex was not called. " + (
+                "Files created: " + ", ".join(written) + ". The real harness will check them."
+                if written else "No files changed; this is a read-only turn."))
             emit("message", role="assistant", text=text)
         record({"type": "turn.completed", "demo": True})
         (directory / "final.txt").write_text(text, encoding="utf-8")

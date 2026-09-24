@@ -45,7 +45,7 @@ def codex_binary():
     if not path and Path("/Applications/ChatGPT.app/Contents/Resources/codex").is_file():
         path = "/Applications/ChatGPT.app/Contents/Resources/codex"
     if not path or not Path(path).is_file():
-        raise RuntimeFailure("Codex CLI не найден. Установите Codex и выполните codex login.")
+        raise RuntimeFailure("Codex CLI not found. Install Codex and run codex login.")
     return str(Path(path).resolve())
 
 
@@ -58,7 +58,7 @@ def claude_binary():
         # Directory names are versions; the last one sorts highest.
         path = str(bundles[-1]) if bundles else None
     if not path or not Path(path).is_file():
-        raise RuntimeFailure("Claude Code не найден. Установите его или задайте CLAUDE_WORKER_BIN.")
+        raise RuntimeFailure("Claude Code not found. Install it or set CLAUDE_WORKER_BIN.")
     return str(Path(path).resolve())
 
 
@@ -98,7 +98,7 @@ async def process(argv, *, cwd, cancel_event, timeout=240, input_text=None,
                 return
             used["bytes"] += len(line)
             if used["bytes"] > max_bytes:
-                raise RuntimeFailure("Вывод процесса превысил лимит; выполнение остановлено.")
+                raise RuntimeFailure("Process output exceeded the limit; the run was stopped.")
             decoded = line.decode("utf-8", "replace")
             buffers[stream].append(decoded)
             if on_line:
@@ -134,7 +134,7 @@ async def process(argv, *, cwd, cancel_event, timeout=240, input_text=None,
         if cancel in done or cancel_event.is_set():
             raise asyncio.CancelledError()
         if work not in done:
-            raise RuntimeFailure("Процесс превысил лимит %.0f секунд." % timeout)
+            raise RuntimeFailure("Process exceeded the limit of %.0f seconds." % timeout)
         await work
         return {"exit_code": child.returncode,
                 "stdout": "".join(buffers["stdout"]), "stderr": "".join(buffers["stderr"]),
@@ -179,7 +179,7 @@ class CodexRunner:
             try:
                 event = json.loads(text)
             except ValueError:
-                raise RuntimeFailure("Codex вернул повреждённый JSON-поток.") from None
+                raise RuntimeFailure("Codex returned a corrupted JSON stream.") from None
             with raw_log.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(clean(event), ensure_ascii=False) + "\n")
             kind = event.get("type")
@@ -220,12 +220,12 @@ class CodexRunner:
         (directory / "stderr.txt").write_text(clean(result["stderr"]), encoding="utf-8")
         if result["exit_code"] or not state["completed"] or state["failed"]:
             reason = state["error"] or clean(result["stderr"].strip()).strip()
-            raise RuntimeFailure("Codex не завершил ход. " + (
-                reason if reason else "Подробности: %s" % (directory / "stderr.txt")))
+            raise RuntimeFailure("Codex did not finish the turn. " + (
+                reason if reason else "Details: %s" % (directory / "stderr.txt")))
         text = clean(last.read_text(encoding="utf-8") if last.is_file() else state["text"])
         last.write_text(text, encoding="utf-8")
         if not text.strip():
-            raise RuntimeFailure("Codex завершился без ответа.")
+            raise RuntimeFailure("Codex finished with no answer.")
         return {"text": text, "usage": state["usage"], "completed": True}
 
 
@@ -303,10 +303,10 @@ class ClaudeRunner:
         if denials:
             names = sorted({d.get("tool_name") or d.get("tool") or "?" for d in denials
                             if isinstance(d, dict)})
-            return "Claude запросил запрещённые инструменты: " + ", ".join(names)
-        named = {"error_max_turns": "Claude исчерпал лимит шагов.",
-                 "error_max_budget": "Claude исчерпал бюджет запуска.",
-                 "error_during_execution": "Claude прервал выполнение."}
+            return "Claude asked for disallowed tools: " + ", ".join(names)
+        named = {"error_max_turns": "Claude ran out of its step limit.",
+                 "error_max_budget": "Claude ran out of its run budget.",
+                 "error_during_execution": "Claude interrupted the run."}
         subtype = (result or {}).get("subtype")
         if subtype in named:
             return named[subtype]
@@ -357,7 +357,7 @@ class ClaudeRunner:
             try:
                 event = json.loads(text)
             except ValueError:
-                raise RuntimeFailure("Claude вернул повреждённый JSON-поток.") from None
+                raise RuntimeFailure("Claude returned a corrupted JSON stream.") from None
             with raw_log.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(clean(event), ensure_ascii=False) + "\n")
             kind = event.get("type")
@@ -381,8 +381,8 @@ class ClaudeRunner:
         final = state["result"]
         if final is None or final.get("is_error") or result["exit_code"]:
             reason = self._failure(state, final)
-            raise RuntimeFailure("Claude не завершил ход. " + (
-                reason if reason else "Подробности: %s" % (directory / "stderr.txt")))
+            raise RuntimeFailure("Claude did not finish the turn. " + (
+                reason if reason else "Details: %s" % (directory / "stderr.txt")))
         structured = final.get("structured_output")
         if schema and structured is not None:
             text = json.dumps(structured, ensure_ascii=False)
@@ -390,7 +390,7 @@ class ClaudeRunner:
             text = clean(final.get("result") or state["text"])
         (directory / "final.txt").write_text(text, encoding="utf-8")
         if not text.strip():
-            raise RuntimeFailure("Claude завершился без ответа.")
+            raise RuntimeFailure("Claude finished with no answer.")
         return {"text": text, "usage": self._usage(final.get("usage")), "completed": True}
 
     def _handle(self, block, call_id, emit, state):
@@ -461,7 +461,7 @@ class JevJudge:
             raise RuntimeFailure(blocked)
         helper = Path(__file__).with_name("judge_call.py")
         attempts = len(transport.RETRY_DELAYS) + 1
-        reason = "Jev API недоступен."
+        reason = "Jev API is unavailable."
         for attempt in range(attempts):
             result = await process([sys.executable, helper, path, response_path],
                                    cwd=directory, cancel_event=cancel_event, timeout=25,
@@ -478,7 +478,7 @@ class JevJudge:
             if attempt + 1 == attempts or not transport.retryable(reason):
                 break
             emit("message", role="policy",
-                 text="Jev: %s Повтор %s из %s." % (reason, attempt + 1, attempts - 1))
+                 text="Jev: %s Retry %s of %s." % (reason, attempt + 1, attempts - 1))
             await self._wait(transport.RETRY_DELAYS[attempt], cancel_event)
         transport.record_failure()
         raise RuntimeFailure(reason)

@@ -15,7 +15,7 @@ from test_engine import FixtureJudge
 
 def question_response():
     return {"kind": "questions", "message": "Выберем результат.", "questions": [{
-        "id": "outcome", "header": "Результат", "question": "Что хотим получить?",
+        "id": "outcome", "header": "Outcome", "question": "Что хотим получить?",
         "options": [{"label": "Анализ CSV", "description": "Локальный отчёт по сделкам."},
                     {"label": "Трекер", "description": "Список позиций."}]}],
         "plan": None, "answer": ""}
@@ -99,9 +99,9 @@ class IntakeValidationTests(unittest.TestCase):
             validate_response(response)
 
     def test_blank_provider_summary_gets_safe_branch_specific_fallback(self):
-        for kind, expected in (("questions", "Уточним несколько деталей"),
-                               ("plan", "План готов"),
-                               ("answer", "Ответ готов")):
+        for kind, expected in (("questions", "Let's clarify a few details"),
+                               ("plan", "The plan is ready"),
+                               ("answer", "The answer is ready")):
             response = question_response() if kind == "questions" else plan_response() if kind == "plan" else answer_response()
             response["kind"] = kind
             response["message"] = " \n "
@@ -141,8 +141,8 @@ class IntakeFlowTests(unittest.IsolatedAsyncioTestCase):
         controller.save_draft_answers({"outcome": "Анализ CSV"})
         planned = await controller.prepare("", events.append, answers={"outcome": "Анализ CSV"})
         self.assertEqual(planned["status"], "plan")
-        self.assertIn("Что хотим получить?\nОтвет: Анализ CSV", planned["refined_prompt"])
-        self.assertIn("Предположения, а не факты", planned["refined_prompt"])
+        self.assertIn("Что хотим получить?\nAnswer: Анализ CSV", planned["refined_prompt"])
+        self.assertIn("Assumptions, not facts", planned["refined_prompt"])
         self.assertEqual(len(self.session.judge.calls), 0)
         self.assertEqual(self.session.runner.calls[1]["readonly"], True)
         self.assertEqual(len(list(self.session.directory.glob("turn-*"))), 0)
@@ -151,7 +151,7 @@ class IntakeFlowTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(controller.state["status"], "completed")
         self.assertGreater(len(self.session.judge.calls), 0)
         self.assertFalse(self.session.runner.calls[-1]["readonly"])
-        self.assertIn("План принят:", [event["data"]["text"] for event in events if event["type"] == "user"][-1])
+        self.assertIn("Plan accepted:", [event["data"]["text"] for event in events if event["type"] == "user"][-1])
         request_path = next(self.session.directory.glob("turn-*/request.json"))
         self.assertEqual(json.loads(request_path.read_text())["text"], planned["refined_prompt"])
 
@@ -203,7 +203,7 @@ class IntakeFlowTests(unittest.IsolatedAsyncioTestCase):
         self.session.cancel()
         state = await task
         self.assertEqual(state["status"], "idle")
-        self.assertIn("остановлена", state["last_error"])
+        self.assertIn("Preparation stopped", state["last_error"])
         self.assertFalse(self.session.busy)
         self.assertIsNone(self.session._emit_callback)
         self.assertFalse(list(self.session.directory.glob("turn-*")))
@@ -224,7 +224,7 @@ class IntakeFlowTests(unittest.IsolatedAsyncioTestCase):
         controller = self.controller([plan_response()])
         state = await controller.prepare("Сделай отчёт")
         (self.session.workspace / "user-change.txt").write_text("concurrent edit")
-        with self.assertRaisesRegex(ValueError, "проект изменился"):
+        with self.assertRaisesRegex(ValueError, "The project changed"):
             await controller.execute(state["revision"])
         self.assertEqual(controller.state["status"], "plan")
         self.assertTrue(controller.state["last_error"])
@@ -234,7 +234,7 @@ class IntakeFlowTests(unittest.IsolatedAsyncioTestCase):
         controller = self.controller([plan_response()], action=lambda root: (root / "unexpected.txt").write_text("write"))
         state = await controller.prepare("Сделай отчёт")
         self.assertEqual(state["status"], "idle")
-        self.assertIn("изменились файлы", state["last_error"])
+        self.assertIn("Project files changed", state["last_error"])
         self.assertFalse(self.session.busy)
         self.assertTrue((self.session.workspace / "unexpected.txt").is_file())
         self.assertTrue((self.session.directory / "intake/round-001/snapshot-after.json").is_file())
@@ -243,7 +243,7 @@ class IntakeFlowTests(unittest.IsolatedAsyncioTestCase):
         controller = self.controller([plan_response()])
         state = await controller.prepare("Сделай отчёт")
         self.session.configure(execution_mode="plan")
-        with self.assertRaisesRegex(ValueError, "Только план"):
+        with self.assertRaisesRegex(ValueError, "Plan only"):
             await controller.execute(state["revision"])
         self.assertEqual(len(self.session.runner.calls), 1)
 
@@ -278,11 +278,11 @@ class IntakeFlowTests(unittest.IsolatedAsyncioTestCase):
                 self.session.cancel()
             finally:
                 released.set()
-            with self.assertRaisesRegex(RuntimeError, "Запуск остановлен"):
+            with self.assertRaisesRegex(RuntimeError, "The run was stopped"):
                 await execution
         self.assertFalse(self.session.busy)
         self.assertEqual(controller.state["status"], "plan")
-        self.assertIn("Выполнение не начиналось", controller.state["last_error"])
+        self.assertIn("Nothing started", controller.state["last_error"])
         self.assertEqual(self.session.judge.calls, [])
         self.assertFalse(list(self.session.directory.glob("turn-*")))
         self.assertEqual(len(self.session.runner.calls), 1)

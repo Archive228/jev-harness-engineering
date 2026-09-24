@@ -44,7 +44,7 @@ def _atomic_text(path, text):
 
 def _json_file(path, max_bytes=4_000_000):
     if path.is_symlink() or path.stat().st_size > max_bytes:
-        raise ValueError("Файл состояния слишком большой или является ссылкой")
+        raise ValueError("State file is too large or is a symlink")
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -65,7 +65,7 @@ def list_sessions(base):
                 continue
             prompts = [entry.get("text", "") for entry in history
                        if isinstance(entry, dict) and entry.get("role") == "user"]
-            title = metadata.get("title") or (prompts[0] if prompts else "Новая сессия")
+            title = metadata.get("title") or (prompts[0] if prompts else "New session")
             latest = sorted(directory.glob("turn-*/result.json"))
             status = "idle"
             if latest:
@@ -87,7 +87,7 @@ def list_sessions(base):
 
 def save_draft(session, text):
     if not isinstance(text, str) or len(text) > MAX_DRAFT_CHARS:
-        raise ValueError("Черновик ограничен 20 000 символами")
+        raise ValueError("Draft is limited to 20,000 characters")
     _atomic_text(_directory(session) / "draft.txt", text)
 
 
@@ -105,23 +105,23 @@ def load_draft(session):
 def _artifact_path(session, relative_path):
     relative = Path(relative_path)
     if relative.is_absolute() or not relative.parts or any(p in {".", ".."} for p in relative.parts):
-        raise ValueError("Нужен относительный путь внутри рабочей папки")
+        raise ValueError("A relative path inside the workspace is required")
     lower_parts = [p.lower() for p in relative.parts]
     name = relative.name.lower()
     if (any(p in EXCLUDED for p in lower_parts) or name.startswith(".env")
             or name.endswith((".key", ".pem", ".p12", ".pfx"))
             or "credential" in name or name in {"auth.json", "id_rsa", "id_ed25519", "secrets.json"}):
-        raise ValueError("Файлы ключей и служебные каталоги не показываются")
+        raise ValueError("Key files and service directories are not shown")
     root = Path(session.workspace).resolve()
     path = root
     for part in relative.parts:
         path = path / part
         if path.is_symlink():
-            raise ValueError("Символические ссылки не открываются")
+            raise ValueError("Symlinks are not opened")
     try:
         path.resolve().relative_to(root)
     except ValueError:
-        raise ValueError("Путь выходит за рабочую папку") from None
+        raise ValueError("Path leads outside the workspace") from None
     return path
 
 
@@ -154,7 +154,7 @@ def _read_workspace_file(root, relative):
         descriptor = os.open(parts[-1], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=descriptor)
         descriptors.append(descriptor)
         if not stat.S_ISREG(os.fstat(descriptor).st_mode):
-            raise ValueError("Превью доступно только для обычных файлов")
+            raise ValueError("Preview is available for regular files only")
         chunks = []
         remaining = MAX_TEXT_BYTES + 1
         while remaining:
@@ -217,10 +217,10 @@ def read_artifact(session, relative_path):
     try:
         data = _read_workspace_file(Path(session.workspace).resolve(), relative_path)
     except (OSError, ValueError):
-        result["notice"] = "Файл удалён или недоступен."
+        result["notice"] = "File deleted or unavailable."
         return result
     if b"\x00" in data:
-        result["notice"] = "Бинарный файл: текстовое превью недоступно."
+        result["notice"] = "Binary file: no text preview available."
         return result
     try:
         # Decode the whole bounded read first so a split final code point does not
@@ -229,18 +229,18 @@ def read_artifact(session, relative_path):
         decoder = codecs.getincrementaldecoder("utf-8")()
         result["text"] = clean(decoder.decode(data[:MAX_TEXT_BYTES], final=len(data) <= MAX_TEXT_BYTES))
     except UnicodeError:
-        result["notice"] = "Не UTF-8 текст: превью недоступно."
+        result["notice"] = "Not UTF-8 text: no preview available."
         return result
     result["truncated"] = result["truncated"] or len(data) > MAX_TEXT_BYTES
     if not captured:
-        result["notice"] = "Показан текущий файл. Для этого изменения diff не был сохранён."
+        result["notice"] = "Showing the current file. No diff was saved for this change."
     else:
-        result["notice"] = "Diff последней сохранённой попытки; текст файла показан на текущий момент."
+        result["notice"] = "Diff of the last saved attempt; the file text is shown as it is now."
         if (len(data) <= MAX_TEXT_BYTES and captured.get("after_sha256")
                 and hashlib.sha256(data).hexdigest() != captured["after_sha256"]):
-            result["notice"] += " После сохранения diff файл изменился."
+            result["notice"] += " The file changed after that diff was saved."
     if len(data) > MAX_TEXT_BYTES:
-        result["notice"] += " Превью ограничено 64 КиБ."
+        result["notice"] += " Preview limited to 64 KiB."
     return result
 
 
@@ -252,13 +252,13 @@ def _fenced(text, language="text"):
 
 def export_session(session):
     """Export the conversation plus typed decisions and actual tools as Markdown."""
-    lines = ["# JEVIS — сессия " + str(session.id),
-             "", "Рабочая папка: " + str(session.workspace),
-             "", "## Разговор", ""]
+    lines = ["# JEVIS session " + str(session.id),
+             "", "Workspace: " + str(session.workspace),
+             "", "## Conversation", ""]
     for entry in session.history:
-        role = "Пользователь" if entry.get("role") == "user" else "Ответ исполнителя / harness"
+        role = "User" if entry.get("role") == "user" else "Worker / harness reply"
         lines.extend(["### " + role, "", _fenced(entry.get("text", "")), ""])
-    lines.extend(["## Наблюдаемые события", ""])
+    lines.extend(["## Observed events", ""])
     for event in session.events():
         if event.get("type") not in {"jev", "tool", "checks", "context", "triage", "brief", "end", "error"}:
             continue
@@ -267,7 +267,7 @@ def export_session(session):
     brief = _directory(session) / "brief.json"
     if brief.is_file():
         data = _json_file(brief, 1_000_000)
-        lines.extend(["## Уточнение задачи и согласованный план", "",
+        lines.extend(["## Task clarification and agreed plan", "",
                       _fenced(json.dumps(clean(data), ensure_ascii=False, indent=2), "json"), ""])
     path = _directory(session) / "exports" / "session.md"
     _atomic_text(path, "\n".join(lines))

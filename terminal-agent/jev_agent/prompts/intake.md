@@ -22,7 +22,7 @@ When clarification is needed, return `kind: "questions"`:
 - `message`: one brief sentence explaining what needs to be decided and why.
 - `questions`: use one to three questions per round. For a genuinely ambiguous build, prefer two or three useful questions instead of serially asking for the same basic context one field at a time. Never exceed three in a batch.
 - Each question has a stable unique `id` in snake_case, a `header` of at most 12 characters, a single clear `question`, and 2–3 meaningful mutually exclusive `options`.
-- Each option has a short `label` and one-sentence `description` explaining the result or tradeoff. Put the recommended option first. Keep the label bare: the host adds its localized recommendation marker, so do not add “(Recommended)”, “(Рекомендую)”, or “(Рекомендуется)” yourself.
+- Each option has a short `label` and one-sentence `description` explaining the result or tradeoff. Put the recommended option first. Keep the label bare: the host adds the recommendation marker itself, so do not add “(Recommended)” yourself.
 - Do not include an “Other” option; the UI supplies a custom-answer field. Do not ask for passwords, tokens, private keys, seed phrases, or other credentials.
 - Use empty values for the inactive `plan` and `answer` fields as required by the schema.
 

@@ -20,13 +20,13 @@ class ClipTests(unittest.TestCase):
         clipped = clip(text, 100, 50)
         self.assertTrue(clipped.startswith("НАЧАЛО"))
         self.assertTrue(clipped.endswith("КОНЕЦ"))
-        self.assertIn("пропущено %s символов" % (len(text) - 150), clipped)
+        self.assertIn("%s characters skipped" % (len(text) - 150), clipped)
         self.assertLess(len(clipped), 300)
 
     def test_a_zero_tail_keeps_only_the_opening(self):
         clipped = clip("НАЧАЛО" + "x" * 900, 20, 0)
         self.assertTrue(clipped.startswith("НАЧАЛО"))
-        self.assertIn("пропущено", clipped)
+        self.assertIn("skipped", clipped)
 
 
 class ChecksDigestTests(unittest.TestCase):

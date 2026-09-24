@@ -27,6 +27,9 @@ SECRET_CONTENT = re.compile(
     r"-----BEGIN (?:[A-Z ]*PRIVATE KEY)|(?:apikey_[A-Za-z0-9_]+|new1_[a-fA-F0-9]{20,}|"
     r"gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,})|"
     r"(?im:^[ \t]*[\"']?(?:[\w-]*api[_-]?key|access[_-]?token|password|client[_-]?secret)[\"']?\s*[:=])")
+# Filler words dropped before matching a request against the project. Not interface
+# text: it is never displayed. The Russian half is here because the person writing the
+# request may write in Russian even though the interface is English.
 STOP_WORDS = set("the and for this that from with into code file files please create change make show explain "
                  "это как для что или мне надо нужно файл файлы сделай создай покажи объясни".split())
 
