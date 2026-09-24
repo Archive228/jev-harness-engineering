@@ -18,6 +18,7 @@
 ## Читать и запускать
 
 - [Статья в Markdown](./jev-engineering.md) и [готовый HTML](./jev-engineering.html).
+- Сокращённая редакция: [русская](./jev-engineering.v2.md) · [HTML](./jev-engineering.v2.html), [английская](./jev-engineering.en.v2.md) · [HTML](./jev-engineering.en.v2.html).
 - [Быстрый маршрут читателя](./START-HERE.md).
 - [Описание лаборатории и её команд](./jev-harness-lab/README.md).
 - [Методика живых проверок Jev](./jev-harness-lab/live-eval-method.md).
