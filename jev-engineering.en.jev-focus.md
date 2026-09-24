@@ -95,7 +95,7 @@ In the response, `choice` holds the selected option, `probabilities` gives the d
 
 > `confidence` is not a separate signal. It is a function of `probabilities`.
 
-The documentation ties `confidence` to how concentrated the probabilities are, but never publishes the formula — so we measured it. For `n` options the value matches `(n × p_max − 1) / (n − 1)`, checked against all 161 Choice and Score answers saved in the kit. The largest deviation is 0.015, which is rounding to two decimals.
+The documentation ties `confidence` to how concentrated the probabilities are, but never publishes the formula, so we measured it. For `n` options the value matches `(n × p_max − 1) / (n − 1)`, checked against all 161 Choice and Score answers saved in the kit. The largest deviation is 0.015, which is rounding to two decimals.
 
 So a threshold of `confidence = 0.60` across three options means exactly `p_max >= 0.73`.
 
@@ -1001,6 +1001,6 @@ Before a model answer enters a code path
 
 ---
 
-If you want a finished agent rather than a bench — built from these same three pieces — it sits right here: [the JEVIS terminal agent](./terminal-agent/README.md), one command to install and runnable with no keys at all in demo mode.
+If you want a finished agent rather than a bench, built from these same three pieces, it sits right here: [the JEVIS terminal agent](./terminal-agent/README.md), one command to install and runnable with no keys at all in demo mode.
 
 Everything behind this text sits next to it: [code and instructions](./jev-harness-lab/README.md), [the standalone first call](./first_call.py), [the reader's first steps](./START-HERE.md), [diagrams](./assets/README.md), [source verification](./source-check.md). Jev requests and answers, the original defect variants, command output, Codex answers and the independent acceptance are saved together: [results gallery](./verification/evidence-gallery.html), [terminal summary](./verification/terminal/evidence-summary.txt). Versions, commands and the final log are collected in [VALIDATION.md](./VALIDATION.md), and the automated checks run in [GitHub Actions](https://github.com/Archive228/jev-harness-engineering/actions).
