@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="800" viewBox="0 0 1480 800" role="img" aria-labelledby="title desc">
+<title id="title">How one Jev answer is read, layer by layer</title>
+<desc id="desc">Choice: the distribution matters, the label is its argmax. Score: the legend matters, the number is a level index. Noul: one number, no distribution and no confidence.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L8,4.5 L0,9" fill="#66716C"/></marker></defs>
+<rect x="0" y="0" width="1480" height="800" rx="0" fill="#FBF8F2"/>
+<text x="64" y="64" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#66716C" text-anchor="start">05  /  READING AN ANSWER</text>
+<text x="64" y="126" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#26302F" text-anchor="start">What to look at in each primitive</text>
+<text x="64" y="172" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">The label is the least useful field. The information lives in the distribution.</text>
+<rect x="64" y="232" width="430" height="488" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<rect x="88" y="256" width="132" height="34" rx="17" fill="#F1F2EC"/>
+<text x="154.0" y="279" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">CHOICE</text>
+<text x="88" y="336" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#26302F" text-anchor="start">probabilities</text>
+<text x="88" y="378" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">export  1.0</text>
+<text x="88" y="412" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">account 0.0</text>
+<text x="88" y="446" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">payment 0.0</text>
+<text x="88" y="480" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">other   0.0</text>
+<line x1="88" y1="528" x2="470" y2="528" stroke="#D8DCD4" stroke-width="2"/>
+<text x="88" y="572" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">choice is the argmax.</text>
+<text x="88" y="604" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">Two different situations</text>
+<text x="88" y="636" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">give the same label:</text>
+<text x="88" y="668" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">{0.4, 0.35, 0.25} is a coin flip.</text>
+<rect x="524" y="232" width="430" height="488" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<rect x="548" y="256" width="118" height="34" rx="17" fill="#F1F2EC"/>
+<text x="607.0" y="279" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">SCORE</text>
+<text x="548" y="336" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#26302F" text-anchor="start">legend</text>
+<text x="548" y="378" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">0  cosmetic</text>
+<text x="548" y="412" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">1  workaround exists</text>
+<text x="548" y="446" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">2  task is blocked</text>
+<line x1="548" y1="494" x2="930" y2="494" stroke="#D8DCD4" stroke-width="2"/>
+<text x="548" y="540" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#E47254" text-anchor="start">score 1.0</text>
+<text x="548" y="578" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">A level index,</text>
+<text x="548" y="610" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">not a fraction of the scale.</text>
+<text x="548" y="642" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">A fractional value is a position</text>
+<text x="548" y="674" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">between levels, not a label.</text>
+<rect x="984" y="232" width="432" height="488" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<rect x="1008" y="256" width="108" height="34" rx="17" fill="#F1F2EC"/>
+<text x="1062.0" y="279" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">NOUL</text>
+<text x="1008" y="336" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#26302F" text-anchor="start">noul</text>
+<text x="1008" y="386" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700" fill="#E47254" text-anchor="start">0.95</text>
+<line x1="1008" y1="430" x2="1392" y2="430" stroke="#D8DCD4" stroke-width="2"/>
+<text x="1008" y="476" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">One number: the probability</text>
+<text x="1008" y="508" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">that the statement holds.</text>
+<text x="1008" y="540" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start"></text>
+<text x="1008" y="572" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">No distribution, no confidence —</text>
+<text x="1008" y="604" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">nothing to read but itself.</text>
+</svg>
