@@ -4,7 +4,11 @@
   "private": true,
   "description": "Build the readable HTML edition of the Jev + Harness Engineering article",
   "scripts": {
-    "build:article": "node scripts/build-article.cjs"
+    "build:article": "node scripts/build-article.cjs",
+    "build:en": "node scripts/build-article-en.cjs",
+    "build:paste": "node scripts/build-paste.cjs",
+    "build:all": "node scripts/build-article.cjs && node scripts/build-article-en.cjs && node scripts/build-paste.cjs && node scripts/build-console.cjs",
+    "build:console": "node scripts/build-console.cjs"
   },
   "engines": {
     "node": ">=20"

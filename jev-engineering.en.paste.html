@@ -1,0 +1,638 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jev + Harness Engineering — body for pasting</title><style>body{margin:0;background:#fff;color:#111;font:17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.note{max-width:860px;margin:0 auto;padding:14px 24px;color:#666;font-size:13px;border-bottom:1px solid #e3e3e3;background:#fafafa}
+main{max-width:860px;margin:0 auto;padding:28px 24px 90px}
+h2{font-size:27px;line-height:1.25;margin:44px 0 16px}h3{font-size:21px;margin:30px 0 12px}
+p{margin:0 0 18px}ul,ol{padding-left:24px;margin:18px 0}li{margin:0 0 10px}
+blockquote{margin:22px 0;padding:6px 0 6px 18px;border-left:3px solid #c0c0c0;color:#333}
+blockquote p{margin:0 0 8px}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.86em;background:#f1f1f1;padding:.1em .3em}
+pre{background:#f1f1f1;border:1px solid #e0e0e0;padding:16px;overflow-x:auto;font-size:14px;line-height:1.55;margin:22px 0}
+pre code{background:none;padding:0;font-size:1em}
+a{color:#0b57d0}hr{border:0;border-top:1px solid #e0e0e0;margin:36px 0}
+@media print{.note{display:none}}</style></head><body><div class="note">Select all and copy. Headings, bold, lists, code and links carry over. The title is not here on purpose: it goes in its own field. Images are omitted, upload them separately.</div><main><p><strong>Choice, Score and Noul inside a working harness: a requirements report, check routing, and a bounded repair loop. With code, diagrams and commands you can run.</strong></p>
+<p>20 September 2026 · Python · code, real runs and screenshots included</p>
+<p>An agent wrote some code, ran a test and reported &quot;Done.&quot; The test really is green. The requirement said search by title <strong>or description</strong>, and the test checked the title alone.</p>
+<p>So I built the thing that catches that, then spent a day measuring whether the model inside it earns its seat. Three real defects, three real Codex runs, two labelled sets of 28 decisions each, 161 saved answers. One run stopped at a confidence of 0.52 against a threshold of 0.60 and repaired nothing.</p>
+<p>That stop turned out to be the most useful result in the experiment.</p>
+<h2>0. What is going on here</h2>
+<p>TypeSafe came out of stealth on 15 September with a model called Jev. It does not chat. It cannot write you a sentence.</p>
+<p>You hand it a <code>state</code> and a set of typed questions, and it hands back typed answers with probabilities in a single pass, at $0.042 per million input tokens with output unmetered.</p>
+<p>Most of what has been written about it since answers &quot;what is this.&quot; This piece answers &quot;where do I put it.&quot;</p>
+<p>The place I want to put it is the situation above. An agent that finished, a test that passed, and a requirement nobody checked.</p>
+<p>Software in that position needs a specific next step: find the missing confirmation, run the check, hand the agent a reproducible failure. Choosing between those is a narrow judgement call over a small amount of text, and that is the shape Jev was built for.</p>
+<p>We start somewhere easier. One support ticket introduces the interface, then we carry it into three builds: <strong>a requirements report → a check selector → a bounded repair loop</strong>. Each one stands on its own.</p>
+<p><strong>By the end you have a working lab:</strong> a repaired copy of the application, a report for every requirement, and a log that shows why the agent kept going or stopped. Three separate tools come out of it: evidence checking, diagnostic selection, and the repair loop. <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/START-HERE.md">Ten-minute route to your first run</a>.</p>
+<p>The <a href="https://github.com/Archive228/jev-harness-engineering">repository</a> holds the code, the teaching application and reproducible checks. We made real Jev requests, ran two labelled sets, and wired Jev → Codex → independent acceptance.</p>
+<p>The article contains a successful repair, a stop caused by an unconfident answer, and a tested way to carry on. Without any keys you get <code>demo</code> mode: code runs the tests, while judge answers and the worker&#39;s repair are prepared in advance.</p>
+<h2>1. What Jev does with your text</h2>
+<p>Picture this ticket:</p>
+<blockquote>
+<p>PDF export fails in Safari. The same document exports fine in Chrome. I am using Chrome for now, but I want export back in Safari.</p>
+</blockquote>
+<p>The application needs three things here: the category of the problem, its effect on the user&#39;s work, and whether a workaround exists. Jev takes the text and the questions and returns values your program can use. You define the permitted options and what each one means. <a href="https://docs.typesafe.ai/introduction">TypeSafe interface</a>.</p>
+<p></p>
+<p>A request has three main fields:</p>
+<pre><code class="language-python">payload = {
+    &quot;model&quot;: &quot;jev-1.13.0&quot;,
+    &quot;state&quot;: ticket,
+    &quot;questions&quot;: questions,
+}
+</code></pre>
+<p>Into <code>state</code> you put the material being judged: a message, a fragment of a document, tool results, or a small JSON object. Into <code>questions</code> you list what you want to know about it, and into <code>model</code> the Jev version.</p>
+<p>This article pins <code>jev-1.13.0</code>; check its availability before your own experiment. The <code>jev-latest</code> alias is convenient while you are getting acquainted, but it can start pointing somewhere else.</p>
+<p>One note on language. The documentation names English as the model&#39;s strongest, and the labelled sets here hold both Russian and English text.</p>
+<p>Questions in <code>judge.py</code> are English; <code>first_call.py</code> repeats the Russian wording from the original edition of this article. We tested both. Your own data still needs its own check. <a href="https://docs.typesafe.ai/models">Models</a>.</p>
+<p>The request has hard limits: 64k tokens for the whole request and 32k for <code>state</code> together with the longest question, no more than 255 options in a Choice, and between two and ten levels in a Score. Input tokens cost $0.042 per million and output is not metered, so one more question against a <code>state</code> you already sent adds almost nothing to the bill.</p>
+<p>After that, ordinary code takes over: it puts the ticket in a queue, sorts results, or runs a permitted check. Jev does not open a browser, execute a shell command or edit a file. Those powers belong to the application around it.</p>
+<p>Generative LLMs can return structured JSON too. The practical question is different: how well does one specific node built on Jev serve your task at a comparable price. To answer it, you first have to define that node precisely.</p>
+<blockquote>
+<p><strong>So-what:</strong> If your program parses the model&#39;s sentence straight back into a value, you are paying for the sentence.</p>
+</blockquote>
+<h2>2. Three primitives against one ticket</h2>
+<p>Jev has three kinds of question. Which one you reach for depends on the answer your program needs.</p>
+<p></p>
+<h3>Choice: pick one option</h3>
+<p>For the ticket&#39;s category, unordered options fit: export, account, payment, other.</p>
+<pre><code class="language-python">category_question = {
+    &quot;type&quot;: &quot;choice&quot;,
+    &quot;instructions&quot;: &quot;Which category does the main problem belong to?&quot;,
+    &quot;criteria&quot;: {
+        &quot;export&quot;: &quot;Creating or downloading an exported file&quot;,
+        &quot;account&quot;: &quot;Signing in and account access&quot;,
+        &quot;payment&quot;: &quot;Charges, invoices and payments&quot;,
+        &quot;other&quot;: &quot;None of the listed categories fits&quot;,
+    },
+}
+</code></pre>
+<p>In the response, <code>choice</code> holds the selected option, <code>probabilities</code> gives the distribution across options, and <code>confidence</code> shows how concentrated that distribution is.</p>
+<p><strong>One detail is easy to miss, and it changes how you build every gate in this article.</strong></p>
+<blockquote>
+<p><code>confidence</code> is not a separate signal. It is a function of <code>probabilities</code>, and for <code>n</code> options the documentation reduces it to <code>(n × p_max − 1) / (n − 1)</code>.</p>
+</blockquote>
+<p>We checked that formula against all 161 Choice and Score answers saved in the kit. The largest deviation is 0.015, which is rounding to two decimals.</p>
+<p>So a threshold of <code>confidence = 0.60</code> across three options means exactly <code>p_max &gt;= 0.73</code>.</p>
+<p>Keep both fields. The distribution tells you who came second; <code>confidence</code> is handier for a threshold. What you cannot do is read <code>confidence</code> as a measured probability of being right on your data. <a href="https://docs.typesafe.ai/primitives/choice">Choice</a>, <a href="https://docs.typesafe.ai/confidence">Confidence</a>.</p>
+<p>The <code>other</code> description gives the model a legitimate exit when the list does not cover the ticket. Without it a winner still emerges, if only among options that do not fit.</p>
+<blockquote>
+<p>before: three categories, and a ticket about something else still gets sorted into one of them
+after:  <code>other</code> present, and &quot;none of the listed categories fits&quot; becomes a reachable answer</p>
+</blockquote>
+<h3>Score: place the case on a described scale</h3>
+<p>Now we rate how much the problem gets in the way:</p>
+<pre><code class="language-python">impact_question = {
+    &quot;type&quot;: &quot;score&quot;,
+    &quot;instructions&quot;: &quot;How does the problem affect getting the task done?&quot;,
+    &quot;criteria&quot;: [
+        &quot;Cosmetic defect; the task is completed the usual way&quot;,
+        &quot;The feature is broken, but a working workaround is stated&quot;,
+        &quot;The task is blocked; no working workaround exists&quot;,
+    ],
+}
+</code></pre>
+<p>Positions in the array define levels <code>0</code>, <code>1</code>, <code>2</code>. The response carries <code>score</code>, a <code>probabilities</code> distribution, a <code>legend</code> that spells the levels back out, and <code>confidence</code>. A fractional <code>score</code> is the sum of levels weighted by their probabilities.</p>
+<p>On our ticket all the mass landed on level 1, so <code>score</code> came out at exactly <code>1.0</code>. The workaround is stated outright, there is nothing to argue about.</p>
+<p>Fractional values appear when the case itself is arguable. Take a ticket along the lines of &quot;PDF export crashes. A colleague says it works in another browser, but I am not allowed to install a second one,&quot; run it through the same <code>first_call.py</code>, and part of the mass should stay on level 1 while part moves to level 2.</p>
+<p>The <code>score</code> belongs to your scale and does not mean the share of affected users. <a href="https://docs.typesafe.ai/primitives/score">Score</a>.</p>
+<p>Our levels describe observable situations. &quot;Bad,&quot; &quot;very bad&quot; and &quot;catastrophically bad&quot; would leave far more room for different readings. Before applying this to real tickets, decide separately whether switching browsers counts as an acceptable workaround for your audience.</p>
+<h3>Noul: judge one specific statement</h3>
+<p>The third question:</p>
+<pre><code class="language-python">workaround_question = {
+    &quot;type&quot;: &quot;noul&quot;,
+    &quot;instructions&quot;: &quot;Does the ticket state a working workaround?&quot;,
+    &quot;criteria&quot;: {
+        &quot;true&quot;: &quot;The author says outright that they do the same task another way&quot;,
+        &quot;false&quot;: &quot;No working workaround is stated; there is only a guess, or nothing at all&quot;,
+    },
+}
+</code></pre>
+<p>The <code>noul</code> field holds a number from 0 to 1, the probability of &quot;yes&quot;; around <code>0.5</code> means the yes/no question is undecided. Noul has no separate <code>confidence</code> field. <a href="https://docs.typesafe.ai/primitives/noul">Noul</a>.</p>
+<p>We are judging the content of the message here. We are not judging whether Chrome genuinely works, which would take a different source of information. That precision in wording pays off later, when we build the report on the agent&#39;s work.</p>
+<p>All three questions go out against one <code>state</code>:</p>
+<pre><code class="language-python">questions = {
+    &quot;category&quot;: category_question,
+    &quot;impact&quot;: impact_question,
+    &quot;has_workaround&quot;: workaround_question,
+}
+</code></pre>
+<p>Inside such a request the questions are evaluated independently. The answer to <code>category</code> does not become input for <code>impact</code>. If the first answer determines the options for the next question, build a new request. Checking several answers against each other is also the application&#39;s job. <a href="https://docs.typesafe.ai/primitives">Primitives</a>.</p>
+<p>The <a href="https://github.com/typesafe-ai/skills">official examples and the TypeSafe skill</a> recommend the same arrangement: ask independent questions together, and after a new observation assemble the next request. An ID like <code>has_workaround</code> exists to match an answer to its question; the meaning has to live in <code>instructions</code> and <code>criteria</code>.</p>
+<p>A workable rule for your own project: <strong>options → Choice; a scale → Score; one specific statement → Noul</strong>.</p>
+<blockquote>
+<p><strong>Gotcha:</strong> <code>confidence</code> is computed from <code>probabilities</code>, so a threshold on it is a threshold on <code>p_max</code> wearing a different hat.</p>
+</blockquote>
+<h2>3. Where this interface earns its place</h2>
+<p>One call shape supports quite different products. What changes is the material, the questions, and the action taken afterwards.</p>
+<ul>
+<li><strong>Support.</strong> Message → Choice of category and Score of impact → a ticket queue with a defensible priority. The example above turns into a standalone tool with very little extra work.</li>
+<li><strong>Document search.</strong> A query and a retrieved fragment → Noul on whether the fragment answers the condition → ordering of results. Jev judges what you passed it; finding candidates stays a separate part of the application. <a href="https://docs.typesafe.ai/cookbooks/rerank_typesafe">Official reranking cookbook</a>.</li>
+<li><strong>Picking a model or tool.</strong> A task plus descriptions of the available workers → Choice → a call to the chosen worker. This integration is covered in <a href="https://www.langchain.com/blog/building-a-harness-with-jev">LangChain&#39;s write-up</a>.</li>
+<li><strong>Context selection.</strong> The current task and a candidate memory → Noul on whether it helps → inclusion in the next context. For a first attempt it is convenient to record decisions alongside your existing selection and inspect the misses by hand.</li>
+<li><strong>Browser actions.</strong> Page state and available actions → choice of action and target → execution by the browser tool. A concrete implementation lives in <a href="https://github.com/browser-use/jev-ultrafast">browser-use/jev-ultrafast</a>.</li>
+<li><strong>Supervising a coding agent.</strong> A requirement and the results of the work → a judgement on how the evidence relates to the requirement, then a diagnostic choice → the next check or a repair. This is the branch we build in full.</li>
+</ul>
+<p>That is a map of applications, not a list of features inside Jev. The usefulness comes from the whole chain: good input, the right question, a sensible action, and a check on the result.</p>
+<blockquote>
+<p><strong>So-what:</strong> Pick the node where you already know the answer space, then check whether a cheap rule covers it already.</p>
+</blockquote>
+<h2>4. The first call and the first saved answer</h2>
+<p>Unpack the kit and change into the <code>jev-harness-lab</code> directory. You need macOS or Linux and Python 3.9+; there are no external Python packages. For a first run without keys there is a <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/START-HERE.md">step-by-step route</a>.</p>
+<p>For a live request, get a key from <a href="https://console.typesafe.ai/keys">TypeSafe API Keys</a> and pass it through the <code>TYPESAFE_API_KEY</code> environment variable. The <a href="https://console.typesafe.ai/playground">official Playground</a> lets you try questions by hand once you are signed in.</p>
+<pre><code class="language-bash">python3 run.py inspect --mode live --case export-ticket --out runs/inspect-live
+</code></pre>
+<p>The command saves <code>decisions.json</code> and <code>judge/judge-001.json</code>: the answer and the full request sent to the model. When you run it again, pick a new <code>--out</code> so you do not overwrite the previous attempt.</p>
+<p>To reproduce the exact wording used in this article, run the standalone example from the same <code>jev-harness-lab</code> directory:</p>
+<pre><code class="language-bash">python3 ../first_call.py
+</code></pre>
+<p>What follows is <strong>a real <code>jev-1.13.0</code> answer to those questions</strong>, obtained on 20 September. The <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/jev-live-2026-09-20/first-call-ru/request.json">input</a>, the <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/jev-live-2026-09-20/first-call-ru/response.json">answer</a> and the <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/terminal/first-call-ru.txt">command output</a> are all saved:</p>
+<pre><code class="language-json">{
+  &quot;model&quot;: &quot;jev-1.13.0&quot;,
+  &quot;answers&quot;: {
+    &quot;category&quot;: {
+      &quot;type&quot;: &quot;choice&quot;, &quot;choice&quot;: &quot;export&quot;, &quot;confidence&quot;: 1.0,
+      &quot;probabilities&quot;: {&quot;export&quot;: 1.0, &quot;account&quot;: 0.0, &quot;payment&quot;: 0.0, &quot;other&quot;: 0.0}
+    },
+    &quot;impact&quot;: {
+      &quot;type&quot;: &quot;score&quot;, &quot;score&quot;: 1.0, &quot;confidence&quot;: 0.99,
+      &quot;legend&quot;: {
+        &quot;0&quot;: &quot;Cosmetic defect; the task is completed the usual way&quot;,
+        &quot;1&quot;: &quot;The feature is broken, but a working workaround is stated&quot;,
+        &quot;2&quot;: &quot;The task is blocked; no working workaround exists&quot;
+      },
+      &quot;probabilities&quot;: {&quot;0&quot;: 0.0, &quot;1&quot;: 1.0, &quot;2&quot;: 0.0}
+    },
+    &quot;has_workaround&quot;: {&quot;type&quot;: &quot;noul&quot;, &quot;noul&quot;: 0.95}
+  },
+  &quot;usage&quot;: {&quot;input_tokens&quot;: 746, &quot;output_tokens&quot;: 79}
+}
+</code></pre>
+<p></p>
+<p><em>A local view of the saved API response. The values are read from the JSON; this is not a mock-up of the TypeSafe console. The English question wording in <code>judge.py</code> was verified by its own <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/jev-live-2026-09-20/inspect/decisions.json">live request</a>.</em></p>
+<p>With no key, you can still study the interface:</p>
+<pre><code class="language-bash">python3 run.py inspect --mode demo --case export-ticket --out runs/inspect-demo
+</code></pre>
+<p>Demo writes <code>SYNTHETIC-DEMO-NOT-JEV</code> in place of the model name, on purpose. Its prepared numbers exist so you can learn the format; none of them feed the measurements below.</p>
+<blockquote>
+<p>before: <code>--mode demo</code>, model name <code>SYNTHETIC-DEMO-NOT-JEV</code>, prepared numbers, no key needed
+after:  <code>--mode live</code>, <code>jev-1.13.0</code>, 746 input tokens, 0.98s, and <code>export</code> / <code>1.0</code> / <code>0.95</code> back</p>
+</blockquote>
+<p>Live mode calls <code>https://api.typesafe.ai/v1/systemone</code>. Here is the smallest version of that HTTP call; <code>questions</code> is the same dictionary as in the previous section. Every fragment of the first call is also collected in <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/first_call.py">first_call.py</a>:</p>
+<pre><code class="language-python">import json
+import os
+from urllib.request import Request, urlopen
+
+ticket = (
+    &quot;PDF export fails in Safari. &quot;
+    &quot;The same document exports fine in Chrome. &quot;
+    &quot;I am using Chrome for now, but I want export back in Safari.&quot;
+)
+payload = {
+    &quot;model&quot;: &quot;jev-1.13.0&quot;,
+    &quot;state&quot;: ticket,
+    &quot;questions&quot;: questions,
+}
+request = Request(
+    &quot;https://api.typesafe.ai/v1/systemone&quot;,
+    data=json.dumps(payload, ensure_ascii=False).encode(&quot;utf-8&quot;),
+    headers={
+        &quot;Authorization&quot;: &quot;Bearer &quot; + os.environ[&quot;TYPESAFE_API_KEY&quot;],
+        &quot;Content-Type&quot;: &quot;application/json&quot;,
+    },
+    method=&quot;POST&quot;,
+)
+with urlopen(request, timeout=30) as response:
+    result = json.load(response)
+
+answers = result[&quot;answers&quot;]
+print(answers[&quot;category&quot;][&quot;choice&quot;])
+print(answers[&quot;impact&quot;][&quot;score&quot;])
+print(answers[&quot;has_workaround&quot;][&quot;noul&quot;])
+</code></pre>
+<p>The full contract and field types are published in the <a href="https://docs.typesafe.ai/api">TypeSafe API</a> docs. In the kit, error handling and request logging live in <code>judge.py</code>.</p>
+<p><code>first_call.py</code> did run and did print <code>export</code>, <code>1.0</code>, <code>0.95</code>. One request took about 0.98 seconds including network overhead; the API reported 746 input and 79 output tokens. That is one observation of one request, not a latency promise for every call.</p>
+<p>Read the answer in layers. <code>choice</code> says which option won; <code>probabilities</code> shows how the alternatives split; <code>score</code> belongs to your scale and <code>noul</code> to your statement. The <code>usage</code> field describes the API tokens that were counted and does not hand you the cost of the whole workflow.</p>
+<p>For a small experiment, replace the message with &quot;PDF export is broken; I have not tried any other way yet.&quot; Save both requests and both answers. Check which question changed and whether that matches how it was worded. What matters is correctness on labelled examples, not a rise in <code>confidence</code>.</p>
+<blockquote>
+<p><strong>Gotcha:</strong> A saturated answer like <code>1.0</code> tells you the ticket was easy, not that the model is sure about the hard ones.</p>
+</blockquote>
+<h2>5. What exactly we are building</h2>
+<p>Now back to search inside a task application. The contract is short:</p>
+<pre><code class="language-text">R1. The query &quot;milk&quot; finds the card &quot;Buy milk&quot;: the word is in the title.
+R2. The query &quot;carton&quot; finds the same card: the word is only in the description &quot;Remember the blue carton&quot;.
+</code></pre>
+<p>The application is deliberately tiny, and the whole of search fits on one screen:</p>
+<pre><code class="language-python">ITEMS = [
+    {&quot;id&quot;: 1, &quot;title&quot;: &quot;Buy milk&quot;, &quot;description&quot;: &quot;Remember the blue carton&quot;},
+    {&quot;id&quot;: 2, &quot;title&quot;: &quot;Prepare slides&quot;, &quot;description&quot;: &quot;Explain the export feature&quot;},
+]
+
+def api_search(query, fields):
+    query = query.casefold()
+    return [item for item in ITEMS
+            if any(query in item.get(field, &quot;&quot;).casefold() for field in fields)]
+
+def ui_request(query):
+    return {&quot;query&quot;: query, &quot;fields&quot;: [&quot;title&quot;]}
+
+def search(query):
+    request = ui_request(query)
+    return api_search(request[&quot;query&quot;], request[&quot;fields&quot;])
+</code></pre>
+<p>The backend can search both fields, while the request builder in the interface passes only <code>title</code>. No separate server or browser is needed, so the checks reproduce with a single command.</p>
+<p>Our starting position: the worker claims search is finished, and the log holds only a passing check for R1. Requirement R2 is still unconfirmed.</p>
+<blockquote>
+<p>before: the worker says &quot;all done&quot;, and one green check from an earlier snapshot backs it up
+after:  R1 passed, R2 unverified, and the report names the exact command that would settle it The demonstration implementation hides a defect: the request from the interface restricts search to the title.</p>
+</blockquote>
+<p>The checks split into two groups. C1 and C2 form the mandatory acceptance, and code runs them itself from a relationship to the requirements that is known in advance. D1 and D2 provide extra diagnostics, and those still have to be chosen. That is where Choice gets its job: which observation is more useful right now?</p>
+<pre><code class="language-text">R1  requirement      search finds the card by a word from the title
+R2  requirement      search finds the card by a word only in the description
+C1  mandatory check  search(&quot;milk&quot;)   expects card 1
+C2  mandatory check  search(&quot;carton&quot;) expects card 1
+D1  diagnostic       calls the backend directly across both fields
+D2  diagnostic       shows which fields the interface actually sent
+</code></pre>
+<p></p>
+<p>The roles are simple. The worker writes changes. Tools execute checks and collect facts. Jev answers narrow questions of meaning. <code>policy</code> stays an ordinary function: it decides the permitted next step and the stopping condition. All of this scaffolding around an agent is usually called a harness.</p>
+<p>If your project is already covered by precise, cheap tests, run those. Our toy search can be handled without Jev too. The point of the build is to create the place where a semantic judgement can be plugged in, and then to find out whether you need one on the harder material in your own project.</p>
+<p>The first full run:</p>
+<pre><code class="language-bash">python3 run.py loop --mode demo --case missing-evidence --out runs/first-loop
+</code></pre>
+<p>It leaves behind <code>run-report.md</code>, the <code>state.json</code> state, <code>events.jsonl</code> events, and records of the judge calls. A <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/jev-harness-lab/runs/example/run-report.md">saved example report</a> already ships with the kit.</p>
+<blockquote>
+<p><strong>So-what:</strong> Before any model enters, write down which checks are mandatory and let code run those.</p>
+</blockquote>
+<h2>6. Build #1. The report: what is actually confirmed</h2>
+<p>The first build solves a problem of its own: making sense of work that is already finished. Input: the requirements, the code version, the check results, and separately the worker&#39;s message. Output: <code>evidence-report.json</code> for the program and <code>evidence-report.md</code> for a person.</p>
+<pre><code class="language-bash">python3 run.py evidence --mode demo --case missing-evidence --out runs/evidence-demo
+</code></pre>
+<p>Before asking Jev anything, we fix what the statuses mean:</p>
+<ul>
+<li><code>passed</code>: a current registered check confirms the criterion.</li>
+<li><code>failed</code>: a current check found a violation.</li>
+<li><code>unverified</code>: confirmation is missing; the check was never run, or the result belongs to older code.</li>
+</ul>
+<p>The worker&#39;s &quot;all done&quot; is stored as a claim by the author of the changes. It never becomes a test result.</p>
+<h3>Provenance first, meaning second</h3>
+<p>A check result needs a source: check ID, command, exit code, output, timestamp and project snapshot. Here is a real record of a failing C2 from the live run in section 10, with hashes shortened and housekeeping fields dropped:</p>
+<pre><code class="language-json">{
+  &quot;check_id&quot;: &quot;C2&quot;,
+  &quot;snapshot&quot;: &quot;d8fd8d95…fc7408&quot;,
+  &quot;snapshot_after&quot;: &quot;d8fd8d95…fc7408&quot;,
+  &quot;exit_code&quot;: 1,
+  &quot;stdout&quot;: &quot;{\&quot;check_id\&quot;: \&quot;C2\&quot;, \&quot;kind\&quot;: \&quot;assertion_failure\&quot;, \&quot;detail\&quot;: \&quot;description-only search: expected [1], got []\&quot;}&quot;
+}
+</code></pre>
+<p>The snapshot is taken twice, before and after the run: a check must not modify the project, and the two hashes matching is what proves it.</p>
+<p>If the code changed after a check, a green result cannot be carried over to the new version automatically. Comparing hashes is the program&#39;s job. There is no reason to ask Jev to compare hash strings, count attempts, or decide whether an exit code equals zero.</p>
+<p>In this teaching project the links C1 → R1 and C2 → R2 are known in advance, and a registry covers them. Semantic judgement enters when material relates to a requirement without that exact link: a description of somebody else&#39;s test, a fragment of a report, an observation from a manual run.</p>
+<h3>Which question to ask Jev</h3>
+<p>&quot;Was the task done correctly?&quot; bundles far too much: the requirements, test coverage, execution, the current version, and the quality of the implementation.</p>
+<p>Instead we take one pair: criterion R2 and the description of an outside test that is not in our registry. Say a line arrived from a neighbouring suite: &quot;test_search_keyword: calls <code>search(&quot;milk&quot;)</code> and asserts that card 1 comes back.&quot; We pass Jev the material of that pair alone and ask:</p>
+<pre><code class="language-python">question = {
+    &quot;type&quot;: &quot;noul&quot;,
+    &quot;instructions&quot;: (
+        &quot;Does the described test check finding a record where the &quot;
+        &quot;query appears only in the description?&quot;
+    ),
+    &quot;criteria&quot;: {
+        &quot;true&quot;: &quot;The scenario explicitly rules out the query matching the title&quot;,
+        &quot;false&quot;: &quot;The scenario checks the title only, or does not rule out a title match&quot;,
+    },
+}
+</code></pre>
+<p>Jev judges how the test description relates to the criterion. On the example above a low Noul is what you expect: the test searches for a word from the title, while R2 demands a description-only match.</p>
+<p>Running the test and getting a result is a different layer. Even a high Noul does not prove that the test executed, passed, or covers the current version.</p>
+<p>In the live runs of section 10 the uncontroversial pair C1 → R1 scored Noul 0.88 to 0.91. The model withholds a flat 1.0 even where there is nothing to argue about.</p>
+<p>In our build the semantic judgement stays a separate annotation. It helps you make sense of the material, and it never promotes a mandatory criterion to <code>passed</code>. An explicit acceptance map governs completion. That way you can measure Jev&#39;s mistakes on your own reports before widening its influence.</p>
+<p>This boundary has a tested consequence. If the API is unreachable during that optional Noul annotation, the report stores <code>scope_annotation_error</code> and fresh C1/C2 results go on deciding acceptance. A failure of the mandatory Choice router is handled differently: the loop stops. A call that only affects an explanation must not quietly become a condition for the whole system to work.</p>
+<p>The practical status rule is short:</p>
+<pre><code class="language-python"># the runner returns 0 on success, 1 on a failed assertion, 2 on a tool error
+PASSED, FAILED = 0, 1
+
+def is_fresh(check, current_snapshot):
+    # the snapshot is taken before and after: a check must not modify the project
+    return (check[&quot;snapshot&quot;] == current_snapshot
+            and check[&quot;snapshot_after&quot;] == current_snapshot)
+
+def requirement_status(current_snapshot, latest_check):
+    if latest_check is None:
+        return &quot;unverified&quot;
+    if not is_fresh(latest_check, current_snapshot):
+        return &quot;unverified&quot;
+    if latest_check[&quot;exit_code&quot;] == PASSED:
+        return &quot;passed&quot;
+    if latest_check[&quot;exit_code&quot;] == FAILED:
+        return &quot;failed&quot;
+    return &quot;unverified&quot;   # code 2, a timeout, a crashed runner
+</code></pre>
+<p>This is the rule in shortened form; the full implementation and the record format live in <code>evidence.py</code>. Note the last branch: a tool that broke counts as neither confirmation nor refutation.</p>
+<p>Freshness also depends on the version of the checks themselves, so the kit stores and compares a hash of their contract. In another project you have to define your own exit-code convention.</p>
+<p>The report must not invent reasoning on Jev&#39;s behalf. The model returned a number; a sentence like &quot;C2 was not run against the current version&quot; is written by the program from the log. What the reader ends up with is a checkable link between a requirement, a fact and a rule, rather than a mysterious verdict.</p>
+<p>A standalone product already exists at this point: you can open a report like that before a review, even when a human will do the fixing.</p>
+<p>To make sense of a saved run without any new checks, feed it the state:</p>
+<pre><code class="language-bash">python3 run.py evidence --mode demo \
+  --state runs/first-loop/state.json --out runs/saved-report
+</code></pre>
+<p>In that mode the records in the file count as trusted user data: the hashes verify that they are current, not that they are genuine. The format is still shaped around the teaching C1/C2 pair; for your own project you have to port both the registry and the matching checks.</p>
+<blockquote>
+<p><strong>Gotcha:</strong> A semantic score explains material. It never promotes a requirement to <code>passed</code>.</p>
+</blockquote>
+<h2>7. Build #2. Which check to run next</h2>
+<p>In the second build the input becomes an incomplete or failing report, and the output becomes <code>next-check.json</code>: a specific check ID and the grounds for the program&#39;s decision.</p>
+<pre><code class="language-bash">python3 run.py next-check --mode demo --case missing-evidence --out runs/router-demo
+</code></pre>
+<p>If C2 is mandatory and has not run yet, code assigns it. Calling Jev for that choice makes no sense: the required action is already written into the contract.</p>
+<p>Now C2 has run and failed. The cause needs locating. The registry holds:</p>
+<pre><code class="language-python">diagnostics = {
+    &quot;D1&quot;: &quot;Search by description directly through the backend&quot;,
+    &quot;D2&quot;: &quot;Inspect which search fields the interface passes&quot;,
+    &quot;none_suitable&quot;: &quot;No available check would produce a useful new fact&quot;,
+}
+</code></pre>
+<p>In this implementation Jev receives the requirement, the record of the current failure, a description of the architecture, and the available checks. Its task is phrased in terms of the information expected:</p>
+<pre><code class="language-python">next_check_question = {
+    &quot;type&quot;: &quot;choice&quot;,
+    &quot;instructions&quot;: (
+        &quot;Which available diagnostic yields the most useful new fact &quot;
+        &quot;for locating the observed failure?&quot;
+    ),
+    &quot;criteria&quot;: diagnostics,
+}
+</code></pre>
+<p>A poor version looks like this: &quot;pick the best test&quot;, with the options named <code>test_1</code> and <code>test_2</code>. The model has no idea what is inside those commands. A good description states which question each check settles.</p>
+<blockquote>
+<p>before: options named <code>test_1</code> and <code>test_2</code>, the model guessing from a label
+after:  every option names the fact it produces, and D2 wins at 0.85 on the interface defect</p>
+</blockquote>
+<p>The application reads <code>choice</code>, stores the distribution, and matches the ID against a permitted registry. It takes the command from its own configuration. Text from the model is never executed as shell.</p>
+<pre><code class="language-python">selected = answer[&quot;choice&quot;]
+if selected == &quot;none_suitable&quot;:
+    action = &quot;stop_for_review&quot;
+elif selected not in allowed_check_ids:
+    action = &quot;stop_invalid_answer&quot;
+else:
+    action = &quot;run_registered_check&quot;
+</code></pre>
+<p>In the prepared demo, D2 is selected. Running it locally shows that the interface passes only the <code>title</code> field. Now the worker has something useful: which part of the path the restriction appears in. In <code>live</code>, Jev might prefer D1, decline to choose, or get it wrong. The log has to record the branch that actually happened.</p>
+<p>A <code>confidence</code> threshold, if you use one, is set in policy. It is your parameter, and you tune it on labelled cases. A number like <code>0.8</code> without that work does not mean &quot;safe enough&quot; or &quot;80% of decisions correct.&quot;</p>
+<p>The router has an obvious competitor: run every check. When D1 and D2 cost milliseconds, the competitor may well win. A selector gets interesting once diagnostic actions become expensive or numerous, and that advantage still has to be measured.</p>
+<blockquote>
+<p><strong>So-what:</strong> Describe the fact each option produces, then measure the router against simply running everything.</p>
+</blockquote>
+<h2>8. Build #3. A loop that knows how to stop</h2>
+<p>The third build joins fact-gathering, the Jev questions and the worker. Acceptance of the current version repeats after every change. Every stop gets an explicit reason.</p>
+<p></p>
+<p>The process has a handful of permitted actions: run a mandatory check, obtain an extra observation, hand a failure to the worker, complete under the contract, or stop for review.</p>
+<p>The rules are worth writing out in words:</p>
+<ol>
+<li>If a mandatory confirmation is missing or stale, run the matching check.</li>
+<li>If a check found a violation, obtain an extra fact where useful and hand the worker a reproducible failure.</li>
+<li>If every mandatory criterion is confirmed for the current version, complete under that contract.</li>
+<li>If nothing changed, no suitable diagnostic exists, or a limit is spent, save the state and stop with a reason.</li>
+<li>If the mandatory Choice is unavailable, invalid or not confident enough, stop with a reason. A failure of the optional Noul annotation is recorded separately. Carrying on under a different policy takes an explicit new run; an API error never confirms readiness.</li>
+</ol>
+<p>A high score from the model cannot overturn a failing C2. A <code>complete</code> decision means precisely that the described acceptance contract is satisfied; two tests do not prove the absence of every possible defect.</p>
+<h3>What to hand the worker for a repair</h3>
+<p>Instead of &quot;try again&quot;, pass the smallest useful package:</p>
+<pre><code class="language-text">Criterion: R2, search finds a record by its description.
+Reproduction: registered check C2.
+Result: the expected record was not found.
+Extra observation D2: the request carries fields=[&quot;title&quot;].
+Repair scope: application code; the acceptance contract stays as it is.
+After the change: rerun C1 and C2 against the new snapshot.
+</code></pre>
+<blockquote>
+<p>before: &quot;try again&quot;, and the agent guesses which part failed
+after:  criterion, reproduction, result, extra observation, repair scope, and what to rerun</p>
+</blockquote>
+<p>This is a repair assignment, not an explanation generated by Jev. Every fact must point back to a tool record. In demo the repair is deterministic: the worker fixes a known defect. In <code>live</code> the coding agent receives the same information and the outcome is not known in advance.</p>
+<p>After a change you need a new snapshot. Old PASS and FAIL results stay as history; current readiness is decided by fresh ones. If the worker returned a confident report but the files did not change, the loop must not keep rechecking the same thing forever.</p>
+<h3>Why keep the three builds apart</h3>
+<p>Because it becomes much easier to see what broke. A wrong link between evidence and a requirement belongs to the first tool. A useless diagnostic belongs to the second, and carrying on without progress or completing wrongly belongs to the third. Improving the whole process with one long prompt is far harder, since several unknowns move at once.</p>
+<p>Architectures like this are already being discussed around Jev. <a href="https://github.com/thruwire/foreman">Foreman</a>, for instance, separates the worker from the supervising decisions. Our next step: observable runs and a comparison against simple rules.</p>
+<blockquote>
+<p><strong>So-what:</strong> Every stop needs a reason you can still read six weeks later without the author in the room.</p>
+</blockquote>
+<h2>9. Wiring in a real coding agent and real Jev</h2>
+<p>For the worker we use the Codex CLI. It receives the task, the actual failure and the diagnostic, reads <code>app.py</code> and makes a change. After that the harness reruns the checks itself: the agent&#39;s answer does not decide acceptance.</p>
+<p><code>codex exec</code> suits automated runs. Our adapter reads JSON events during execution, verifies that the turn completed, and collects the final message through <code>--output-last-message</code>. It uses whatever model the CLI is currently configured with. The working copy is confined to <code>runs/.../project</code>, and only <code>app.py</code> may be modified. <a href="https://developers.openai.com/codex/noninteractive">Non-interactive Codex documentation</a>.</p>
+<p>Set up Codex access the usual way and create a local configuration:</p>
+<pre><code class="language-bash">codex --version
+codex login status
+python3 adapters/codex_cli.py --configure
+</code></pre>
+<p>The last command writes <code>worker-config-codex.json</code> and <code>policy-codex.json</code> with the paths of your installation. Our run used CLI <code>0.155.0-alpha.9</code> with ChatGPT authentication. To test the loop itself, start with a fixed diagnostic choice:</p>
+<pre><code class="language-bash">python3 run.py loop --mode live --selector fixed \
+  --case missing-evidence --task task.md \
+  --worker-config worker-config-codex.json \
+  --policy policy-codex.json \
+  --out runs/my-codex-run
+</code></pre>
+<p>This run performs real worker actions. The <code>fixed</code> variant picks D1 programmatically and never calls Jev. That way we confirm the code really does reach the coding agent, change the application, recheck the result, and complete the loop.</p>
+<p>To hand the diagnostic choice to Jev, set <code>TYPESAFE_API_KEY</code> and swap <code>--selector fixed</code> for <code>--selector jev</code>:</p>
+<pre><code class="language-bash">python3 run.py loop --mode live --selector jev \
+  --case missing-evidence --task task.md \
+  --worker-config worker-config-codex.json \
+  --policy policy-codex.json \
+  --out runs/my-jev-codex-run
+</code></pre>
+<p>Jev answers the questions from the first two builds, Codex changes the code. The TypeSafe key is never passed into the worker process.</p>
+<p>One Codex attempt times out at 90 seconds, and an external supervisor bounds it together with its child processes. The policy allows up to two repairs and 300 seconds for the whole loop.</p>
+<p>Worker tokens are recorded separately from Jev usage, because they are different costs.</p>
+<p>The adapter itself runs under <code>workspace-write</code>, refuses escalation requests and disables web search. When it finishes, it verifies that nothing outside <code>app.py</code> changed.</p>
+<p>If you use a different worker, replace the adapter and keep the protocol. Stdin takes one JSON object with <code>task</code>, <code>project</code>, <code>feedback</code>, <code>iteration</code>; stdout returns:</p>
+<pre><code class="language-json">{&quot;claim&quot;: &quot;A short description of the changes made&quot;}
+</code></pre>
+<p>A non-zero exit code, an invalid answer or a timeout each produce a stop with a reason. The full adapter is in <code>adapters/codex_cli.py</code>; a compatible example for Claude Code ships alongside it.</p>
+<blockquote>
+<p><strong>Gotcha:</strong> The agent&#39;s closing message is a claim, not a result. Rerun the checks yourself.</p>
+</blockquote>
+<h2>10. Reading a run as a chain of facts</h2>
+<p>In the successful offline scenario the route looks like this:</p>
+<pre><code class="language-text">C1: PASS. Search by title works.
+R2: UNVERIFIED. There is no current C2 result yet.
+C2: FAIL. The record was not found by description alone.
+Jev demo fixture: D2, the prepared diagnostic choice.
+D2: the request is restricted to the title field.
+Demo worker: fixes the list of fields.
+New snapshot.
+C1: PASS; C2: PASS.
+Policy: COMPLETE, the current acceptance contract is satisfied.
+</code></pre>
+<p>Here you have five real check executions and one prepared repair. The trace shows how the program works. It does not show that a live Jev would have picked D2, or that a live worker would have fixed the defect in one attempt.</p>
+<p>Run two more cases:</p>
+<pre><code class="language-bash">python3 run.py loop --mode demo --case correct --out runs/correct
+python3 run.py loop --mode demo --case stalled --out runs/stalled
+</code></pre>
+<p><code>correct</code> starts from a working implementation. The result you want: confirmed acceptance with no needless repair. <code>stalled</code> returns a confident worker message while leaving the files untouched. The result you want: a stop for lack of changes, with the failure preserved. That beats an endless run of &quot;try again.&quot;</p>
+<p>An error in the harness itself can end a run in false success just as well as an error in the model, so the harness is covered by tests too:</p>
+<pre><code class="language-bash">python3 -m unittest discover -s tests -v
+</code></pre>
+<p>They cover the happy path and the edge cases: stale evidence, an unsuitable diagnostic option, a corrupted judge answer, an API error, an early <code>sys.exit(0)</code> from the application, a changed contract, an unfinished worker turn, background processes, and a spent budget.</p>
+<h3>The same harness with real Codex</h3>
+<p>We fixed three starting defects before running anything, then handed them to real Codex one at a time. The <code>fixed</code> selector chose the diagnostics, so that the worker and the acceptance could be tested on their own:</p>
+<ul>
+<li><strong>Interface only:</strong> the request dropped the <code>description</code> field. One repair, five checks; final independent acceptance passed. Total time 15.17 seconds.</li>
+<li><strong>Backend only:</strong> the interface passed both fields, but the backend read the title alone. One repair, five checks; independent acceptance passed. 17.02 seconds.</li>
+<li><strong>Both defects:</strong> the restriction sat in the interface and the backend at once. One repair, five checks; independent acceptance passed. 20.43 seconds.</li>
+</ul>
+<p>Those are three real code changes, one run per case. After each stop, a separate process tested four further queries: two description matches, upper case, and no match at all. None of those results were fed back to the worker while it was running. There were no false <code>complete</code> decisions in these three attempts.</p>
+<p>Source files, SHA256 hashes, results and usage are saved in the <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/codex-worker-2026-09-19/evaluation.md">run log</a>. The time covers the whole chain including the final check, not just model generation. Jev was not called in this experiment: the selector&#39;s contribution is measured separately.</p>
+<p>Reproducing it once Codex is configured:</p>
+<pre><code class="language-bash">python3 worker_eval.py --out runs/my-worker-evaluation
+</code></pre>
+<p>The command performs three real tasks, so you need Codex authentication and available account quota. The suite holds 83 checks in total, including a failing optional judge, incomplete token accounting, and moving a saved project. The <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/terminal/unit-tests-83.txt">local log</a> is saved; CI runs the tests on Python 3.9, 3.12, 3.13 and 3.14, and separately verifies the reproducible HTML build.</p>
+<h3>What changed once real Jev picked the diagnostics</h3>
+<p>We then recreated the three starting defects and ran <code>--selector jev</code>. The code and the inputs were frozen in a manifest before the first call. This time <code>jev-1.13.0</code> really did produce the semantic annotations and the diagnostic choice, while real Codex made the changes:</p>
+<pre><code class="language-bash">python3 worker_eval.py --selector jev --out runs/my-jev-worker-evaluation
+</code></pre>
+<ul>
+<li><strong>Interface defect:</strong> Jev picked D2; one repair, five checks, independent acceptance PASS. The whole attempt took 20.98 seconds.</li>
+<li><strong>Backend defect:</strong> D2 was picked, but <code>confidence=0.52</code> fell below the recorded threshold of <code>0.60</code>. After two mandatory checks the system stopped; the worker never ran. An independent check confirmed the defect was still there. 2.17 seconds.</li>
+<li><strong>Both defects:</strong> D2 picked; one repair, five checks, independent acceptance PASS. 21.57 seconds.</li>
+</ul>
+<blockquote>
+<p>before: <code>fixed</code> order, three prepared defects, three repairs, 15.17s / 17.02s / 20.43s
+after:  <code>jev</code> selector, same three defects, two repairs and one stop, 20.98s / 2.17s / 21.57s</p>
+</blockquote>
+<p>The result of the first attempt: <strong>two automatic completions and one stop</strong>, with no false <code>complete</code>. That is more useful than a promise that adding a judge improves any workflow. The <code>fixed</code> variant had repaired all three prepared defects earlier; on these examples no advantage for Jev is established.</p>
+<p>All the numbers above share one limitation, and it is not specific to our sample. The request carries no <code>seed</code> and no <code>temperature</code>: an identical request can return different probabilities.</p>
+<p>TypeSafe&#39;s own measurements over 15 repeats give a mean standard deviation of about 0.01 on the probability, and their Choice label moved on two questions out of eight. Our <code>0.60</code> threshold and the observed 0.52 sit in that same narrow band.</p>
+<p>Before you put a threshold in your code, send the same request a dozen times and watch how far the answer drifts.</p>
+<p></p>
+<p><em>Saved <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/jev-live-2026-09-20/codex-matrix/evaluation.md">results of all three runs</a>. Distributions across the three: D2 0.85 at <code>confidence</code> 0.77, D2 0.80 at 0.70, and D2 0.68 at 0.52. The last one is the stop. It is one number written twice: <code>(3 × 0.68 − 1) / 2 = 0.52</code>. The candidates were not close, D1 got only 0.26. The distribution simply flattened in the case where the defect sat in the backend and calling it directly through D1 was no worse than inspecting the interface through D2.</em></p>
+<h3>How to carry on after a stop like that</h3>
+<blockquote>
+<p>before: <code>--selector jev</code>, confidence 0.52 under the 0.60 threshold, the worker never ran, the defect survived
+after:  <code>--selector all</code>, both diagnostics run, four checks, one repair, acceptance passed, zero extra Jev calls</p>
+</blockquote>
+<p>We kept the original failed attempt, copied its state, and explicitly chose <code>all</code>: run both available diagnostics, then hand the facts to the worker. The Jev threshold was left alone. The new run performed four checks and one repair, independent acceptance passed, and there were zero extra Jev requests. <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/jev-live-2026-09-20/backend-recovery/recovery.json">Recovery log</a>, <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/terminal/backend-recovery.txt">command output</a>.</p>
+<p>For your own run, save a separate copy of the matrix first, then continue from the state you want. Here is the equivalent for that same stopped backend case:</p>
+<pre><code class="language-bash">cp -Rf runs/my-jev-worker-evaluation runs/my-jev-worker-recovery
+python3 run.py loop --mode live --selector all \
+  --state runs/my-jev-worker-recovery/backend-title-only/state.json \
+  --out runs/my-recovery-result \
+  --worker-config worker-config-codex.json --policy policy-codex.json
+</code></pre>
+<p>The state holds a relative reference to the project and the records of checks already performed. That is why the two fresh mandatory checks from the previous run can be read back, then rerun once the code changes. An unknown new defect may produce a different outcome; save that the same way you save a success.</p>
+<p>A practical rule falls out of this experiment: decide in advance what happens on an unconfident choice. For two cheap local diagnostics, running both explicitly is reasonable. For an expensive external action, a human may be required. <strong>Stopping, and the way to carry on, is part of the product you are building.</strong></p>
+<p></p>
+<p><em>Viewing the actual command output in the local gallery. Full text logs and the original JSON sit next to it; the image does not replace them.</em></p>
+<h3>Replay: changing a rule against a saved record</h3>
+<p>Replay reads the saved inputs and answers, recomputes the policy actions, and calls no models:</p>
+<pre><code class="language-bash">python3 run.py replay --run runs/first-loop --policy policy.json
+</code></pre>
+<p>With the original policy the sequence should match. Copy the settings into another file and reduce, say, the check budget. Replay will show you the first action that now differs.</p>
+<p>Past that divergence you cannot keep presenting the old record as a new experiment. If a different policy chose D1 instead of D2, the repairs and answers further down the old log belong to another history. A new trajectory needs a new run. Replay is good for auditing rules; the quality of new behaviour is measured by a real rollout.</p>
+<blockquote>
+<p><strong>So-what:</strong> Send the same request ten times before you trust the number you threshold on.</p>
+</blockquote>
+<h2>11. How to find out whether you need Jev</h2>
+<p>Working code answers the question &quot;did we build the system.&quot; The usefulness of Jev takes a different comparison.</p>
+<p>Start with one node, for example the choice of an extra diagnostic. Gather saved states from real failures: the criterion, the fresh result, the facts already known, and the available checks. For each state, decide which checks genuinely produce useful new information. Sometimes the right answer is to run everything, sometimes to stop and extend your tooling.</p>
+<p>Use part of the cases to tune questions and thresholds, and hold the rest back until tuning is finished. Include easy examples, ambiguous descriptions, irrelevant material, and cases with no suitable candidate. Do not turn three teaching fixtures into a statistical benchmark.</p>
+<p>Compare three variants over the same set:</p>
+<ul>
+<li><strong>Fixed order.</strong> The same acceptance and the same available tools; extra checks follow a predetermined list.</li>
+<li><strong>All checks.</strong> The whole permitted set runs; its extra time and cost are counted openly.</li>
+<li><strong>Jev Choice.</strong> The same acceptance and the same budget, but the model picks the extra step.</li>
+</ul>
+<p>For a clean comparison of the selector, give every variant the same prepared report. Change the report and the selector at once and you are comparing two whole policies, with no way left to attribute the difference to one Choice.</p>
+<p>In the kit this scheme runs against the teaching cases:</p>
+<pre><code class="language-bash">python3 run.py loop --mode demo --selector fixed --out runs/fixed
+python3 run.py loop --mode demo --selector all --out runs/all
+python3 evaluate.py --out evaluation-local
+</code></pre>
+<blockquote>
+<p>before: three teaching fixtures and a deterministic worker, which say nothing about the selector
+after:  18 frozen states, 28 decisions, reference labels withheld from the model</p>
+</blockquote>
+<p><code>fixed</code> and <code>all</code> do without Jev entirely, including the Noul annotations. <code>evaluate.py</code> performs nine offline runs: three prepared cases by three policies, then a separate final acceptance. That is a reproducible test of the comparison machinery; the deterministic demo worker repairs a known defect regardless of D1 or D2, so this matrix cannot produce evidence that the selector helps.</p>
+<p>We ran a separate frozen set: 18 states and 28 decisions. It holds ten tickets in Russian and English for Choice and Noul, and eight diagnostic situations for D1, D2 and <code>none_suitable</code>.</p>
+<p>Reference labels were never passed to the model. Each call stores the raw answer, the version, usage and duration, and counts selection errors, refusals on low confidence and correct <code>none_suitable</code> answers separately:</p>
+<pre><code class="language-bash">python3 live_eval.py --out runs/my-jev-evaluation
+</code></pre>
+<p>The result: <strong>28 correct answers out of 28</strong>. Category 10/10, workaround 10/10, next diagnostic 8/8. The policy accepted every answer; two correct results were <code>none_suitable</code>. Eighteen API answers came back with no errors; total request time 17.10 seconds, usage 9,322 input and 1,024 output tokens. <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/jev-live-2026-09-20/primary-eval/report.md">First log</a>.</p>
+<p>A second set of 18 new cases was then assembled, without looking at their future answers and without changing any question or threshold. It contains negations, untested advice, keywords sitting in card titles, textual attempts to override the category, stale snapshots, and diagnostics that had already run. <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/jev-harness-lab/challenge-method.md">Method</a>.</p>
+<pre><code class="language-bash">python3 live_eval.py \
+  --cases fixtures/live-eval-challenge-cases.json \
+  --out runs/my-jev-challenge
+</code></pre>
+<p>That one also returned 28 correct answers out of 28, all accepted by the policy, with three correct <code>none_suitable</code> and no API errors. Eighteen requests took 17.26 seconds in total, usage 10,824 input and 1,026 output tokens. <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/jev-live-2026-09-20/challenge-eval/report.md">Second log</a>.</p>
+<p></p>
+<p>The sets are small and we wrote them ourselves. They show that these questions and answers work on the cases listed; they establish nothing about reliability on your traffic, the quality of calibration, or resistance to arbitrary text injection.</p>
+<p>Score was exercised in the first direct calls but does not enter these two accuracy figures.</p>
+<p>Weak control rules are saved too: keyword search, a constant &quot;no workaround&quot;, and a constant D1. They are a transparent starting point rather than a strong LLM baseline.</p>
+<p>Which is exactly why the whole chain still needs testing. In a labelled diagnostic state there was usually one clearly useful step. In a real loop, when C2 failed, both diagnostics could have helped, and one unconfident choice stopped the repair. <strong>Correct answers on a separate set and a successfully finished task are different measurements.</strong></p>
+<p>What to count? Quality first: false completions, unconfirmed requirements, and the independent final acceptance. Costs second: needless interventions, the number of checks, worker attempts, total time, and the expense of the whole chain. A fast judge call can lead to an extra expensive iteration, and that only becomes visible when you count the whole run.</p>
+<p>The final assessment has to happen after the stop. Its extra tests or expert answers are not passed to the worker or the selector during the run being compared. Otherwise you hand the system a hint and then declare it successful on the strength of it.</p>
+<p>There is a separate check for Noul: labelled pairs of &quot;requirement and evidence description.&quot; Measure how often the model treats irrelevant material as confirmation. If that judgement ever starts influencing acceptance, the price of one false confirmation usually matters more than a flattering average.</p>
+<p>The Jev 1.13 documentation lists nine weak spots. Four bear on our build directly: literal reading of conditions, errors in exact counting and date comparison, degradation under irrelevant context, and the influence of misleading material.</p>
+<p>Two more deserve separate attention, because our own Noul criterion is built on a negation. The model reads double negatives with indirect phrasing poorly, and it gets confused when criteria inside one question contradict each other.</p>
+<p>So keep questions of meaning narrow, and leave exact arithmetic and invariants to code. <a href="https://docs.typesafe.ai/model-jaggedness/jev-1.13">Documented Jev 1.13 limitations</a>.</p>
+<p>For a first rollout, observation mode is enough: Jev proposes a decision, your existing system does its own thing, and you record the disagreements. Sort the useful changes from the regressions separately. After that you will know which specific action you can hand to the model, and under which stopping conditions.</p>
+<blockquote>
+<p><strong>Gotcha:</strong> Correct answers on a labelled set and a finished task are two different measurements, and only one of them ships.</p>
+</blockquote>
+<h2>12. Taking a piece into your own project</h2>
+<p>The port starts with one requirement. For example: &quot;Changing the search query preserves the selected filter.&quot; Give it an ID, describe the mandatory check, and work out which extra observations would help locate a possible failure. Only then write the Jev questions.</p>
+<p>In practice that means changing <code>task.md</code>, <code>CRITERIA</code> in <code>evidence.py</code>, the entries in <code>checks.json</code>, the executable checks in <code>check_runner.py</code>, and the independent acceptance, all in step. New text in <code>--task</code> does not create a new verification contract by itself.</p>
+<p>Into <code>state</code> put the short material for that requirement, where it came from, and the current version. In a Noul, ask about one specific relationship. In a Choice, describe what new fact each diagnostic brings and keep <code>none_suitable</code>. If you need to prioritise several problems, add a Score with distinguishable levels. Combine the answers with an ordinary policy function.</p>
+<p>The kit&#39;s files map onto those roles:</p>
+<pre><code class="language-text">jev-harness-lab/
+  run.py                  commands and the wiring between stages
+  evaluate.py             offline matrix of the three policies
+  judge.py                questions, TypeSafe HTTP API, demo answers
+  evidence.py             facts, snapshots, per-requirement reports
+  policy.py               permitted actions and stopping
+  worker.py               the worker protocol
+  checks.json             the check registry
+  policy.json             thresholds and limits
+  task.md                 the task and the acceptance contract
+  demo-project/           the small application with search
+  adapters/codex_cli.py   the tested live Codex adapter
+  worker_eval.py          three real experiments with a coding agent
+  live_eval.py            labelled evaluation of Jev&#39;s decisions
+  tests/                  tests of the harness itself
+</code></pre>
+<p>Begin with whichever product you need right now. The <strong>evidence report</strong> is useful before a manual review. The <strong>next-check router</strong> helps organise diagnostics. The <strong>bounded loop</strong> ties both to a worker and records why it stopped.</p>
+<h2>Three things people get wrong</h2>
+<h3>1. Thresholding on <code>confidence</code> as if it carried extra information</h3>
+<p>People see <code>probabilities</code> and <code>confidence</code> sitting next to each other, assume the second knows something the first does not, and gate on it. It knows nothing extra.</p>
+<p>For <code>n</code> options it is <code>(n × p_max − 1) / (n − 1)</code>, and across all 161 answers saved in this kit that formula reproduces the field to within rounding. A gate at <code>confidence</code> 0.60 over three options is a gate at <code>p_max</code> 0.73, a far harsher filter than it looks.</p>
+<p>Decide which <code>p_max</code> you want, then convert. Keep the whole distribution in the log either way, because the runner-up is what explains a stop.</p>
+<h3>2. Letting a semantic annotation drift into acceptance</h3>
+<p>The Noul annotation reads well, so it gets promoted. First it appears in the report. Then somebody gates on it. Then a green answer from the model is enough to call the work finished.</p>
+<p>Ours never touches acceptance, deliberately: an explicit map decides completion, and a failing C2 cannot be overruled by any score.</p>
+<p>The test is easy to run. Switch the model off. If your pipeline still reports success, it was never gating on evidence in the first place.</p>
+<p>When our optional annotation loses its API, the report stores <code>scope_annotation_error</code> and fresh C1/C2 results go on deciding.</p>
+<h3>3. Fixing a threshold from a single run</h3>
+<p>The request carries no <code>seed</code> and no <code>temperature</code>. TypeSafe&#39;s own repeats give a standard deviation around 0.01 on the probability, and their Choice label moved on two questions out of eight.</p>
+<p>Our stop landed at 0.52 against 0.60, which is eight hundredths of margin. Every number in this article comes from a single run, and I would not set a production threshold from any of them.</p>
+<p>Push your own states through ten times, look at the spread, then put the cut where the spread does not reach.</p>
+<h2>What you walk away with</h2>
+<p>Three things you can run today, and one habit.</p>
+<p><strong>A report you can defend.</strong> For every requirement you can say passed, failed or unverified, and point at the command, the exit code and the snapshot behind each verdict. A worker saying &quot;all done&quot; no longer counts as evidence, and neither does a green result from before the last edit.</p>
+<p><strong>A router with a stated price.</strong> You can hand the choice of the next diagnostic to a model, and you can also tell when that choice is not worth making, because running every cheap check beats it. Our own measurement came out that way: on three prepared defects the fixed order repaired all three, and Jev&#39;s selector repaired two and stopped on the third. That is an honest result, not a disappointing one; it tells you where the selector starts to pay, which is when diagnostics become expensive or many.</p>
+<p><strong>A loop that ends.</strong> It completes under a named contract, or it stops with a reason you can read: no changes, no suitable diagnostic, budget spent, judge unavailable, answer not confident enough. And it has a tested way to carry on afterwards, which turned four checks and one repair into a passing acceptance with zero further Jev calls.</p>
+<p><strong>The habit is the part worth keeping.</strong> Before you put a number from a model into an <code>if</code>, find out what that number is. We started this article treating <code>confidence</code> as a second signal next to <code>probabilities</code>, and it is not: it is <code>(n × p_max − 1) / (n − 1)</code>, the same information rearranged, reproduced across all 161 saved answers to within rounding. Send the same request ten times and watch it drift, because there is no <code>seed</code> and no <code>temperature</code>. Write down what a wrong answer costs you before you pick a threshold. None of that is specific to Jev, and all of it is cheaper to learn on a toy search than on your production queue.</p>
+<p><strong>A typed answer is still an opinion with a schema around it.</strong></p>
+<p>Open your agent&#39;s last failed run, find the single judgement call inside it, and write that judgement as one typed question.</p>
+<p>Then: turn the failure into a <code>state</code>, send it, and compare the answer against a simple rule. You end up holding the request, the actual result, and a clear criterion for usefulness. That is enough to decide which part of the work to hand over.</p>
+<p>Screenshot this:</p>
+<pre><code class="language-text">Before a model answer enters a code path
+========================================
+1.  Name the field you threshold on, and how it is computed.
+2.  Convert that threshold to p_max and check it is the filter you meant.
+3.  Log the full distribution, not just the winner.
+4.  Send one state ten times and measure the spread before choosing the cut.
+5.  Write down what a wrong answer costs before choosing the cut.
+6.  Keep mandatory acceptance in code; a score may not overrule a failing check.
+7.  Give every Choice an escape option and handle it as a real branch.
+8.  Rerun the checks yourself; the agent&#39;s final message is a claim.
+9.  Pin the model version whenever a threshold is tuned against it.
+10. Switch the model off once. Still reporting success? It was never gating on evidence.
+</code></pre>
+<hr>
+<p>Everything behind this text sits next to it: <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/jev-harness-lab/README.md">code and instructions</a>, <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/first_call.py">the standalone first call</a>, <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/START-HERE.md">the reader&#39;s first steps</a>, <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/assets/README.md">diagrams</a>, <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/source-check.md">source verification</a>. Jev requests and answers, the original defect variants, command output, Codex answers and the independent acceptance are saved together: <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/evidence-gallery.html">results gallery</a>, <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/verification/terminal/evidence-summary.txt">terminal summary</a>. Versions, commands and the final log are collected in <a href="https://github.com/Archive228/jev-harness-engineering/blob/main/VALIDATION.md">VALIDATION.md</a>, and the automated checks run in <a href="https://github.com/Archive228/jev-harness-engineering/actions">GitHub Actions</a>.</p>
+</main></body></html>
