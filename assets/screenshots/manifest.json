@@ -46,5 +46,33 @@
       "bytes": 42277,
       "capture": "Codex in-app browser via cua_repl; original screenshot bytes, no image editing"
     }
-  ]
+  ],
+  "source_en": "verification/evidence-gallery.en.html",
+  "images_en": [
+    {
+      "file": "01-live-primitives.en.png",
+      "sha256": "8b5b849058427f9be4a5fd825ccb044c58a903082a7fe034bd77a613a2e2dbcf",
+      "bytes": 96622,
+      "capture": "Google Chrome headless, 1100x750 viewport, device scale 1; original screenshot bytes, no image editing"
+    },
+    {
+      "file": "02-live-evaluations.en.png",
+      "sha256": "de092f92c264f5ecb5e941c179ab7d57a03bd4db5769db54d76636d229285995",
+      "bytes": 82149,
+      "capture": "Google Chrome headless, 1100x750 viewport, device scale 1; original screenshot bytes, no image editing"
+    },
+    {
+      "file": "03-live-loop-and-recovery.en.png",
+      "sha256": "5b58613b69d749b8f96fad2ccc3603597b8cdaa74faae366ad3cd22e680266fc",
+      "bytes": 89690,
+      "capture": "Google Chrome headless, 1100x750 viewport, device scale 1; original screenshot bytes, no image editing"
+    },
+    {
+      "file": "04-tests-and-terminal.en.png",
+      "sha256": "f28fc2e380d0d92b689901ee765f7baf70c3e620c1e22d51070344343424712d",
+      "bytes": 85709,
+      "capture": "Google Chrome headless, 1100x750 viewport, device scale 1; original screenshot bytes, no image editing"
+    }
+  ],
+  "captured_date_en": "2026-09-24"
 }

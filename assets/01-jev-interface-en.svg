@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="760" viewBox="0 0 1480 760" role="img" aria-labelledby="title desc">
+<title id="title">How the Jev interface works</title>
+<desc id="desc">The application sends state and questions. Jev returns typed Choice, Score and Noul answers. The application code decides the next action. The diagram shows the API contract, not the internals of the network.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L8,4.5 L0,9" fill="#66716C"/></marker></defs>
+<rect x="0" y="0" width="1480" height="760" rx="0" fill="#FBF8F2"/>
+<text x="64" y="64" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#66716C" text-anchor="start">01  /  INTERFACE</text>
+<text x="64" y="126" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#26302F" text-anchor="start">Meaning → typed answer → action</text>
+<text x="64" y="172" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">You define the answer space. Jev judges meaning. The program acts.</text>
+<rect x="64" y="232" width="312" height="352" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<rect x="88" y="256" width="118" height="34" rx="17" fill="#F1F2EC"/>
+<text x="147.0" y="279" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">INPUT</text>
+<text x="88" y="334" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#26302F" text-anchor="start">State</text>
+<text x="88" y="374" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">Text, JSON, facts</text>
+<text x="88" y="406" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">and needed context</text>
+<line x1="88" y1="431" x2="352" y2="431" stroke="#D8DCD4" stroke-width="2"/>
+<text x="88" y="477" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#26302F" text-anchor="start">Questions</text>
+<text x="88" y="517" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">Instructions + criteria</text>
+<text x="88" y="548" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">for each answer</text>
+<line x1="382" y1="408" x2="430" y2="408" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="440" y="296" width="228" height="224" rx="20" fill="#FFF0E8" stroke="#E47254" stroke-width="2"/>
+<text x="554" y="380" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="700" fill="#26302F" text-anchor="middle">Jev</text>
+<text x="554" y="427" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="middle">Judges the</text>
+<text x="554" y="458" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="middle">questions you set</text>
+<line x1="676" y1="408" x2="724" y2="408" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="734" y="232" width="326" height="352" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<rect x="758" y="256" width="126" height="34" rx="17" fill="#F1F2EC"/>
+<text x="821.0" y="279" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">ANSWER</text>
+<text x="758" y="337" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Choice</text>
+<text x="758" y="370" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#66716C" text-anchor="start">One option from a list</text>
+<text x="758" y="430" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Score</text>
+<text x="758" y="463" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#66716C" text-anchor="start">A position on a scale</text>
+<text x="758" y="523" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Noul</text>
+<text x="758" y="556" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#66716C" text-anchor="start">Probability of yes</text>
+<line x1="1068" y1="408" x2="1114" y2="408" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1124" y="232" width="292" height="352" rx="20" fill="#F1F2EC"/>
+<rect x="1148" y="256" width="152" height="34" rx="17" fill="#FFFFFF"/>
+<text x="1224.0" y="279" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">APPLICATION</text>
+<text x="1148" y="339" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Ordinary code</text>
+<text x="1148" y="391" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#26302F" text-anchor="start">Store the category</text>
+<text x="1148" y="433" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#26302F" text-anchor="start">Sort the queue</text>
+<text x="1148" y="475" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#26302F" text-anchor="start">Pick a handler</text>
+<text x="1148" y="517" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#26302F" text-anchor="start">Run a check</text>
+<rect x="64" y="626" width="1352" height="80" rx="20" fill="#FFF0E8"/>
+<text x="90" y="660" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" fill="#26302F" text-anchor="start">The contract constrains the answer type. Whether the judgement is right is checked separately.</text>
+<text x="90" y="689" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#66716C" text-anchor="start">This diagram describes the data exchanged with the API, not the model architecture.</text>
+</svg>

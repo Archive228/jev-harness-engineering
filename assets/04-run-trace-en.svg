@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1290" viewBox="0 0 1480 1290" role="img" aria-labelledby="title desc">
+<title id="title">Trace of a demonstration run</title>
+<desc id="desc">An explicitly offline scenario: the search-by-description requirement is unverified at first. The mandatory check C2 exposes the bug. A prepared router answer picks diagnostic D2. The worker fixes the implementation, a new snapshot is taken, both mandatory tests pass, and the programmatic policy ends the run. The diagram does not show live Jev API results.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L8,4.5 L0,9" fill="#66716C"/></marker></defs>
+<rect x="0" y="0" width="1480" height="1290" rx="0" fill="#FBF8F2"/>
+<text x="64" y="64" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#66716C" text-anchor="start">04  /  ONE RUN, STEP BY STEP</text>
+<text x="64" y="126" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#26302F" text-anchor="start">From unverified to a confirmed result</text>
+<text x="64" y="172" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">Offline demo: judge answers and the worker action are prepared. The live Jev API is not called here.</text>
+<line x1="98" y1="274" x2="98" y2="1120" stroke="#D8DCD4" stroke-width="3"/>
+<circle cx="98" cy="275" r="26" fill="#FFF0E8" stroke="#E47254" stroke-width="2"/>
+<text x="98" y="283" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#26302F" text-anchor="middle">01</text>
+<rect x="153" y="220" width="1263" height="132" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<text x="181" y="250" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#66716C" text-anchor="start">EVIDENCE</text>
+<text x="181" y="287" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">R2: search by description</text>
+<text x="181" y="327" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">A worker claim exists. There is no fresh C2 result yet.</text>
+<rect x="1187" y="263" width="205" height="34" rx="17" fill="#F1F2EC"/>
+<text x="1289.5" y="286" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#26302F" text-anchor="middle">UNVERIFIED</text>
+<circle cx="98" cy="433" r="26" fill="#FFF0E8" stroke="#E47254" stroke-width="2"/>
+<text x="98" y="441" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#26302F" text-anchor="middle">02</text>
+<rect x="153" y="378" width="1263" height="132" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<text x="181" y="408" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#66716C" text-anchor="start">MANDATORY TEST</text>
+<text x="181" y="445" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Code runs C2</text>
+<text x="181" y="485" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">Search by description finds nothing. A failure is now a fact.</text>
+<rect x="1187" y="421" width="205" height="34" rx="17" fill="#F1F2EC"/>
+<text x="1289.5" y="444" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#26302F" text-anchor="middle">FAIL</text>
+<circle cx="98" cy="591" r="26" fill="#FFF0E8" stroke="#E47254" stroke-width="2"/>
+<text x="98" y="599" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#26302F" text-anchor="middle">03</text>
+<rect x="153" y="536" width="1263" height="132" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<text x="181" y="566" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#66716C" text-anchor="start">EXTRA DIAGNOSTIC</text>
+<text x="181" y="603" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Demo router → D2</text>
+<text x="181" y="643" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">Query check: only the title field is used.</text>
+<rect x="1187" y="579" width="205" height="34" rx="17" fill="#FFF0E8"/>
+<text x="1289.5" y="602" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#E47254" text-anchor="middle">NEW FACT</text>
+<circle cx="98" cy="749" r="26" fill="#FFF0E8" stroke="#E47254" stroke-width="2"/>
+<text x="98" y="757" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#26302F" text-anchor="middle">04</text>
+<rect x="153" y="694" width="1263" height="132" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<text x="181" y="724" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#66716C" text-anchor="start">REPAIR</text>
+<text x="181" y="761" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">The worker updates the code</text>
+<text x="181" y="801" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">Search matches title OR description.</text>
+<rect x="1187" y="737" width="205" height="34" rx="17" fill="#F1F2EC"/>
+<text x="1289.5" y="760" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#26302F" text-anchor="middle">NEW CODE</text>
+<circle cx="98" cy="907" r="26" fill="#FFF0E8" stroke="#E47254" stroke-width="2"/>
+<text x="98" y="915" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#26302F" text-anchor="middle">05</text>
+<rect x="153" y="852" width="1263" height="132" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<text x="181" y="882" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#66716C" text-anchor="start">RECHECK</text>
+<text x="181" y="919" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">New snapshot → C1 and C2</text>
+<text x="181" y="959" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">Results from the old version do not confirm the current code.</text>
+<rect x="1187" y="895" width="205" height="34" rx="17" fill="#F1F2EC"/>
+<text x="1289.5" y="918" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#26302F" text-anchor="middle">PASS + PASS</text>
+<circle cx="98" cy="1065" r="26" fill="#FFF0E8" stroke="#E47254" stroke-width="2"/>
+<text x="98" y="1073" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#26302F" text-anchor="middle">06</text>
+<rect x="153" y="1010" width="1263" height="132" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
+<text x="181" y="1040" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#66716C" text-anchor="start">COMPLETION RULE</text>
+<text x="181" y="1077" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Every mandatory condition holds</text>
+<text x="181" y="1117" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">The program saves the report and stops the loop.</text>
+<rect x="1187" y="1053" width="205" height="34" rx="17" fill="#FFF0E8"/>
+<text x="1289.5" y="1076" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#E47254" text-anchor="middle">COMPLETE</text>
+<rect x="64" y="1208" width="1352" height="48" rx="12" fill="#FFF0E8"/>
+<text x="88" y="1239" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#26302F" text-anchor="start">No result ≠ failure. PASS on the old version ≠ PASS on the current one. A Jev decision ≠ a command result.</text>
+</svg>
