@@ -1,35 +1,35 @@
-# Проверки терминального агента · 20 сентября 2026
+# Terminal agent checks · 20 September 2026
 
-Исторический протокол первой версии. Актуальная сборка интерфейса и engine проверена отдельно: [v2 · 21 сентября](./v2/README.md).
+The historical protocol of the first version. The current build of the interface and the engine was checked separately: [v2 · 21 September](./v2/README.md).
 
-**53 теста — PASS** на Python 3.9.6.
+**53 tests: PASS** on Python 3.9.6.
 
-`unit-tests.txt` содержит полный вывод проверок engine, subprocess, миссии и терминального интерфейса. UI-тесты вставляют многострочный текст целиком, проверяют Enter как перенос, отправку Ctrl+D и кнопкой, F4 для большого редактора, продолжают разговор, открывают меню, сохраняют SVG, меняют размер терминала и останавливают активную задачу. Подставленные модельные ответы используются только в автоматических тестах.
+`unit-tests.txt` holds the full output of the engine, subprocess, mission and terminal interface checks. The UI tests paste multi-line text whole, check Enter as a line break, sending with Ctrl+D and with the button, F4 for the large editor, carry on a conversation, open the menu, save an SVG, resize the terminal and stop an active task. Stand-in model answers are used only in the automated tests.
 
-## Настоящий свободный запрос
+## A real free-form request
 
-`live-build.jsonl` — новый запрос в **пустую** рабочую папку: создать анализатор инцидентов, данные, два вида отчёта и тесты. Jev выбрал `implement`. Codex создал многофайловый результат, выполнил 28 своих тестов и CLI, затем обнаружил дополнительный дефект Unicode. Начальный лимит 300 секунд остановил процесс до окончательного ответа. Это сохранено как `error`, не как успех.
+`live-build.jsonl` is a new request into an **empty** workspace: build an incident analyser, the data, two kinds of report and tests. Jev picked `implement`. Codex produced a multi-file result, ran its own 28 tests and the CLI, then found a further Unicode defect. The initial limit of 300 seconds stopped the process before the final answer. This is saved as `error`, not as a success.
 
-`live-build-resume.jsonl` — реальное продолжение той же сессии. Codex добавил регрессионный тест, сначала получил настоящий FAIL на повреждённом Unicode, исправил обработку и добился **29 PASS**. Затем harness независимо от слов worker повторно запустил обнаруженный unittest-набор: 29 PASS, snapshot до/после проверки одинаковый. Jev review вернул решение по фактическим результатам. Итог `ready`: результат подготовлен, отдельного заранее заданного oracle у свободной задачи нет.
+`live-build-resume.jsonl` is the real continuation of the same session. Codex added a regression test, first got a real FAIL on the corrupted Unicode, fixed the handling and reached **29 PASS**. The harness then reran the discovered unittest set independently of what the worker said: 29 PASS, and the snapshot before and after the check was the same. Jev review returned its judgement on the actual results. The outcome is `ready`: the result was prepared, and a free-form task has no separate oracle set in advance.
 
-Продолжение заняло 72.68 секунды, сделано 2 вызова Jev и 1 вызов Codex. Исходная генерация и остановка не скрыты. Текущая версия допускает 480 секунд на попытку worker и 900 на ход: увеличенный лимит является настройкой программы, а не обещанием завершить любой запрос за это время.
+The continuation took 72.68 seconds, with 2 Jev calls and 1 Codex call. The original generation and the stop are not hidden. The current version allows 480 seconds per worker attempt and 900 per turn: the raised limit is a setting of the program, not a promise to finish any request within that time.
 
-Полная переносимая копия — [live-build-session](./live-build-session/). Внутри `workspace/` лежит настоящий созданный агентом инструмент; `turn-002/attempt-01-checks.json` — повторная проверка harness. Подтверждены выполнение команд и перечисленные тесты; исчерпывающая корректность произвольного анализатора не утверждается.
+The full portable copy is [live-build-session](./live-build-session/). Inside it, `workspace/` holds the real tool the agent created, and `turn-002/attempt-01-checks.json` is the harness rerun of the checks. Confirmed: the commands ran and the listed tests passed. Exhaustive correctness of an arbitrary analyser is not claimed.
 
-## Живой разговор и продолжение
+## A live conversation and a follow-up
 
-`live-chat-smoke.jsonl` и `live-followup.jsonl` содержат два настоящих разговорных хода. В первой версии инструкции worker неточно назвал Jev оболочкой. Контекст исполнителя уточнён: Jev — модель TypeSafe, Codex — генеративный исполнитель, Python — harness. В следующем ходе сохранённой сессии worker верно объяснил это различие. Сырой первый ответ оставлен в журнале.
+`live-chat-smoke.jsonl` and `live-followup.jsonl` hold two real conversational turns. Under the first version of the instructions the worker inaccurately called Jev a wrapper. The worker's context was made more precise: Jev is a TypeSafe model, Codex is the generative worker, Python is the harness. In the next turn of the saved session the worker explained the difference correctly. The raw first answer is left in the log.
 
-## Экраны
+## Screens
 
-`screenshots/terminal-empty.svg` и `terminal-empty-color.svg` сохранены **Ctrl+S из действительно запущенного TUI в PTY**. Первый запуск наследовал `NO_COLOR=1` из среды автоматизации; второй использовал обычный truecolor-терминал. `terminal-live-work.svg` — статический снимок просмотра фактических накопленных событий через тот же интерфейс; он явно помечен «ЗАПИСЬ». Никакие действия или ответы для картинки не придумывались. `terminal-result.svg` — Ctrl+S из TUI после открытия завершённой реальной сессии через `--resume`; видны сохранённый результат и готовая строка для следующего сообщения. PNG с суффиксом `browser` — браузерное отображение сохранённого SVG.
+`screenshots/terminal-empty.svg` and `terminal-empty-color.svg` were saved with **Ctrl+S from a TUI actually running in a PTY**. The first run inherited `NO_COLOR=1` from the automation environment; the second used an ordinary truecolor terminal. `terminal-live-work.svg` is a static snapshot of viewing the actual accumulated events through the same interface, and it is explicitly marked «ЗАПИСЬ» ("RECORD"). This first version was driven in Russian, so the interface in every screenshot here, the labels quoted from them and the answer texts in the saved session logs are in Russian; the test output in `unit-tests.txt` is in English. No actions and no answers were invented for the picture. `terminal-result.svg` is a Ctrl+S from the TUI after a finished real session was opened with `--resume`: the saved result and the line ready for the next message are visible. The PNGs with the `browser` suffix are browser renderings of the saved SVG.
 
-## Воспроизводимость
+## Reproducibility
 
-Ключи и локальные сессии не входят в Git. В распространяемых JSON/журналах путь автора заменён на `<checkout>`. Файлы программы и значения реальных ответов сохраняются. `dependency-install.json` фиксирует зависимости, проверенные по SHA-256 официального PyPI; тестовый клиент использует `jev-1.13.0`, Codex CLI — текущую настроенную модель без переопределения.
+Keys and local sessions are not part of Git. In the distributed JSON and logs the author's path is replaced with `<checkout>`. The program files and the values of the real answers are kept. `dependency-install.json` records the dependencies verified against the SHA-256 of the official PyPI; the test client uses `jev-1.13.0`, and the Codex CLI uses the currently configured model with no override.
 
-## Многострочная вставка
+## Multi-line paste
 
-`terminal-multiline.svg` сохранён Ctrl+S из настоящего TUI в PTY после bracketed paste крипто-промпта и F4. Видны все 27 строк (1111 символов), состояние «Жду задачу» и кнопка «Отправить · Ctrl+D». Сама вставка не вызвала модели. Полный текст передаётся одним ходом только после явной отправки; это проверено через штатное событие Paste, клавиатуру и кнопку в UI-тестах.
+`terminal-multiline.svg` was saved with Ctrl+S from a real TUI in a PTY after a bracketed paste of the crypto prompt and F4. All 27 lines (1111 characters) are visible, along with the «ЖДУ ЗАДАЧУ» state ("WAITING FOR A TASK") and the «Отправить · Ctrl+D» button ("Send · Ctrl+D"). The paste itself called no model. The full text is sent in one turn only after an explicit send; this is checked through the standard Paste event, the keyboard and the button in the UI tests.
 
-Полный прогон также выявил гонку повторной отправки SIGKILL после завершения группы процессов в sandbox macOS. Завершение сделано идемпотентным: успешный сигнал повторно не отправляется, запрет первого сигнала не скрывается. Оба сценария покрыты отдельными регрессиями.
+The full run also revealed a race in resending SIGKILL after the process group had already finished in the macOS sandbox. Termination was made idempotent: a signal that succeeded is not sent again, and a denial of the first signal is not hidden. Both scenarios are covered by separate regression tests.

@@ -1,81 +1,81 @@
-# Результаты проверок · 20 сентября 2026
+# Check results · 20 September 2026
 
-Здесь разделены три вопроса: правильно ли работает код harness, какие решения вернул живой Jev и смогла ли вся связка исправить приложение. Посмотреть исходные записи и терминальные протоколы можно в [галерее доказательств](./verification/evidence-gallery.html). Для самостоятельного запуска есть [маршрут на 10 минут](./START-HERE.md).
+Three questions are kept apart here: whether the harness code works correctly, which decisions live Jev returned, and whether the whole chain managed to repair the application. The source records and terminal logs are in the [evidence gallery](./verification/evidence-gallery.en.html). For running it yourself there is a [10-minute route](./START-HERE.md).
 
-## Автоматические проверки
+## Automated checks
 
-**83 теста проходят** на macOS / Python 3.9.6. Вывод unittest: [unit-tests-83.txt](./verification/terminal/unit-tests-83.txt), метаданные: [local-tests-2026-09-20.json](./verification/local-tests-2026-09-20.json). Сам unittest сообщил 4.956 секунды; 5.019 секунды в метаданных включают запуск процесса.
+**83 tests pass** on macOS / Python 3.9.6. unittest output: [unit-tests-83.txt](./verification/terminal/unit-tests-83.txt), metadata: [local-tests-2026-09-20.json](./verification/local-tests-2026-09-20.json). unittest itself reported 4.956 seconds; the 5.019 seconds in the metadata include process startup.
 
 ```bash
 cd jev-harness-lab
 python3 -B -m unittest discover -s tests -v
 ```
 
-Регрессии покрывают ранний выход приложения до завершения проверки; изменение кода или контракта; устаревшие записи; перенос сохранённого состояния вместе с проектом; неполный acceptance report; неизвестные и повреждённые варианты Choice; ошибки API; таймауты и лимиты; дочерние процессы worker; передачу credentials; независимый oracle и остановку replay при первом расхождении.
+The regression tests cover the application exiting early before a check completes; a change to the code or the contract; stale records; moving saved state along with the project; an incomplete acceptance report; unknown and corrupted Choice options; API errors; timeouts and limits; worker child processes; credential passing; the independent oracle and stopping replay at the first divergence.
 
-Дополнительно проверено: сбой необязательной Noul-аннотации не блокирует исправный проект; ошибка настоящего Choice-router продолжает останавливать цикл; глобальный лимит не игнорируется. Валидные счётчики API сохраняются даже при невалидных answers, а недостающий usage отмечается явно. Эти тесты используют контролируемый транспорт; живые результаты сервиса приведены ниже отдельно.
+Also checked: a failure of the optional Noul annotation does not block a working project; an error from the real Choice router still stops the loop; the global limit is not ignored. Valid API counters are stored even when answers are invalid, and missing usage is marked explicitly. These tests use a controlled transport; live results from the service are given separately below.
 
-## Два первых запроса: один билет, разные формулировки
+## The first two requests: one ticket, different wordings
 
-`run.py inspect` отправил один живой запрос с русским текстом обращения и английскими вопросами: Choice=`export`, Score=`1.0`, Noul=`0.89`. [Ответ и запрос](./verification/jev-live-2026-09-20/inspect/judge/judge-001.json), [результат запуска](./verification/jev-live-2026-09-20/inspect/result.json).
+`run.py inspect` sent one live request with the ticket text in Russian and the questions in English: Choice=`export`, Score=`1.0`, Noul=`0.89`. [Answer and request](./verification/jev-live-2026-09-20/inspect/judge/judge-001.json), [run result](./verification/jev-live-2026-09-20/inspect/result.json).
 
-Отдельно выполнен самостоятельный `first_call.py` с русскими вопросами из статьи: Choice=`export`, Score=`1.0`, Noul=`0.95`. [Запрос](./verification/jev-live-2026-09-20/first-call-ru/request.json), [полный ответ](./verification/jev-live-2026-09-20/first-call-ru/response.json), [метаданные](./verification/jev-live-2026-09-20/first-call-ru/metadata.json). Числа относятся к этим конкретным формулировкам и запускам; повторяемость одного Noul до последнего знака не проверялась.
+A standalone `first_call.py` was run separately with the Russian questions from the article: Choice=`export`, Score=`1.0`, Noul=`0.95`. [Request](./verification/jev-live-2026-09-20/first-call-ru/request.json), [full answer](./verification/jev-live-2026-09-20/first-call-ru/response.json), [metadata](./verification/jev-live-2026-09-20/first-call-ru/metadata.json). The numbers apply to these particular wordings and runs. Repeatability of a single Noul to the last digit was not tested.
 
-## Живые проверки решений Jev
+## Live checks of Jev's decisions
 
-Модель в обоих наборах — `jev-1.13.0`. В каждом 18 состояний: десять RU/EN обращений с двумя вопросами и восемь диагностических случаев с одним вопросом. Итого по 28 решений. Gold не передавался модели; вопросы и пороги не менялись по результатам ответов.
+The model in both sets is `jev-1.13.0`. Each has 18 states: ten RU/EN tickets with two questions and eight diagnostic cases with one question. 28 decisions in each. Reference labels were not passed to the model, and no question or threshold was changed in response to the answers.
 
-- **Основной набор:** 18 запросов, 28/28 правильных решений, 28 приняты политикой, ноль ошибок и отказов по неуверенности. По типам: category 10/10, workaround 10/10, next_check 8/8. Два ответа `none_suitable` совпали с разметкой. [Отчёт](./verification/jev-live-2026-09-20/primary-eval/report.md), [JSON](./verification/jev-live-2026-09-20/primary-eval/results.json).
-- **Отдельный усложнённый набор:** 18 запросов, 28/28 правильных решений, 28 приняты политикой, ноль ошибок и отказов по неуверенности. По типам также 10/10, 10/10 и 8/8; три корректных `none_suitable`. Включены отрицания, отвлекающие названия, непроверенные обходы, устаревшие наблюдения и попытки навязать ответ внутри данных. [Отчёт](./verification/jev-live-2026-09-20/challenge-eval/report.md), [JSON](./verification/jev-live-2026-09-20/challenge-eval/results.json).
+- **Primary set:** 18 requests, 28/28 correct decisions, 28 accepted by the policy, zero errors and zero low-confidence refusals. By type: category 10/10, workaround 10/10, next_check 8/8. Two `none_suitable` answers matched the labels. [Report](./verification/jev-live-2026-09-20/primary-eval/report.md), [JSON](./verification/jev-live-2026-09-20/primary-eval/results.json).
+- **Separate harder set:** 18 requests, 28/28 correct decisions, 28 accepted by the policy, zero errors and zero low-confidence refusals. By type again 10/10, 10/10 and 8/8, with three correct `none_suitable`. It includes negations, distracting titles, unverified workarounds, stale observations and attempts to force an answer from inside the data. [Report](./verification/jev-live-2026-09-20/challenge-eval/report.md), [JSON](./verification/jev-live-2026-09-20/challenge-eval/results.json).
 
-Во втором наборе сохранены прежние вопросы и пороги. Его примеры готовились отдельно, без чтения предсказаний первого прогона. Оба набора написаны авторами и малы: 56 совпадений с разметкой не устанавливают production accuracy, калибровку confidence, устойчивость ко всем prompt injection или преимущество над хорошим детерминированным правилом. Score отдельно показан в первых запросах, но эти две матрицы оценивают Choice и Noul.
+The second set kept the earlier questions and thresholds. Its cases were prepared separately, without reading the first run's predictions. Both sets were written by the authors and are small: 56 matches against the labels do not establish production accuracy, confidence calibration, robustness to every prompt injection, or an advantage over a good deterministic rule. Score is shown separately in the first requests, but these two matrices assess Choice and Noul.
 
-Записанный usage основного набора: 9 322 входных и 1 024 выходных токена; усложнённого: 10 824 и 1 026. Сумма длительностей запросов — 17 102.64 и 17 261.21 мс соответственно, вместе с сетевыми задержками. Это не model-only latency и не денежная стоимость. [Полная методика](./jev-harness-lab/live-eval-method.md).
+Recorded usage for the primary set: 9,322 input and 1,024 output tokens; for the harder set: 10,824 and 1,026. The request durations sum to 17,102.64 and 17,261.21 ms respectively, network latency included. This is not model-only latency and not a monetary cost. [Full method](./jev-harness-lab/live-eval-method.md).
 
 ```bash
 python3 live_eval.py --out runs/my-jev-primary
 python3 live_eval.py --cases fixtures/live-eval-challenge-cases.json --out runs/my-jev-challenge
 ```
 
-## Вся связка: Jev выбирает, Codex исправляет
+## The whole chain: Jev chooses, Codex repairs
 
-Три дефекта и хеши исходников зафиксированы до запусков. Selector=`jev`; по одному прогону на дефект. [Manifest](./verification/jev-live-2026-09-20/codex-matrix/manifest.json), [отчёт](./verification/jev-live-2026-09-20/codex-matrix/evaluation.md), [все результаты](./verification/jev-live-2026-09-20/codex-matrix/evaluation.json).
+Three defects and the source hashes were frozen before the runs. Selector=`jev`, one run per defect. [Manifest](./verification/jev-live-2026-09-20/codex-matrix/manifest.json), [report](./verification/jev-live-2026-09-20/codex-matrix/evaluation.md), [all results](./verification/jev-live-2026-09-20/codex-matrix/evaluation.json).
 
-- `ui-title-only`: `complete`, D2, одно исправление Codex, пять проверок, три запроса Jev. Независимая приёмка PASS. 20.98 с.
-- `backend-title-only`: `stop`, два обязательных теста, два запроса Jev, **worker не вызывался**. Jev предпочёл D2 с вероятностью 0.68, но вернул confidence 0.52; порог 0.60 не пройден. Причина `no_supported_diagnostic`. Независимая приёмка подтвердила, что приложение ещё неисправно. 2.17 с. [Фактический Choice](./verification/jev-live-2026-09-20/codex-matrix/backend-title-only/judge/judge-002.json).
-- `both-title-only`: `complete`, D2, одно исправление Codex, пять проверок, три запроса Jev. Независимая приёмка PASS. 21.57 с.
+- `ui-title-only`: `complete`, D2, one Codex repair, five checks, three Jev requests. Independent acceptance PASS. 20.98 s.
+- `backend-title-only`: `stop`, two mandatory checks, two Jev requests, **the worker never ran**. Jev preferred D2 with probability 0.68 but returned confidence 0.52, below the 0.60 threshold. Stop reason `no_supported_diagnostic`. Independent acceptance confirmed the application was still broken. 2.17 s. [The actual Choice](./verification/jev-live-2026-09-20/codex-matrix/backend-title-only/judge/judge-002.json).
+- `both-title-only`: `complete`, D2, one Codex repair, five checks, three Jev requests. Independent acceptance PASS. 21.57 s.
 
-Итог первого маршрута — **два завершения из трёх**, одна остановка, ноль ложных `complete`. Время включает весь прогон и дополнительный oracle. Confidence 0.52 нельзя заменять на вероятность выбранного варианта 0.68: политика проверяет именно первое поле.
+The first route ends with **two completions out of three**, one stop, zero false `complete`. The times include the whole run and the extra oracle. Confidence 0.52 must not be swapped for the chosen option's probability of 0.68: the policy checks the first field.
 
-### Явное восстановление после остановки
+### Explicit recovery after the stop
 
-Состояние `backend-title-only` скопировано в отдельную папку, затем задан `selector=all`. Программа выполнила обе диагностики, Codex сделал одно исправление, свежие C1/C2 прошли. В этом продолжении — четыре новых проверки, ноль запросов Jev и независимая приёмка PASS; 14.80 с вместе с oracle. Два прежних обязательных результата уже находились в сохранённом состоянии.
+The `backend-title-only` state was copied into a separate folder, then `selector=all` was set. The program ran both diagnostics, Codex made one repair, and fresh C1/C2 passed. This continuation has four new checks, zero Jev requests and independent acceptance PASS, 14.80 s including the oracle. The two earlier mandatory results were already in the saved state.
 
-Это отдельное действие после исходной остановки. Оно не превращает первый маршрут в «3/3» и не означает скрытого автоматического fallback. [Протокол переключения](./verification/jev-live-2026-09-20/backend-recovery/protocol.json), [результат и независимая приёмка](./verification/jev-live-2026-09-20/backend-recovery/recovery.json).
+This is a separate action after the original stop. It does not turn the first route into "3/3" and does not mean there is a hidden automatic fallback. [Switch log](./verification/jev-live-2026-09-20/backend-recovery/protocol.json), [result and independent acceptance](./verification/jev-live-2026-09-20/backend-recovery/recovery.json).
 
 ```bash
 python3 adapters/codex_cli.py --configure
 python3 worker_eval.py --selector jev --out runs/my-jev-codex
 ```
 
-## Прежний отдельный опыт Codex · 19 сентября
+## The earlier standalone Codex run · 19 September
 
-Selector=`fixed`, реальных запросов Jev **0**. `ui-title-only`, `backend-title-only` и `both-title-only` завершились после одного исправления и пяти проверок каждый; независимая приёмка PASS. Время: 15.17 / 17.02 / 20.43 с. Использована Codex CLI `0.155.0-alpha.9`, авторизация ChatGPT и текущая настроенная модель без переопределения.
+Selector=`fixed`, real Jev requests **0**. `ui-title-only`, `backend-title-only` and `both-title-only` each finished after one repair and five checks, with independent acceptance PASS. Times: 15.17 / 17.02 / 20.43 s. Codex CLI `0.155.0-alpha.9` was used, with ChatGPT authorisation and the currently configured model, no override.
 
-Этот исторический опыт сохранён: [evaluation.md](./verification/codex-worker-2026-09-19/evaluation.md), [evaluation.json](./verification/codex-worker-2026-09-19/evaluation.json), [manifest.json](./verification/codex-worker-2026-09-19/manifest.json). Он проверяет связку worker + harness без Jev; сравнивать единичные времена как доказательство ускорения или замедления нельзя.
+This historical run is kept: [evaluation.md](./verification/codex-worker-2026-09-19/evaluation.md), [evaluation.json](./verification/codex-worker-2026-09-19/evaluation.json), [manifest.json](./verification/codex-worker-2026-09-19/manifest.json). It checks the worker plus harness chain without Jev. Single timings must not be compared as evidence of a speed-up or a slow-down.
 
-## Приёмка, сбои и учёт
+## Acceptance, failures and accounting
 
-C1 и C2 определяют выполнение двух объявленных требований. Дополнительный oracle после остановки исполняет четыре других поисковых запроса в отдельном процессе с очищенным окружением; его результаты не передаются worker. Ни два acceptance-теста, ни четыре дополнительных запроса не покрывают все возможные ошибки приложения.
+C1 and C2 determine whether the two declared requirements are met. The extra oracle after the stop runs four other search queries in a separate process with a cleaned environment, and its results are not passed to the worker. Neither the two acceptance tests nor the four extra queries cover every possible application error.
 
-Noul оценивает текстовое соответствие области теста требованию и остаётся необязательной аннотацией. Ошибка его API записывается как `scope_annotation_error`, но не отменяет пройденные проверки. Ошибка Choice-router останавливает дальнейший выбор; лимиты времени и числа вызовов сохраняются в обоих случаях.
+A Noul assesses in text how a test's scope relates to the requirement and stays an optional annotation. An error from its API is recorded as `scope_annotation_error` but does not cancel checks that passed. An error from the Choice router stops further selection. The time and call-count limits hold in both cases.
 
-Текущий клиент учитывает проверенный provider usage до проверки `answers`. `usage_complete=false` отмечает ошибку живого запроса; `usage_reported_requests` и `usage_unreported_requests` показывают, сколько запросов прислали полноценные счётчики и сколько — нет. Сумма известных токенов не выдаётся за полную стоимость. Эти поля добавлены после первых отдельных запросов и основного eval: их исходные JSON не переписывались. Результаты содержат хеши использованного кода, где это предусмотрено протоколом.
+The current client records verified provider usage before validating `answers`. `usage_complete=false` marks a failed live request. `usage_reported_requests` and `usage_unreported_requests` show how many requests returned complete counters and how many did not. The sum of known tokens is not presented as the full cost. These fields were added after the first standalone requests and the primary eval, and their original JSON files were not rewritten. Results contain hashes of the code used wherever the protocol calls for it.
 
-## Offline-матрица, CI и воспроизводимость
+## Offline matrix, CI and reproducibility
 
-Девять запусков `evaluate.py` — три подготовленных случая × fixed/all/jev: шесть `complete`, три ожидаемых остановки без прогресса, ложных завершений нет. Исполнение проверок реальное, но demo-ответы Jev и исправления worker синтетические. [Сохранённая матрица](./jev-harness-lab/evaluation-example/evaluation.json).
+Nine `evaluate.py` runs, three prepared cases × fixed/all/jev: six `complete`, three expected stops with no progress, no false completions. The checks really execute, but the demo Jev answers and the worker repairs are synthetic. [Saved matrix](./jev-harness-lab/evaluation-example/evaluation.json).
 
-[GitHub Actions прошёл](https://github.com/Archive228/jev-harness-engineering/actions/runs/35505100114) на коммите `1d8f11880751bb432a0533280818e77c612e9adb`: **83 теста и offline-матрица на Python 3.9, 3.12, 3.13 и 3.14**, а также отдельная сборка HTML с проверкой совпадения с опубликованным файлом. Все пять jobs успешны. [Метаданные CI](./verification/ci-2026-09-20.json) и [полный вывод команд](./verification/terminal/github-actions-2026-09-20.txt) сохранены в комплекте. Последующее добавление этой записи не меняет проверенный код.
+[GitHub Actions passed](https://github.com/Archive228/jev-harness-engineering/actions/runs/35505100114) on commit `1d8f11880751bb432a0533280818e77c612e9adb`: **83 tests and the offline matrix on Python 3.9, 3.12, 3.13 and 3.14**, plus a separate HTML build that checks the result matches the published file. All five jobs succeeded. [CI metadata](./verification/ci-2026-09-20.json) and [the full command output](./verification/terminal/github-actions-2026-09-20.txt) are kept with the material. Adding this record afterwards does not change the code that was checked.
 
-HTML собирается из Markdown командами `npm ci --ignore-scripts` и `npm run build:article`; Node >=20, зависимость `marked` зафиксирована. Репозиторий приватный: читателю без доступа нужен переданный с материалом архив. API-ключи и локальные конфиги исключены из Git. В распространяемых журналах абсолютный путь автора заменяется на `<workspace>`; фактические ответы и хеши исходников сохраняются.
+The HTML is built from Markdown with `npm ci --ignore-scripts` and `npm run build:article`. Node >=20, and the `marked` dependency is pinned. The repository is private: a reader without access needs the archive shipped with the material. API keys and local configs are excluded from Git. In the distributed logs the author's absolute path is replaced with `<workspace>`, while the actual answers and source hashes are kept.

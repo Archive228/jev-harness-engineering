@@ -1,10 +1,11 @@
-# Jev + harness: агент, которому пишешь в терминале
+# Jev + harness: the agent you write to in the terminal
 
-Результат этой сборки — запускаемый агент, которому не обязательно приносить
-готовое техническое задание. Пишешь идею, отвечаешь на несколько полезных вопросов,
-получаешь план и запускаешь работу. Потом открываешь созданные файлы, проверяешь
-команды и продолжаешь разговор. Jev принимает ограниченные решения, Codex пишет
-вопросы, план, код и ответы, Python управляет переходами и проверками.
+What this build produces is a runnable agent that does not need a finished
+specification handed to it. You write an idea, answer a few useful questions,
+get a plan and start the work. Then you open the files it created, check the
+commands and carry on the conversation. Jev makes bounded decisions, Codex writes
+the questions, the plan, the code and the answers, and Python governs the
+transitions and the checks.
 
 ```bash
 cd terminal-agent
@@ -12,119 +13,124 @@ cd terminal-agent
 ./jev
 ```
 
-Для Jev нужен ключ TypeSafe, для исполнителя — авторизованный Codex CLI.
-Настройка без записи ключа в shell history описана в [README](./README.md).
-Проверить установку можно командой `./jev --doctor`: она не вызывает модели.
+Jev needs a TypeSafe key, and the worker needs an authorised Codex CLI.
+Setting that up without writing the key into your shell history is described in the [README](./README.md).
+You can check the installation with `./jev --doctor`: it calls no models.
 
-После запуска агент ждёт твоего сообщения. **Enter** или кнопка **«Обсудить»**
-отправляет весь текст; **Ctrl+J** добавляет строку. Shift+Enter также добавляет строку,
-если его поддерживает терминал. **Ctrl+D** остаётся дополнительным способом отправки.
-Кнопка **«↕»** или **F4** раскрывает большой редактор. Вставленный текст виден целиком,
-сохраняет абзацы и ничего не отправляет автоматически.
+After it starts, the agent waits for your message. **Enter** or the **Discuss**
+button sends the whole text; **Ctrl+J** adds a line. Shift+Enter also adds a line
+if the terminal supports it. **Ctrl+D** remains an additional way to send.
+The **↕** button or **F4** opens the large editor. Pasted text is visible in full,
+keeps its paragraphs and sends nothing automatically.
 
-## Можно начать с одной фразы
+## You can start with a single sentence
 
-Например:
+For example:
 
 ```text
-Хочу что-нибудь полезное про крипту, чтобы потом пользоваться самому.
+Хочу что-нибудь полезное про крипту, чтобы запустить прямо в терминале.
 ```
 
-По этой фразе нельзя честно угадать нужный продукт: это может быть объяснение,
-отчёт по сделкам или инструмент для обработки CSV. Поэтому первый шаг — уточнить
-результат. Агент предлагает варианты с короткими объяснениями; можно выбрать
-вариант или написать собственный ответ. В одной форме от одного до трёх вопросов.
-Информация из проекта и прошлых ответов передаётся планировщику, чтобы не начинать
-каждую реплику с нуля.
+("I want something useful about crypto, to run right in the terminal.") This run was
+done in Russian, so the recorded request, the saved session artefacts and the
+screenshots below are in Russian; the interface has since been translated, so the
+button names quoted in this article are the English ones the application shows now.
 
-![Вопрос с вариантами и собственным ответом](./verification/screenshots/guided-questions-browser.png)
+That sentence is not enough to tell which product you actually want: it could be an
+explanation, a report on trades or a tool for processing CSV. So the first step is
+to settle the result. The agent offers options with short explanations; you can pick
+an option or write your own answer. One form holds between one and three questions.
+Information from the project and from earlier answers is passed to the planner, so that
+no message has to start from nothing.
 
-После вопросов есть экран проверки ответов. Можно вернуться и поменять выбор.
-Выделенная рекомендация сама по себе не считается ответом; Escape сохраняет
-черновик и возвращает к разговору. Продолжить можно через **«Задача»**, **F5**,
-`/brief` или `/plan`.
+![A question with options and a free-text answer](./verification/screenshots/guided-questions-browser.png)
 
-Когда результат понятен, появляется план: что получишь, какие шаги предстоят,
-как проверим работу и какие предположения остаются. Во вкладке **«Запрос агенту»**
-виден точный текст, который уйдёт исполнителю. Нажми **«Уточнить»** и напиши,
-например, «хочу HTML-отчёт вместо Markdown», — агент подготовит новую версию.
-**«Начать работу»** запускает именно просмотренную версию плана.
+After the questions there is a review screen for your answers. You can go back and
+change a choice. A highlighted recommendation is not an answer by itself; Escape saves
+the draft and returns you to the conversation. You can carry on through **Task**, **F5**,
+`/brief` or `/plan`.
 
-![План перед переходом к исполнению](./verification/screenshots/guided-plan-browser.png)
+Once the result is clear, a plan appears: what you will get, which steps are coming,
+how the work will be checked and which assumptions remain. The **Agent request** tab
+shows the exact text that will go to the worker. Press **Refine** and write,
+for example, "I want an HTML report instead of Markdown", and the agent prepares a new version.
+**Start work** runs exactly the version you reviewed.
 
-Это отдельный этап harness: Codex возвращает структурированный JSON с вопросами,
-планом или простым ответом; Python проверяет формат и сохраняет состояние.
-Планировщику доступны только переданный контекст и режим чтения. На этом этапе
-Jev не вызывается, файлы проекта не меняются, а будущие проверки не выдаются за
-уже прошедшие тесты. Незавершённый опрос переживает перезапуск без запуска работы.
+![The plan before moving on to execution](./verification/screenshots/guided-plan-browser.png)
 
-Опрос нужен не всегда. На «объясни, что такое комиссия» агент может ответить сразу.
-Подробное задание может сразу стать планом. Для прямого выполнения есть явные
-`./jev --direct` и `/direct`; `/guided` возвращает обсуждение перед работой.
+This is a separate stage of the harness: Codex returns structured JSON with questions,
+a plan or a plain answer; Python validates the format and saves the state.
+The planner has access only to the context it was given, and only in read mode. At this stage
+Jev is not called, project files are not changed, and future checks are not presented as
+tests that have already passed. An unfinished round of questions survives a restart without starting work.
 
-## Первое дело: исправить учёт крипто-сделок
+The questions are not always needed. Asked to "explain what a fee is", the agent can answer straight away.
+A detailed task can become a plan at once. For direct execution there are the explicit
+`./jev --direct` and `/direct`; `/guided` brings back the discussion before the work.
+
+## The first job: fix the accounting of crypto trades
 
 ```bash
 ./jev --mission cryptolab
 ```
 
-Нажми **«Вставить пример задачи»** или **F2**: появится редактируемое задание. **Enter**
-отправляет его на обсуждение. У этой миссии уже есть ясный результат и контракт,
-поэтому планировщик может сразу показать план. После **«Начать работу»** агент
-начнёт исправлять отдельную копию Crypto Ledger. Это небольшой CSV-инструмент
-на Python, который должен учитывать комиссии, дубли trade_id, временные зоны и
-точную десятичную арифметику. Данные синтетические, внешних запросов к биржам нет.
+Press **Insert an example task** or **F2**: an editable task appears. **Enter**
+sends it for discussion. This mission already has a clear result and a contract,
+so the planner can show a plan immediately. After **Start work** the agent
+starts repairing its own copy of Crypto Ledger. This is a small Python CSV tool
+that has to account for fees, duplicate trade_id values, time zones and
+exact decimal arithmetic. The data is synthetic, and there are no external requests to exchanges.
 
-В исходной копии проходит один из семи заранее написанных тестов. Остальные
-обнаруживают реальные дефекты: ошибка float, потерянные комиссии, неверный порядок
-времени, дубли и отсутствие валидации. Хеши tests/ и конфигурации фиксируются до
-работы worker. Если он изменит их вместо исправления программы, harness остановит
-приёмку.
+In the starting copy one of the seven prewritten tests passes. The rest
+find real defects: a float error, lost fees, the wrong ordering by
+time, duplicates and missing validation. The hashes of tests/ and of the configuration are recorded before
+the worker runs. If it changes them instead of repairing the program, the harness stops
+acceptance.
 
-Цель — получить `report.json`, исполняемый CLI и повторяемую команду запуска.
-`net_cashflow_usdt` означает денежный поток с комиссиями; это не PnL и не совет
-торговать. Такое точное определение результата позволяет написать проверяемый
-контракт до обращения к модели.
+The goal is to get `report.json`, a runnable CLI and a repeatable command to run it.
+`net_cashflow_usdt` means cash flow including fees; it is not PnL and not advice to
+trade. Defining the result that precisely is what lets you write a verifiable
+contract before any call to a model.
 
-## Что происходит после отправки
+## What happens after you send
 
 ```mermaid
 flowchart TD
-    U[Идея пользователя] --> I[Codex: прочитать переданный контекст]
-    I --> Q{Нужны уточнения?}
-    Q -->|да| A[Вопросы с вариантами и своим ответом]
-    A --> B[Проверить ответы]
+    U[The user's idea] --> I[Codex: read the context it was given]
+    I --> Q{Clarification needed?}
+    Q -->|yes| A[Questions with options and a free-text answer]
+    A --> B[Review the answers]
     B --> I
-    Q -->|задача понятна| L[План: результат, шаги, проверки]
-    Q -->|простое объяснение| E[Ответ без запуска работы]
-    L -->|уточнить| I
-    L -->|Начать работу| R[Jev Choice: implement / inspect / answer]
-    R --> P[Python: права, режим, лимиты]
-    P --> C[Реальные фрагменты исходников: путь, строки, SHA-256]
-    C --> J[Jev Noul: релевантность кандидатов]
-    J --> W[Codex: чтение, команды, код, ответ]
-    W --> T[Harness: реальные проверки и снимок файлов]
-    T --> V[Jev Choice + Noul: предложение следующего шага]
-    V --> H{Python: факты допускают завершение?}
-    H -->|да| D[Ответ, файлы, журнал, сохранённая сессия]
-    H -->|нужен ремонт| F[Jev triage: гипотеза по упавшим проверкам]
+    Q -->|task is clear| L[Plan: result, steps, checks]
+    Q -->|simple explanation| E[Answer without starting work]
+    L -->|refine| I
+    L -->|Start work| R[Jev Choice: implement / inspect / answer]
+    R --> P[Python: permissions, mode, limits]
+    P --> C[Real source fragments: path, lines, SHA-256]
+    C --> J[Jev Noul: relevance of the candidates]
+    J --> W[Codex: reading, commands, code, answer]
+    W --> T[Harness: real checks and a snapshot of the files]
+    T --> V[Jev Choice + Noul: proposal for the next step]
+    V --> H{Python: do the facts permit completion?}
+    H -->|yes| D[Answer, files, log, saved session]
+    H -->|repair needed| F[Jev triage: a hypothesis for the failing checks]
     F --> W
-    H -->|лимит / отмена / нужен пользователь| S[Явная остановка с причиной]
+    H -->|limit / cancel / user needed| S[An explicit stop with a reason]
 ```
 
-Диаграмма описывает обсуждение и последующее исполнение в `auto + assist`.
-В прямом режиме запрос сразу попадает в исполнительный цикл. Отсутствие
-подходящих файлов или ошибка API меняют путь. Интерфейс рисует только наблюдаемые
-этапы. Triage вызывается после реального провала проверок.
+The diagram describes the discussion and the execution that follows it in `auto + assist`.
+In direct mode the request goes straight into the execution loop. Missing suitable
+files or an API error changes the path. The interface draws only the stages that can be
+observed. Triage is called after a real failure of the checks.
 
-План не подменяет проверяемый контракт. Его критерии передаются Codex как задание;
-заранее зарегистрированные проверки harness остаются отдельным источником фактов.
-План, версия и ответы лежат в `brief.json`; подготовка — в `intake/round-NNN/`,
-исполнение — в `turn-NNN/`. Можно проследить переход от исходной фразы до точного
-запроса и результата. Если после подготовки изменился проект, старый план нельзя
-незаметно исполнить: приложение попросит обновить его.
+The plan does not replace the verifiable contract. Its criteria are passed to Codex as the task;
+the checks registered with the harness in advance remain a separate source of facts.
+The plan, its version and the answers sit in `brief.json`; the preparation is in `intake/round-NNN/`,
+the execution in `turn-NNN/`. You can follow the path from the original sentence to the exact
+request and the result. If the project changed after the preparation, an old plan cannot be
+executed unnoticed: the application asks you to update it.
 
-Jev **не сочиняет код и текст ответа**. Пример его контракта в нашем Python-коде:
+Jev **does not write code or the text of the answer**. An example of its contract in our Python code:
 
 ```python
 questions = {
@@ -144,60 +150,60 @@ questions = {
 }
 ```
 
-Это сокращённая иллюстрация формата. Полные инструкции находятся в
-[`core.py`](./jev_agent/core.py); запросы и ответы каждого живого вызова сохраняются
-в `turn-NNN/jev-NN/`. Значение Noul и confidence — ответы модели. Они не превращают
-упавшую команду в прошедшую проверку.
+This is a shortened illustration of the format. The full instructions are in
+[`core.py`](./jev_agent/core.py); the request and the answer of every live call are saved
+in `turn-NNN/jev-NN/`. A Noul value and a confidence are answers from the model. They do not turn
+a failed command into a passing check.
 
-## Зачем Jev читать исходники
+## Why Jev reads the source files
 
-В первой версии Jev видел преимущественно запрос, имена файлов и итог worker.
-Теперь программа сначала ищет настоящие фрагменты, а уже затем просит Jev оценить
-их релевантность. Модель не может добавить выдуманный файл в эту подборку.
+In the first version Jev mostly saw the request, the file names and the worker's result.
+Now the program first searches for real fragments, and only then asks Jev to judge
+how relevant they are. The model cannot add an invented file to that selection.
 
-Поиск ограничен: до 512 подходящих файлов, 4 МиБ чтения, пять кандидатов, до трёх
-фрагментов для worker. Каждый кандидат содержит путь, номера строк и хеш целого
-прочитанного файла. Ключи, скрытые и служебные папки, бинарные файлы и symlink
-исключаются. Поиск понимает буквальные Unicode-токены, в том числе кириллицу;
-переводить русский запрос в английские имена функций он пока не умеет.
+The search is bounded: up to 512 eligible files, 4 MiB of reading, five candidates, up to three
+fragments for the worker. Every candidate carries the path, the line numbers and a hash of the whole
+file that was read. Keys, hidden and service directories, binary files and symlinks are
+excluded. The search understands literal Unicode tokens, including Cyrillic;
+it cannot yet translate a Russian query into English function names.
 
-Если Noul-ранжирование недоступно, приложение явно использует лексический порядок.
-Пустая подборка остаётся пустой. Подсказка из нескольких файлов не является полным
-аудитом репозитория: worker может читать другие разрешённые файлы самостоятельно.
+If Noul ranking is unavailable, the application falls back explicitly to lexical order.
+An empty selection stays empty. A hint made of a few files is not a full
+audit of the repository: the worker can read other permitted files on its own.
 
-## Логи, которые можно проверить
+## Logs you can check
 
-Главное место занимает разговор. Компактная строка навигации открывает задачу,
-сессии, файлы, детали Jev и меню. У редактора есть одно действие по текущему этапу:
-обсудить запрос, отправить уточнение или остановить работу. Режим исполнения и
-роль Jev доступны через элементы управления и поиск команд.
+The conversation takes the main space. A compact navigation row opens the task, the
+sessions, the files, the Jev details and the menu. The editor has one action for the current stage:
+discuss the request, send a clarification or stop the work. The execution mode and
+Jev's role are available through the controls and through the command search.
 
-Команды, решения и проверки одного хода собраны под заголовком **«Ход работы»**.
-Пока идёт выполнение, группа раскрыта. После успешного завершения она сворачивается,
-а итог остаётся отдельным ответом. Клик или **Ctrl+O** снова раскрывает последнюю
-группу; при ошибке или отмене подробности остаются открытыми.
+The commands, decisions and checks of one turn are collected under the **Activity** heading.
+While execution is running, the group is expanded. After a successful finish it collapses,
+and the result stays as a separate answer. A click or **Ctrl+O** expands the last
+group again; on an error or a cancellation the details stay open.
 
-Один tool call — одна раскрываемая карточка. События старта, обновления и завершения
-сопоставляются по ID, а повтор одной команды в следующей попытке остаётся отдельным
-вызовом. Ошибка и exit code видны без раскрытия; под заголовком — число строк и начало
-вывода. В подробностях сохраняется исходная команда. Внутреннее мышление модели не
-добавляется; показываются сообщения и события, которые действительно прислал CLI.
+One tool call, one expandable card. The start, update and finish events are
+matched by ID, and repeating the same command in the next attempt stays a separate
+call. The error and the exit code are visible without expanding; under the heading are the number of lines and
+the start of the output. The details keep the original command. The model's internal reasoning is not
+added; what is shown is the messages and events the CLI actually sent.
 
-**«Jev»** или **F6** открывает решения Jev, граф этапов и проверки. **«Логи»** или **F3** — журнал событий;
-длинные записи на экране сокращаются, полный JSONL сохраняется на диске.
-**«Файлы»** позволяет открыть текст результата и сохранённый diff. Diff ограничен
-размером и сохраняется во время попытки; если исходного текста нет, приложение
-сообщает об этом вместо реконструкции вымышленного изменения.
+**JEVIS** or **F6** opens Jev's decisions, the graph of stages and the checks. **Logs** or **F3** opens the event log;
+long entries are shortened on screen, and the full JSONL is saved to disk.
+**Files** lets you open the text of the result and the saved diff. The diff is limited in
+size and is saved during the attempt; if the original text is missing, the application
+says so instead of reconstructing an imaginary change.
 
-У результата есть кнопки **«↓ Ответ»**, **«Файлы»**, **«Копировать»** и **«Экспорт»**.
-Копирование зависит от поддержки буфера терминалом; экспорт сохраняет Markdown
-с перепиской, проверками и событиями в папку сессии.
+The result has the buttons **↓ Answer**, **Files**, **Copy** and **Export**.
+Copying depends on the terminal supporting the clipboard; the export saves Markdown
+with the conversation, the checks and the events into the session directory.
 
-![Готовый результат отдельно от подробностей исполнения](./verification/screenshots/guided-result-browser.png)
+![The finished result kept separate from the execution details](./verification/screenshots/guided-result-browser.png)
 
-**«Сессии»** открывает поиск по сохранённым разговорам, а **«Новый»** создаёт отдельный
-чат с новой рабочей папкой. Черновик переживает выход и смену сессии.
-Для продолжения из shell:
+**Sessions** opens a search across saved conversations, and **New** creates a separate
+chat with a new workspace. A draft survives exiting and switching sessions.
+To carry on from the shell:
 
 ```bash
 ./jev --resume last
@@ -205,57 +211,57 @@ questions = {
 ./jev --resume last --export
 ```
 
-## Проверить, что именно делает Jev
+## Checking what Jev actually does
 
-Режимы исполнения и Jev доступны кнопками у редактора, а также через **«Меню»** или
-**F1**. Их можно менять между ходами:
+The execution modes and Jev's role are available from the buttons next to the editor, and also through **Menu** or
+**F1**. You can change them between turns:
 
-- `/guided` — вопросы и план перед работой; `/direct` — прямое выполнение
-  следующих запросов. Переключение само ничего не запускает.
-- `/brief` или `/plan` — открыть вопросы и текущий план. Это просмотр задачи,
-  а не изменение прав исполнения.
-- `/mode plan` — worker получает только чтение; harness не запускает команды
-  проверок, которые сами могут создавать файлы. `/mode auto` разрешает исполнение
-  принятого плана.
-- `/jev assist` — решения Jev применяются с ограничениями Python.
-- `/jev observe` — Jev вызывается, ответы видны, но не управляют выбором.
-- `/jev off` — вызовов Jev нет; действует явно заданная политика Python и реальные
-  проверки. Ключ TypeSafe для этого режима не нужен.
+- `/guided` gives questions and a plan before the work; `/direct` runs any
+  later request straight away. Switching by itself starts nothing.
+- `/brief` or `/plan` opens the questions and the current plan. This views the task,
+  it does not change execution permissions.
+- `/mode plan` gives the worker read access only; the harness does not run check
+  commands that could themselves create files. `/mode auto` allows the accepted
+  plan to be executed.
+- `/jev assist` applies Jev's decisions within the limits set by Python.
+- `/jev observe` calls Jev and shows the answers, but they do not drive the choice.
+- `/jev off` makes no Jev calls; the explicitly stated Python policy and the real
+  checks decide. This mode needs no TypeSafe key.
 
-Observe и off сами по себе не означают только чтение: это отдельная настройка
-`plan`. Режимы помогают исследовать вклад Jev, но один удачный запуск не доказывает,
-что он ускоряет или улучшает любые задачи. Для такого вывода нужны одинаковые
-контракты, сопоставимые проекты и несколько повторов.
+Observe and off do not by themselves mean read-only: that is the separate
+`plan` setting. The modes help you study what Jev contributes, but one successful run does not prove
+that it speeds up or improves any task. A conclusion like that needs identical
+contracts, comparable projects and several repeats.
 
-## Что мы взяли из других агентов
+## What we took from other agents
 
-Здесь есть конкретный перенос исходников:
+There is a specific transfer of source code here:
 
-- Из **OpenCode** адаптированы переходы состояния опроса: выбор, свой ответ,
-  возврат, проверка ответов и смена запроса. Наш вариант всегда показывает
-  проверку ответов перед составлением плана.
-- Из **Hermes** адаптированы функции, которые добавляют отметку рекомендации для
-  показа и сохраняют чистое значение выбранного ответа.
-- Из открытого **Codex** адаптированы инструкции планирования: сначала факты
-  проекта, затем важные решения пользователя, затем цель и проверяемый результат.
+- From **OpenCode** we adapted the state transitions of the question flow: selecting, writing your own answer,
+  going back, reviewing the answers and changing the request. Our version always shows the
+  answer review before the plan is built.
+- From **Hermes** we adapted the functions that add the recommendation marker for
+  display and keep the clean value of the chosen answer.
+- From the open **Codex** we adapted the planning instructions: the facts of the
+  project first, then the user's important decisions, then the goal and the verifiable result.
 
-Оригинальные файлы с закреплёнными коммитами и лицензиями сохранены в `vendor/`.
-Runtime использует небольшие адаптации в Python и собственный интерфейс Textual.
-Это позволяет проверить, что было взято и что изменено.
+The original files, with pinned commits and licences, are kept in `vendor/`.
+The runtime uses small adaptations in Python and our own Textual interface.
+That makes it possible to check what was taken and what was changed.
 
-Из Pi и PiJev взяты архитектурные и интерфейсные подходы: события, карточки
-инструментов, подбор контекста, типизированная диагностика и assist/observe/off.
-Crush остаётся визуальным референсом без переноса кода. Claude Code изучен по
-официальной документации и инженерному описанию вопросов; его закрытый интерфейс
-не выдаётся за полученный исходный код.
+From Pi and PiJev we took architectural and interface approaches: events, tool
+cards, context selection, typed diagnostics and assist/observe/off.
+Crush remains a visual reference with no code transferred. Claude Code was studied from the
+official documentation and from an engineering description of its questions; its closed interface
+is not presented as source code we obtained.
 
-[Разбор взаимодействия](./research/interaction-intake.md) показывает проблемы
-предыдущего интерфейса и выбранные решения. Исходники и границы переноса описаны
-в [атрибуции](./research/ATTRIBUTION.md), отдельно разобраны
-[Hermes](./research/hermes-intake.md) и [Codex](./research/codex-intake.md).
+[The interaction review](./research/interaction-intake.md) shows the problems of the
+previous interface and the solutions chosen. The sources and the limits of the transfer are described
+in the [attribution](./research/ATTRIBUTION.md), with
+[Hermes](./research/hermes-intake.md) and [Codex](./research/codex-intake.md) covered separately.
 
-[Протокол нового процесса](./verification/guided/README.md) отделяет тесты
-интерфейса от фактических вызовов моделей. Исторические
-[проверки v2](./verification/v2/README.md) и [первой розовой версии](./verification/ui-pink/README.md)
-сохранены отдельно. Скриншот прежней сессии в новой оболочке не означает, что
-модели заново выполнили работу.
+[The protocol of the new process](./verification/guided/README.md) separates tests of the
+interface from actual calls to models. The historical
+[v2 checks](./verification/v2/README.md) and those of the [first pink version](./verification/ui-pink/README.md)
+are kept separately. A screenshot of an earlier session in the new shell does not mean the
+models did the work again.

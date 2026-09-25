@@ -1,55 +1,53 @@
-# Сторонний код и его лицензии
+# Third-party code and its licenses
 
-Наш код в этом репозитории распространяется по MIT (файл `LICENSE`). Ниже — всё
-чужое, что здесь есть, и на каких условиях. Машиночитаемая версия с точными
-коммитами лежит в `terminal-agent/research/upstreams.json`, разбор заимствований —
-в `terminal-agent/research/ATTRIBUTION.md`.
+Our own code in this repository is distributed under MIT (the `LICENSE` file). Below is
+everything third-party that is present here, and on what terms. A machine-readable version
+with exact commits is in `terminal-agent/research/upstreams.json`, and the breakdown of what
+was borrowed is in `terminal-agent/research/ATTRIBUTION.md`.
 
-## Код, включённый в дерево
+## Code included in the tree
 
-Эти файлы физически лежат в репозитории вместе со своими лицензиями. Каталог
-`terminal-agent/vendor/` — единственное место, где находится чужой исходный код.
+These files are physically present in the repository together with their licenses. The
+`terminal-agent/vendor/` directory is the only place that holds third-party source code.
 
-| Источник | Лицензия | Что включено | Где |
+| Source | License | What is included | Where |
 |---|---|---|---|
-| OpenCode (c) 2025 opencode | MIT | `question.shared.ts` — оригинал машины состояний одиночного выбора; портирована в `jev_agent/question_state.py` | `terminal-agent/vendor/opencode/` |
-| Hermes (c) 2025 Nous Research | MIT | `clarify_tool.py` — оригинал механики уточняющих вопросов | `terminal-agent/vendor/hermes/` |
-| OpenAI Codex (c) 2025 OpenAI | Apache-2.0 | спецификация `request_user_input` и схемы её параметров | `terminal-agent/vendor/codex/` |
+| OpenCode (c) 2025 opencode | MIT | `question.shared.ts`, the original single-choice state machine, ported to `jev_agent/question_state.py` | `terminal-agent/vendor/opencode/` |
+| Hermes (c) 2025 Nous Research | MIT | `clarify_tool.py`, the original clarifying-question mechanics | `terminal-agent/vendor/hermes/` |
+| OpenAI Codex (c) 2025 OpenAI | Apache-2.0 | the `request_user_input` specification and the schemas of its parameters | `terminal-agent/vendor/codex/` |
 
-Apache-2.0 требует передавать получателю копию лицензии и содержимое NOTICE и
-отмечать внесённые изменения. Копия лицензии и NOTICE лежат в
-`terminal-agent/vendor/codex/`, изменения описаны в
-`terminal-agent/vendor/codex/ADAPTATIONS.md`. NOTICE Codex, в свою очередь,
-передаёт атрибуцию Ratatui (MIT, (c) 2016-2022 Florian Dehau, (c) 2023-2025 The
-Ratatui Developers).
+Apache-2.0 requires passing on a copy of the license and the contents of NOTICE to the
+recipient, and marking the changes that were made. The copy of the license and NOTICE are in
+`terminal-agent/vendor/codex/`, and the changes are described in
+`terminal-agent/vendor/codex/ADAPTATIONS.md`. The Codex NOTICE in turn passes on attribution
+to Ratatui (MIT, (c) 2016-2022 Florian Dehau, (c) 2023-2025 The Ratatui Developers).
 
-## Проекты, изученные как образцы
+## Projects studied as references
 
-Исходный код этих проектов в репозиторий не включён. Мы читали их код и
-реализовали близкие идеи самостоятельно на Python; копии лицензий сохранены в
-`terminal-agent/research/licenses/` для прослеживаемости.
+The source code of these projects is not included in the repository. We read their code and
+implemented close ideas ourselves in Python. Copies of the licenses are kept in
+`terminal-agent/research/licenses/` for traceability.
 
-| Проект | Лицензия | Роль |
+| Project | License | Role |
 |---|---|---|
-| PiJev (c) 2026 PiJev contributors | MIT | агент с Jev в цикле: устройство ретрива и вопросов |
-| Pi (c) 2025 Mario Zechner | MIT | агентный цикл, управление контекстом, редактор ввода |
-| OpenCode (c) 2025 opencode | MIT | организация интерфейса и сессий |
-| Crush (c) Charmbracelet | FSL-1.1-MIT | оформление терминального интерфейса |
+| PiJev (c) 2026 PiJev contributors | MIT | an agent with Jev in the loop: how retrieval and questions are arranged |
+| Pi (c) 2025 Mario Zechner | MIT | agent loop, context management, input editor |
+| OpenCode (c) 2025 opencode | MIT | how the interface and sessions are organised |
+| Crush (c) Charmbracelet | FSL-1.1-MIT | styling of the terminal interface |
 
-Отдельно про Crush: Functional Source License 1.1 разрешает использование, но
-запрещает конкурирующее использование; конкретная версия переходит под MIT через
-два года после публикации. Кода Crush в нашем дереве нет — проверено сравнением
-n-грамм по всему `jev_agent` против 706 файлов апстрима: максимальное общее
-5-граммное совпадение равно 3 и приходится на родовые имена полей API.
+A note on Crush: the Functional Source License 1.1 permits use but forbids competing use, and
+a given version passes to MIT two years after its publication. There is no Crush code in our
+tree, which was verified by comparing n-grams across the whole of `jev_agent` against 706
+upstream files: the maximum shared 5-gram count is 3, and it falls on generic API field names.
 
-## Зависимости времени выполнения
+## Runtime dependencies
 
-`terminal-agent/requirements.txt` закрепляет Textual, Rich, Pygments,
-markdown-it-py и их транзитивные зависимости — все под MIT или BSD. Библиотека
-`jev-harness-lab` внешних зависимостей не имеет: только стандартная библиотека.
+`terminal-agent/requirements.txt` pins Textual, Rich, Pygments, markdown-it-py and their
+transitive dependencies, all under MIT or BSD. The `jev-harness-lab` library has no external
+dependencies: the standard library only.
 
-## Внешние сервисы
+## External services
 
-Агент вызывает Jev (TypeSafe, `api.typesafe.ai/v1/systemone`) и Codex CLI. Это
-сторонние сервисы со своими условиями использования; ни один из них не входит в
-состав этого репозитория и не покрывается его лицензией.
+The agent calls Jev (TypeSafe, `api.typesafe.ai/v1/systemone`) and the Codex CLI. These are
+third-party services with their own terms of use. Neither of them is part of this repository,
+and neither is covered by its license.

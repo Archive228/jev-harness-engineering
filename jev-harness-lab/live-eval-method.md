@@ -1,38 +1,38 @@
-# Как устроены живые проверки Jev
+# How the live Jev evaluations are built
 
-`live_eval.py` проверяет узкие решения на настоящих ответах TypeSafe. В каждом наборе 18 заранее размеченных состояний: десять русских и английских обращений с двумя вопросами и восемь диагностических случаев с одним. Итого 28 решений на набор. Это небольшие авторские примеры, а не случайная выборка из production.
+`live_eval.py` checks narrow decisions against real TypeSafe answers. Each set holds 18 pre-labelled states: ten tickets in Russian and English with two questions each, and eight diagnostic cases with one. That makes 28 decisions per set. These are small examples we wrote ourselves, not a random sample from production.
 
-## Что проверяется
+## What is checked
 
-Для обращения модель выбирает категорию через Choice и отвечает через Noul, описал ли автор успешно использованный обходной путь. Для диагностики выбирает D1, D2 либо `none_suitable` по переданным наблюдениям: какая свежая проверка ещё добавит сведения, может ли приложение импортироваться и какие проверки уже выполнены.
+For a ticket the model picks the category through Choice and answers through Noul whether the author described a workaround they used successfully. For a diagnostic it picks D1, D2 or `none_suitable` from the observations passed in: which fresh check would still add information, whether the application can be imported, and which checks have already run.
 
-Сам eval не исполняет диагностику и не устанавливает истинность переданных наблюдений. Он проверяет решение по тексту состояния. Score показан в отдельных первых запросах статьи, но в эти 28 решений не входит.
+The evaluation itself does not execute the diagnostic and does not establish whether the observations passed in are true. It checks the decision against the text of the state. Score is shown in the article's separate first calls, but it is not part of these 28 decisions.
 
-Основной набор — [fixtures/live-eval-cases.json](./fixtures/live-eval-cases.json). Усложнённый — [fixtures/live-eval-challenge-cases.json](./fixtures/live-eval-challenge-cases.json): в нём добавлены отрицания, отвлекающие слова, непроверенные или неудачные обходы, устаревшие результаты и инструкции, спрятанные в данных. Второй набор подготовлен отдельно без чтения предсказаний первого прогона; использованы те же вопросы и пороги.
+The primary set is [fixtures/live-eval-cases.json](./fixtures/live-eval-cases.json). The harder one is [fixtures/live-eval-challenge-cases.json](./fixtures/live-eval-challenge-cases.json): it adds negations, distracting words, untested or failed workarounds, stale results, and instructions hidden in the data. The second set was assembled separately, without reading the predictions of the first run, and it uses the same questions and thresholds.
 
-## Как защищены условия опыта
+## How the experiment's conditions are protected
 
-В API передаются только `state`, вопросы и запрошенная модель. Ожидаемые ответы, язык и идентификатор случая не добавляются в state. Перед запросами runner сохраняет копию и SHA-256 набора, хеш вопросов и кода клиента, пороги, endpoint, модель и время. Поэтому последующие изменения можно отличить от условий исходного прогона.
+Only `state`, the questions and the requested model are sent to the API. Expected answers, the language and the case ID are not added to state. Before the requests, the runner saves a copy and the SHA-256 of the set, a hash of the questions and of the client code, the thresholds, the endpoint, the model and the time. That is how later changes can be told apart from the conditions of the original run.
 
-Модель в сохранённых опытах — `jev-1.13.0`. Provider response сохраняется целиком, включая возвращённые модель и метаданные. Если fingerprint отсутствует, он не придумывается. Исходные результаты после изменения кода клиента не переписываются.
+The model in the saved experiments is `jev-1.13.0`. The provider response is saved whole, including the model and the metadata it returned. If a fingerprint is absent, none is invented. Original results are not rewritten after a change to the client code.
 
-Choice допускается к действию при confidence ≥0.60. Noul даёт «нет» при ≤0.20, «да» при ≥0.80, между ними — отказ от решения. Для отдельной метрики raw accuracy Noul разделяется по 0.5. Пороги заданы до ответов; они не являются откалиброванной гарантией риска.
+A Choice is allowed to act at confidence ≥0.60. A Noul gives "no" at ≤0.20 and "yes" at ≥0.80; in between it declines to decide. For the separate raw accuracy metric, Noul is split at 0.5. The thresholds were set before the answers; they are not a calibrated guarantee about risk.
 
-Уверенный `none_suitable` — самостоятельный допустимый ответ, который может быть правильным. Он считается отдельно от отказа из-за неуверенности. Raw accuracy использует только валидные ответы; coverage — все ожидаемые ответы, включая неполученные. В отчёте есть число принятых ошибочных решений: высокий результат среди принятых нельзя выдавать за полное покрытие.
+A confident `none_suitable` is a legitimate answer in its own right and can be the correct one. It is counted separately from declining out of low confidence. Raw accuracy uses only valid answers; coverage uses every expected answer, including the ones never received. The report carries the number of accepted wrong decisions: a high score among accepted decisions must not be presented as full coverage.
 
-Простые контрольные правила также зафиксированы: категория по ключевым словам, workaround всегда false, диагностика всегда D1. Это прозрачные слабые ориентиры, а не хорошо настроенные конкуренты. Их считают на всех 28 ожидаемых ответах даже при сбое API; сравнивать следует с учётом знаменателей и каждого типа вопроса отдельно.
+Simple baseline rules are pinned as well: category by keywords, workaround always false, diagnostic always D1. These are transparent weak reference points, not well-tuned competitors. They are computed over all 28 expected answers even when the API fails; compare them with the denominators in mind and with each question type taken separately.
 
-## Что получилось 20 сентября
+## What came out on 20 September
 
-В [основном наборе](../verification/jev-live-2026-09-20/primary-eval/results.json) — 18 валидных ответов API и 28/28 совпадений с разметкой: категория 10/10, обход 10/10, диагностика 8/8. Политика приняла все 28 решений; два `none_suitable` оказались правильными.
+In the [primary set](../verification/jev-live-2026-09-20/primary-eval/results.json): 18 valid API answers and 28/28 matches with the labels: category 10/10, workaround 10/10, diagnostic 8/8. The policy accepted all 28 decisions, and two `none_suitable` answers turned out to be correct.
 
-В [усложнённом наборе](../verification/jev-live-2026-09-20/challenge-eval/results.json) — те же 18 запросов и 28/28 совпадений; все решения приняты, три корректных `none_suitable`. В обоих прогонах ошибок API и отказов по неуверенности не было.
+In the [harder set](../verification/jev-live-2026-09-20/challenge-eval/results.json): the same 18 requests and 28/28 matches; every decision accepted, three correct `none_suitable`. Neither run had API errors or refusals on low confidence.
 
-Эти результаты показывают работу конкретных запросов на конкретных примерах. Они не измеряют production accuracy, калибровку вероятностей, универсальную защиту от инструкций внутри данных, экономию денег или улучшение coding agent. В отдельном реальном цикле Jev + Codex один из трёх случаев как раз остановился по недостаточной confidence; его нельзя скрывать за правильными ответами этих наборов. [Полный протокол статьи](../VALIDATION.md) и [галерея исходных свидетельств](../verification/evidence-gallery.html).
+These results show how specific requests behave on specific examples. They do not measure production accuracy, the calibration of probabilities, general protection against instructions inside data, money saved, or any improvement to a coding agent. In the separate real loop of Jev plus Codex, one of the three cases did stop on insufficient confidence, and that must not be hidden behind the correct answers of these sets. [The article's full protocol](../VALIDATION.md) and [the gallery of source evidence](../verification/evidence-gallery.html).
 
-## Повторить
+## Reproducing this
 
-Из папки `jev-harness-lab`:
+From the `jev-harness-lab` directory:
 
 ```bash
 python3 live_eval.py --out runs/my-jev-plan --dry-run
@@ -40,25 +40,25 @@ python3 live_eval.py --out runs/my-jev-primary
 python3 live_eval.py --cases fixtures/live-eval-challenge-cases.json --out runs/my-jev-challenge
 ```
 
-Для двух последних команд нужен `TYPESAFE_API_KEY` в окружении. `--dry-run` сохраняет план и запросы, не обращается к API и не создаёт предсказаний. Отсутствующий ключ также не создаёт ответы: runner сохраняет статус `credentials_required` и возвращает код 1. Существующие каталоги `--out` не перезаписываются.
+The last two commands need `TYPESAFE_API_KEY` in the environment. `--dry-run` saves the plan and the requests, does not call the API and creates no predictions. A missing key produces no answers either: the runner saves the status `credentials_required` and returns code 1. Existing `--out` directories are not overwritten.
 
-Каждый живой набор — максимум 18 последовательных запросов без автоматических повторов. На запрос задан общий deadline, не более 30 секунд. Первая ошибка API или протокола прекращает отправку; оставшиеся случаи учитываются как неполученные ответы. Authorization и ключ не записываются в артефакты.
+Each live set is at most 18 sequential requests with no automatic retries. Each request has an overall deadline of no more than 30 seconds. The first API or protocol error stops the sending, and the remaining cases are counted as answers never received. The Authorization header and the key are not written into the saved files.
 
-## Что находится в результатах
+## What the results contain
 
-- `results.json` — фактические ответы, gold, решения политики, метрики, usage и время.
-- `report.md` — читаемый отчёт по тем же данным.
-- `dataset.json`, `protocol.json`, `requests/` — условия опыта до ответов.
-- `judge/judge-NNN.json` — запрос и неизменённый JSON-ответ либо ошибка; успешные ответы также записаны по ID случая.
+- `results.json`: the actual answers, gold, the policy decisions, the metrics, usage and timings.
+- `report.md`: a readable report over the same data.
+- `dataset.json`, `protocol.json`, `requests/`: the conditions of the experiment as they stood before the answers.
+- `judge/judge-NNN.json`: the request and the unmodified JSON answer, or the error; successful answers are also written under the case ID.
 
-Длительность запроса включает сеть. Токены не переводятся в деньги без тарифа. В текущем клиенте валидные provider counters учитываются до проверки `answers`, поэтому отклонённый ответ не исчезает из известного расхода. `usage_complete=false` сигнализирует об ошибке живого запроса; `usage_reported_requests` и `usage_unreported_requests` показывают наличие счётчиков. Ноль известных токенов при ошибке не означает, что запрос ничего не стоил. Старые сохранённые протоколы, созданные до добавления этих полей, остаются в первоначальном виде.
+Request duration includes the network. Tokens are not converted into money without a rate. In the current client, valid provider counters are recorded before `answers` is validated, so a rejected answer does not disappear from the known spend. `usage_complete=false` signals an error in a live request; `usage_reported_requests` and `usage_unreported_requests` show whether counters were present. Zero known tokens on an error does not mean the request cost nothing. Older saved protocols, written before these fields were added, stay as they were.
 
-Для проверки всей связки после настройки Codex есть отдельная команда:
+To check the whole chain once Codex is set up, there is a separate command:
 
 ```bash
 python3 worker_eval.py --selector jev --out runs/my-jev-codex
 ```
 
-Она запускает три заранее заданных дефекта и независимую приёмку после остановки. Это другой опыт, с исполнением кода и расходом лимитов Codex. [Маршрут для первого запуска без ключей](../START-HERE.md) помогает сначала разобраться в механике.
+It runs the three prepared defects and the independent acceptance after the stop. That is a different experiment: it executes code and spends Codex limits. [The route to your first run without keys](../START-HERE.md) helps you understand the mechanics first.
 
-Автоматические тесты runner используют явно подставленные клиенты и временные каталоги. Они проверяют валидацию, разделение gold и запроса, лимиты, отсутствие ключа, отказы и ошибки. Их успешность не прибавляется к метрикам живого Jev.
+The runner's automated tests use explicitly injected clients and temporary directories. They check validation, the separation of gold from the request, the limits, a missing key, refusals and errors. Their passing does not add to the live Jev metrics.

@@ -1,67 +1,67 @@
-# Что получишь за 10 минут
+# What you get in ten minutes
 
-Ты запустишь маленький цикл исправления поиска. В приложении есть ошибка: поиск находит слово в заголовке, но пропускает его в описании. На выходе получишь исправленную копию приложения, отчёт по каждому требованию и журнал, объясняющий, почему программа продолжила работу или остановилась.
+You will run a small repair loop over search. The application has a defect: search finds a word in the title but misses it in the description. At the end you get a repaired copy of the application, a report on every requirement, and a log explaining why the program carried on or stopped.
 
-Для первого запуска нужны Python 3.9+ и macOS/Linux. Устанавливать Python-пакеты, заводить ключи и подключать coding agent не нужно. В этом demo тесты действительно выполняют код, а ответы Jev и исправление worker заданы заранее. Живые API-прогоны подключаются следующим шагом.
+The first run needs Python 3.9+ and macOS or Linux. You do not have to install Python packages, obtain keys or connect a coding agent. In this demo the tests really do execute the code, while the Jev answers and the worker repair are set in advance. Live API runs come as the next step.
 
-## 1. Открой лабораторию
+## 1. Open the lab
 
-Скачай доступный архив репозитория, распакуй его и перейди в каталог `jev-harness-lab`. Если у тебя есть доступ к GitHub-репозиторию, можно использовать `git clone` из README.
+Download the repository archive you have, unpack it and go into the `jev-harness-lab` directory. If you have access to the GitHub repository, you can use the `git clone` from the README.
 
-Все следующие команды выполняются **из `jev-harness-lab`**. Папки `runs/reader-*` должны быть новыми: повторный запуск с тем же `--out` попросит выбрать другое имя.
+Every command below runs **from `jev-harness-lab`**. The `runs/reader-*` directories have to be new: a repeat run with the same `--out` will ask you to choose another name.
 
-## 2. Увидь разницу между «не проверено» и «сломано»
+## 2. See the difference between "unverified" and "broken"
 
 ```bash
 python3 run.py evidence --mode demo --case missing-evidence --out runs/reader-evidence
 cat runs/reader-evidence/evidence-report.md
 ```
 
-В отчёте: R1 — `passed`, R2 — `unverified`. R1 означает поиск по заголовку; R2 — поиск по описанию. Программа выполнила только C1, поэтому пока не делает вывод о R2. Успешное создание отчёта само по себе не означает, что приложение исправно.
+In the report: R1 is `passed`, R2 is `unverified`. R1 stands for search by title; R2 for search by description. The program ran only C1, so it draws no conclusion about R2 yet. A report created successfully does not by itself mean the application works.
 
-## 3. Запусти исправление и проверь результат
+## 3. Run the repair and check the result
 
 ```bash
 python3 run.py loop --mode demo --case missing-evidence --out runs/reader-loop
 cat runs/reader-loop/evidence-report.md
 ```
 
-Ожидаемый итог в терминале: `status: complete`, `checks_executed: 5`, `worker_iterations: 1`. В итоговом отчёте оба требования — `passed`.
+Expected outcome in the terminal: `status: complete`, `checks_executed: 5`, `worker_iterations: 1`. In the final report both requirements are `passed`.
 
-Порядок действий: C1 проверяет заголовок → C2 обнаруживает ошибку поиска по описанию → D2 показывает, что интерфейс отправляет только поле title → worker добавляет description → свежие C1 и C2 проходят.
+The order of actions: C1 checks the title → C2 finds the defect in search by description → D2 shows that the interface sends only the title field → the worker adds description → fresh C1 and C2 pass.
 
-Посмотри, что изменилось:
+See what changed:
 
 ```bash
 diff -u demo-project/app.py runs/reader-loop/project/app.py
 ```
 
-В параметре `fields` появится `description`. Код возврата 1 у `diff` здесь означает, что файлы отличаются; это ожидаемо.
+`description` appears in the `fields` parameter. Exit code 1 from `diff` here means the files differ, which is expected.
 
-Три полезных файла твоего запуска:
+Three useful files from your run:
 
-- `project/app.py` — исправленная копия приложения. Исходник `demo-project/app.py` не меняется.
-- `evidence-report.md` — результат по требованиям для текущего кода.
-- `events.jsonl` — журнал программных решений; `judge/` содержит отдельно запросы и ответы judge.
+- `project/app.py`: the repaired copy of the application. The original `demo-project/app.py` is left unchanged.
+- `evidence-report.md`: the result per requirement for the current code.
+- `events.jsonl`: the log of programmatic decisions; `judge/` holds the judge requests and answers separately.
 
-## 4. Убедись, что цикл умеет остановиться
+## 4. Confirm that the loop knows how to stop
 
 ```bash
 python3 run.py loop --mode demo --case stalled --out runs/reader-stalled
 ```
 
-Этот worker не изменяет проект. Ожидается `status: stop`, причина `no_new_evidence_or_source_change`, код возврата 2. Программа не объявляет задачу готовой и не пытается чинить её бесконечно. Проверь сохранённый `runs/reader-stalled/evidence-report.md`: R2 останется `failed`.
+This worker does not change the project. Expect `status: stop`, the reason `no_new_evidence_or_source_change` and exit code 2. The program neither declares the task finished nor tries to repair it forever. Check the saved `runs/reader-stalled/evidence-report.md`: R2 stays `failed`.
 
-## 5. Повтори решения по журналу
+## 5. Replay the decisions from the log
 
 ```bash
 python3 run.py replay --run runs/reader-loop --policy policy.json
 ```
 
-Ожидается `status: matched`, `decisions: 7`. Это повторная проверка логики выбора по сохранённым данным. Новые тесты, модель и worker здесь не запускаются.
+Expect `status: matched`, `decisions: 7`. This rechecks the selection logic against the saved data. No new tests, no model and no worker run here.
 
-## Как превратить пример в свой инструмент
+## How to turn the example into your own tool
 
-Сначала задай свои требования и исполняемые проверки. Затем выбери одну узкую роль Jev: например, какую диагностику запустить после уже обнаруженного провала. Модель выбирает ID зарегистрированного действия; код задаёт разрешённые команды, лимиты и условия завершения. Только после этого подключай настоящего worker.
+Start with your own requirements and executable checks. Then pick one narrow role for Jev: which diagnostic to run after a failure has already been found, for example. The model picks the ID of a registered action; code sets the permitted commands, the limits and the completion conditions. Only after that do you connect a real worker.
 
-Изменение одного `--task` не переносит лабораторию на новый проект. Вместе меняются `task.md`, `CRITERIA` в `evidence.py`, `checks.json`, `check_runner.py`, фикстуры и итоговый oracle. Подробный порядок — в разделе «Перенос в собственный проект» README лаборатории.
+Changing `--task` alone does not move the lab onto a new project. `task.md`, `CRITERIA` in `evidence.py`, `checks.json`, `check_runner.py`, the fixtures and the final oracle change together. The detailed order is in the "Carrying this into your own project" section of the lab README.

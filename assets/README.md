@@ -1,17 +1,17 @@
-# Иллюстрации статьи
+# Article illustrations
 
-Все схемы — редактируемый SVG; PNG того же размера подготовлены для платформ, которые не принимают SVG. Векторные оригиналы не зависят от внешних шрифтов или ресурсов. Основной шрифт: системный sans-serif. У каждой схемы есть доступные `title` и `desc`.
+Every diagram is editable SVG. PNGs of the same size are prepared for platforms that do not accept SVG. The vector originals depend on no external fonts or resources. Main font: the system sans-serif. Every diagram has accessible `title` and `desc`.
 
-- `01-jev-interface.svg` · 1480 × 760. Контракт API: state и вопросы → Jev → типизированные ответы → действие обычного кода. Внутренняя архитектура модели не изображена.
-- `02-three-primitives.svg` · 1480 × 1080. Один пример state и три независимых вопроса. Показаны заданные критерии и формы ответа; реальные или выдуманные вероятности не приводятся. Значения 0/1/2 обозначают уровни выбранной шкалы, а 0/0.5/1 — смысл диапазона Noul.
-- `03-three-builds.svg` · 1480 × 1160. Noul помогает сопоставлять свидетельства с критерием, Choice выбирает дополнительную диагностику; программная политика выполняет обязательные проверки, задаёт лимиты и завершает цикл.
-- `04-run-trace.svg` · 1480 × 1290. Явно подписанный офлайн-сценарий R2 → C2 FAIL → подготовленный выбор D2 → исправление → новый snapshot → C1/C2 PASS → COMPLETE. Схема не является результатом живого Jev API.
+- `01-jev-interface.svg` · 1480 × 760. The API contract: state and questions → Jev → typed answers → an action taken by ordinary code. The internal architecture of the model is not depicted.
+- `02-three-primitives.svg` · 1480 × 1080. One example of state and three independent questions. The criteria set and the shapes of the answer are shown; no probabilities, real or invented, are given. The values 0/1/2 stand for the levels of the chosen scale, and 0/0.5/1 for the meaning of the Noul range.
+- `03-three-builds.svg` · 1480 × 1160. Noul helps relate evidence to a requirement, Choice picks an extra diagnostic; the programmatic policy runs the mandatory checks, sets the limits and closes the loop.
+- `04-run-trace.svg` · 1480 × 1290. An explicitly labelled offline scenario: R2 → C2 FAIL → a prepared D2 choice → a repair → a fresh snapshot → C1/C2 PASS → COMPLETE. The diagram is not the output of a live Jev API.
 
-Генерация SVG: `python3 build_diagrams.py` (только стандартная библиотека Python). PNG экспортированы с помощью Sharp. Все четыре изображения после экспорта визуально проверены: обрезаний и наложений текста не обнаружено.
+SVG generation: `python3 build_diagrams.py` (Python standard library only). The PNGs were exported with Sharp. All four images were inspected visually after export: no clipping and no overlapping text were found.
 
-## Английские варианты
+## English versions
 
-Схемы `01`–`07` существуют в двух языках. Русские подписи рисует `build_diagrams.py` (01–04) и `build_diagrams_jev.py` (05–07); английские варианты с суффиксом `-en` рисуют `build_diagrams_en_base.py` (01–04) и `build_diagrams_jev_en.py` (05–07). Геометрия и палитра общие, английские подписи подобраны короче, чтобы ничего не выходило за рамки блока. Проверено в браузере: ни один `<text>` не выходит за свой контейнер.
+Diagrams `01`–`07` exist in two languages. The Russian labels are drawn by `build_diagrams.py` (01–04) and `build_diagrams_jev.py` (05–07); the `-en` variants are drawn by `build_diagrams_en_base.py` (01–04) and `build_diagrams_jev_en.py` (05–07). Geometry and palette are shared, and the English labels were kept shorter so that nothing runs outside its block. Checked in a browser: no `<text>` element extends past its container.
 
 ```bash
 python3 build_diagrams_en_base.py   # 01-04 -en

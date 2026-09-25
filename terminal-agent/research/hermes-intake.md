@@ -1,127 +1,132 @@
-# Hermes: уточнения, план и понятное состояние терминала
+# Hermes: clarification, planning, and legible terminal state
 
-Проверено 21 сентября 2026. Официальный репозиторий
+Verified 21 September 2026. The official repository
 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent), commit
-`c1c84ea37f9cfee75a1bf8326b5597959c7ba499`. Репозиторий клонирован и прочитан;
-его установщики, CLI и модельные запросы не запускались. Это разбор конкретных
-веток кода, а не утверждение, что проверен весь большой проект.
+`c1c84ea37f9cfee75a1bf8326b5597959c7ba499`. The repository was cloned and read;
+its installers, CLI and model requests were not run. This examines specific code
+paths, and is not a claim that the whole large project has been checked.
 
-## Что у Hermes действительно происходит
+## What actually happens in Hermes
 
-Уточнение — самостоятельный инструмент `clarify`. Оно не возникает автоматически
-из красивого окна: модель должна вызвать инструмент с вопросами. Инструмент
-валидирует данные и передаёт их callback интерфейса; интерфейс возвращает
-структурированные ответы, после чего продолжается агентный цикл.
+Clarification is a tool in its own right, `clarify`. It does not arise
+automatically out of a good-looking window: the model has to call the tool with
+its questions. The tool validates the data and passes it to the interface
+callback; the interface returns structured answers, and the agent loop then
+continues.
 
 1. [`tools/clarify_tool.py:106–136`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/tools/clarify_tool.py#L106-L136)
-   нормализует пакет: до пяти независимых вопросов, до четырёх вариантов на вопрос.
-   Wire ID создаётся как `q0`, `q1`, а не берётся из произвольного текста модели.
-   `choices_offered` хранит обычные ответы, `choices` — подписи для показа.
+   normalises the batch: up to five independent questions, up to four options per question.
+   The wire ID is generated as `q0`, `q1` rather than taken from arbitrary model text.
+   `choices_offered` holds the bare answers, `choices` holds the labels for display.
 2. [`agent/inline_tool_executors.py:189–194`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/agent/inline_tool_executors.py#L189-L194)
-   передаёт `agent.clarify_callback` инструменту. Вызов с вопросом исключён из
-   параллельных инструментов: обычный таймер tool execution не должен завершить
-   работающий диалог с человеком
+   passes `agent.clarify_callback` to the tool. A call that asks a question is excluded
+   from parallel tool execution: the ordinary tool-execution timer must not cut off a
+   live dialogue with a person
    ([`agent/tool_executor.py:859–875`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/agent/tool_executor.py#L859-L875)).
-3. В Python CLI
+3. In the Python CLI,
    [`_clarify_callback_batch`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/hermes_cli/cli_modal_mixin.py#L709-L744)
-   создаёт `questions`, `answers`, `answer_meta`, `active` и очередь ответа.
-   Рабочий поток ждёт; цикл терминала продолжает принимать клавиши.
+   creates `questions`, `answers`, `answer_meta`, `active` and the answer queue.
+   The working thread waits; the terminal loop keeps accepting keystrokes.
 4. [`_clarify_batch_set_active` / `_clarify_batch_lock`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/hermes_cli/cli_modal_mixin.py#L627-L707)
-   возвращают курсор и ранее введённый текст при повторном посещении вопроса.
-   Enter фиксирует ответ и переходит к следующему неотвеченному вопросу.
-   Tab/Shift+Tab позволяют вернуться. `Other` открывает свободный ввод.
+   restore the cursor and the text entered earlier when a question is revisited.
+   Enter commits the answer and moves to the next unanswered question.
+   Tab/Shift+Tab go back. `Other` opens free-text entry.
 5. [`_get_clarify_batch_display_fragments`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/hermes_cli/cli_tui_mixin.py#L434-L507)
-   показывает весь список вопросами, но варианты раскрывает только у активного:
-   отвеченный отмечен `✓`, текущий — `▸`, ожидающий — `·`. Принятый ответ виден
-   отдельной строкой. Пользователь понимает, сколько осталось.
+   shows the whole list of questions but expands the options only for the active one:
+   an answered question is marked `✓`, the current one `▸`, a pending one `·`. The
+   accepted answer is shown on a line of its own. The user can see how many are left.
 6. [`_batch_result`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/tools/clarify_tool.py#L139-L185)
-   возвращает модельному циклу вопрос, предложенные варианты и фактический ответ.
-   Маркер рекомендации удаляется: оформление не подменяет пользовательские данные.
+   returns the question, the options offered and the actual answer to the model loop.
+   The recommendation marker is stripped: presentation does not stand in for the user's data.
 
-Новая отдельная оболочка Hermes — React/Ink, а Python остаётся владельцем модели,
-инструментов и сессий. Между ними JSON-RPC по stdio. Это другой стек, не Textual.
-Те же данные превращаются в overlay в
+The new separate Hermes shell is React/Ink, and Python remains the owner of the
+model, the tools and the sessions. JSON-RPC over stdio sits between them. That is
+a different stack, not Textual. The same data becomes an overlay in
 [`createServerRequestHandler.ts:43–72`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/ui-tui/src/app/createServerRequestHandler.ts#L43-L72),
-а интерактивность реализует
+and the interactivity is implemented by
 [`ClarifyPrompt`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/ui-tui/src/components/prompts.tsx#L143-L238).
-Его ответы привязаны к request ID и question ID; возврат в вопрос восстанавливает
-выбор. [Описание архитектуры](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/ui-tui/README.md#L1-L41)
-подтверждается кодом, а не только скриншотами.
+Its answers are keyed to a request ID and a question ID; returning to a question
+restores the selection. The [architecture description](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/ui-tui/README.md#L1-L41)
+is confirmed by the code, not by screenshots alone.
 
-## План не равен списку анимаций
+## A plan is not a list of animations
 
 [`agent/plan_prompt.py:10–71`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/agent/plan_prompt.py#L10-L71)
-строит обычный запрос: цель, контекст, подход, конкретные файлы и команды проверки,
-риски и открытые вопросы. При неопределённости нужно спросить, при достаточном
-контексте — составить план. В этой реализации `/plan` не отдельный reasoning engine:
-это инструкции существующему агенту. Они запрещают исполнение, кроме записи плана.
-Сам текст запрета не является файловой песочницей.
+builds an ordinary request: the goal, the context, the approach, specific files and
+check commands, risks and open questions. Where something is uncertain, ask; where
+the context is sufficient, produce a plan. In this implementation `/plan` is not a
+separate reasoning engine: it is instructions to the existing agent. They forbid
+execution apart from writing the plan out. The text of that prohibition is not
+itself a filesystem sandbox.
 
 [`tools/todo_tool.py:26–95`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/tools/todo_tool.py#L26-L95)
-даёт независимое от рисунка состояние плана: стабильные ID, статусы, полное
-состояние, ревизию только при реальном изменении. Чтение возвращает копии. После
-сжатия контекста повторно подаются активные пункты, чтобы агент не начинал уже
-законченные действия заново
+gives plan state that does not depend on how it is drawn: stable IDs, statuses, the
+full state, and a new revision only on a real change. Reads return copies. After
+context compaction the active items are fed back in so that the agent does not start
+finished actions over again
 ([`format_for_injection`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/tools/todo_tool.py#L97-L126)).
-Это полезный принцип для нашего будущего прогресса: план и проверка результата
-должны храниться в состоянии, а терминал лишь показывает их. Само слово
-`completed`, пришедшее от генератора, ещё не доказательство проверки.
+This is a useful principle for our own future progress display: the plan and the
+check on the result belong in state, and the terminal only shows them. The word
+`completed`, arriving from the generator, is not yet evidence of a check.
 
-## Что было не так в нашем потоке
+## What was wrong in our own flow
 
-До добавления intake `Session._execute` принимал исходную фразу пользователя,
-выбирал `implement/inspect/answer`, находил контекст и запускал worker.
-Инструкция «если не хватает информации, спроси» находилась внутри worker prompt.
-У harness не было отдельного состояния «ожидаем ответ на этот вопрос», собранного
-задания и явной границы между проектированием и выполнением. Поэтому фраза вроде
-«сделай что-нибудь про крипту» попадала в тот же путь, что точная задача про CSV.
-Полировка кнопок не решает этот дефект.
+Before intake was added, `Session._execute` took the user's original sentence, chose
+between `implement/inspect/answer`, retrieved context and started the worker. The
+instruction “If essential information is missing, ask one concise question.” lived
+inside the worker prompt. The harness had no separate state for “we are waiting for an
+answer to this question”, no assembled task and no explicit boundary between design and
+execution. So a sentence like “Сделай что-нибудь про крипту” (“build me something about
+crypto”) went down the same path as a precise task about CSV. That phrasing is the
+fixture request in `tests/test_intake.py`; the intake tests use Russian user input, so
+it is quoted as recorded rather than translated. Polishing the buttons does not fix
+that defect.
 
-Нужен путь: исходная идея → ограниченное уточнение → цель, входные данные,
-результат и критерии готовности → обозримый план → запуск. Jev получает уже
-собранную задачу, а не должен угадывать продукт по одному слову. Генератор
-формулирует вопросы и текст; типизированные решения Jev и Python harness сохраняют
-свои существующие обязанности. Ясные простые запросы не следует заставлять
-проходить бессмысленный опрос.
+The path we need: original idea → bounded clarification → goal, inputs, result and
+readiness criteria → a plan a person can review at a glance → start. Jev receives a
+task that is already assembled, instead of having to guess the product from a single
+word. The generator writes the questions and the prose; Jev's typed decisions and the
+Python harness keep the responsibilities they already have. Clear, simple requests
+should not be forced through a pointless interview.
 
-## Что реально перенесено
+## What was actually ported
 
-В [`vendor/hermes`](../vendor/hermes/README.md) лежат **точная копия**
-`tools/clarify_tool.py`, лицензия MIT и SHA-256. Оригинальный модуль оставлен как
-источник происхождения и не импортируется продуктом.
+[`vendor/hermes`](../vendor/hermes/README.md) holds an **exact copy** of
+`tools/clarify_tool.py`, the MIT licence and the SHA-256 hashes. The original module
+is kept as a record of provenance and is not imported by the product.
 
-В [`jev_agent/choice_labels.py`](../jev_agent/choice_labels.py) адаптирован код
-`mark_recommended` и `strip_recommended` из строк 35–49 оригинала. Изменения:
-русский маркер, чтение также английского маркера, свежий список для показа и
-защита от пустого первого варианта. API использует только стандартную библиотеку,
-совместим с Python 3.9 и не добавляет зависимостей. Метка рекомендации — только
-оформление; выбранное значение остаётся обычным текстом.
+[`jev_agent/choice_labels.py`](../jev_agent/choice_labels.py) adapts the code of
+`mark_recommended` and `strip_recommended` from lines 35–49 of the original. The
+changes: an English marker, reading the Russian marker as well, a fresh list for
+display and a guard against an empty first option. The API uses the standard library
+only, works on Python 3.9 and adds no dependencies. The recommendation label is
+presentation only; the selected value stays as bare text.
 
-[`tests/test_choice_labels.py`](../tests/test_choice_labels.py): пять проверок
-прошли локально. Проверены неизменность исходных данных, повторное оформление,
-оба языка, пустой/единственный вариант и обратное преобразование к обычному ответу.
-Команда: `.venv/bin/python -B -m unittest discover -s tests -p test_choice_labels.py -v`.
-Upstream тесты прочитаны, но его полный test suite здесь не запускался.
+[`tests/test_choice_labels.py`](../tests/test_choice_labels.py): five checks passed
+locally. They cover that the input data is left unchanged, repeated decoration, both
+languages, the empty and single-option cases, and the conversion back to a bare answer.
+The command: `.venv/bin/python -B -m unittest discover -s tests -p test_choice_labels.py -v`.
+The upstream tests were read, but its full test suite was not run here.
 
-## Что сознательно не перенесено
+## What was deliberately not ported
 
-- В upstream есть тайм-аут с предложением агенту решить самому
+- Upstream has a timeout that invites the agent to decide for itself
   ([`clarify_tool.py:11–14`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/tools/clarify_tool.py#L11-L14)).
-  Для принятия нашего плана отсутствие ответа не означает согласие. Закрытие окна,
-  отмена и принятый ответ должны быть разными состояниями.
-- Не переносим синхронное `queue.get()` на поток Textual. В Hermes оно находится
-  в агентном потоке; у нас тот же код заблокировал бы клавиатуру и перерисовку.
-- Не используем повторы callback после `TypeError`: Hermes заранее проверяет
-  сигнатуру, поскольку ошибка внутри callback иначе повторно задаст вопрос.
-- Не копируем динамическую регистрацию Hermes tools и не запускаем vendored
-  исходник. Полный upstream требует
+  For accepting our plan, the absence of an answer does not mean consent. Closing the
+  window, cancelling and an accepted answer have to be different states.
+- We do not move a synchronous `queue.get()` onto the Textual thread. In Hermes it sits
+  in the agent thread; in our case the same code would block the keyboard and redrawing.
+- We do not retry the callback after a `TypeError`: Hermes checks the signature up front,
+  because an error inside the callback would otherwise ask the question again.
+- We do not copy Hermes' dynamic tool registration and we do not run the vendored
+  source. The full upstream requires
   [Python >=3.11,<3.14](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/pyproject.toml#L15),
-  а наши читатели используют в том числе Python 3.9.
-- Не подменяем отказ или неизвестный ответ первым «рекомендуемым» вариантом.
-  Рекомендация должна помогать выбрать, а не скрыто выбирать за человека.
-- Не переносим требование commit на каждом шаге из `/plan`: оно не относится к
-  пользовательскому заданию и не должно появляться в нашем агенте само собой.
+  and some of our readers are on Python 3.9.
+- We do not substitute the first “recommended” option for a refusal or an unknown answer.
+  A recommendation should help a person choose, not quietly choose for them.
+- We do not carry over the `/plan` requirement to commit at every step: it has nothing
+  to do with the user's task and should not appear in our agent by itself.
 
-Лицензия разрешает адаптацию с сохранением copyright и MIT notice; оба сохранены.
-Полный терминал Hermes, его модельный цикл и его инструменты не объявляются нашим
-кодом и не включаются как работающая зависимость.
+The licence permits adaptation provided the copyright and the MIT notice are kept; both
+are kept. The full Hermes terminal, its model loop and its tools are not claimed as our
+code and are not included as a working dependency.

@@ -1,26 +1,26 @@
-# Проверка обновлённого терминального интерфейса
+# Checks of the updated terminal interface
 
-21 сентября 2026. Розовая тема, явная навигация, многострочный ввод, сворачиваемые действия и отдельный итоговый ответ.
+21 September 2026. A pink theme, explicit navigation, multi-line input, collapsible actions and a separate final answer.
 
-## Автоматические проверки
+## Automated checks
 
-`python -B -m unittest discover -s tests -v` — **129 тестов, OK**, Python 3.9.6. Полный вывод: [unit-tests.txt](./unit-tests.txt); команда, длительность и код завершения: [unit-tests.json](./unit-tests.json).
+`python -B -m unittest discover -s tests -v`: **129 tests, OK**, Python 3.9.6. Full output: [unit-tests.txt](./unit-tests.txt); the command, the duration and the exit code: [unit-tests.json](./unit-tests.json).
 
-Сценарии проверяют отправку всего сообщения по Enter, вставку без автоматической отправки, переносы строк, сохранение черновика при остановке, новый чат, поиск сессий и файлов, копирование полного ответа, экспорт, длинную историю и размещение кнопок в терминале 80×24. Отдельные регрессии воспроизводят конфликт прокрутки при восстановлении и гонку автосохранения при смене сессий. Тесты не вызывают модели.
+The scenarios check sending the whole message with Enter, pasting without an automatic send, line breaks, keeping the draft when work is stopped, a new chat, the search over sessions and files, copying the full answer, export, a long history and the placement of the buttons in an 80×24 terminal. Separate regression tests reproduce the scroll conflict on restore and the autosave race when sessions are switched. The tests call no models.
 
-## Настоящий терминал
+## The real terminal
 
-Приложение запущено в PTY 126×48 с `TERM=xterm-256color` и `COLORTERM=truecolor`. Это текущий интерфейс приложения. Для экранов результата и Jev открыта копия [реального криптопрогона v2](../v2/README.md). В ходе этой проверки новые вызовы моделей не делались; сохранённые результаты не выдаются за новый прогон.
+The application was run in a 126×48 PTY with `TERM=xterm-256color` and `COLORTERM=truecolor`. This is the application's current interface. For the result and Jev screens, a copy of [the real v2 crypto run](../v2/README.md) was opened. No new model calls were made during this check, and the saved results are not presented as a new run.
 
-- [Итог и кнопки результата](../screenshots/terminal-pink-result-browser.png) · [исходный SVG](../screenshots/terminal-pink-result.svg).
-- [Раскрытый ход работы](../screenshots/terminal-pink-activity-browser.png) · [SVG](../screenshots/terminal-pink-activity.svg).
-- [Граф и ответы Jev](../screenshots/terminal-pink-jev-browser.png) · [SVG](../screenshots/terminal-pink-jev.svg).
-- [Редактор большого сообщения](../screenshots/terminal-pink-input-browser.png) · [SVG](../screenshots/terminal-pink-input.svg).
+- [The final answer and the result buttons](../screenshots/terminal-pink-result-browser.png) · [the source SVG](../screenshots/terminal-pink-result.svg).
+- [Activity expanded](../screenshots/terminal-pink-activity-browser.png) · [SVG](../screenshots/terminal-pink-activity.svg). The interface in this run was in Russian, so Activity appears on the screen as «Ход работы».
+- [The graph and the Jev answers](../screenshots/terminal-pink-jev-browser.png) · [SVG](../screenshots/terminal-pink-jev.svg).
+- [The editor with a large message](../screenshots/terminal-pink-input-browser.png) · [SVG](../screenshots/terminal-pink-input.svg).
 
-Действия в терминале: восстановление истории, Ctrl+O, F6, Escape, Ctrl+N, вставка 13 строк / 517 символов, F4, Ctrl+S, выход. Запрос остался в редакторе, новая сессия не получила ни одного события исполнения. [Сам запрос](./input-draft.txt) и [запись терминала с ANSI-последовательностями](./terminal-session.ansi) сохранены.
+Actions in the terminal: restoring the history, Ctrl+O, F6, Escape, Ctrl+N, pasting 13 lines / 517 characters, F4, Ctrl+S, exit. The request stayed in the editor, and the new session received no execution event at all. [The request itself](./input-draft.txt) and [the terminal recording with the ANSI sequences](./terminal-session.ansi) are saved.
 
-SVG получены штатным Ctrl+S из работающего приложения. PNG — снимки этих SVG в браузере, без перерисовки содержимого. [capture.json](./capture.json) содержит SHA-256, размеры терминала и проверку неизменности исходных событий.
+The SVGs come from the standard Ctrl+S in the running application. The PNGs are browser captures of those SVGs, with no redrawing of the content. [capture.json](./capture.json) holds the SHA-256 hashes, the terminal size and the check that the source events are unchanged.
 
-## Что адаптировано из других агентов
+## What was adapted from other agents
 
-Из Pi — компактные карточки действий и раскрытие подробностей по Ctrl+O. Из OpenCode — отправка Enter и новая строка Ctrl+J, поиск команд и сессий. Полная чужая оболочка не перенесена: здесь собственный интерфейс на Textual, подключённый к событиям нашего Python-harness. Источники, закреплённые версии и границы заимствований описаны в [исследовании репозиториев](../../research/upstream-audit.md).
+From Pi: the compact action cards and expanding the details with Ctrl+O. From OpenCode: sending with Enter and a new line with Ctrl+J, and the search over commands and sessions. No complete external shell was carried over: this is our own Textual interface, wired to the events of our Python harness. The sources, the pinned versions and the limits of what was borrowed are described in [the study of the repositories](../../research/upstream-audit.md).

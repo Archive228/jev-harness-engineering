@@ -1,0 +1,15 @@
+Fix Crypto Ledger in this working folder and get it to a working CLI.
+
+Read README.md, ledger.py, cryptoledger.py and tests/test_contract.py.
+Produce a report on the synthetic CSV trade history: Decimal, no float, fees in USDT,
+buy lowers net_cashflow_usdt and raises net_quantity; sell does the reverse.
+This is cash flow and the remaining quantity, not PnL and not a recommendation to buy a coin.
+Deduplication: the first valid row for a trade_id wins. Normalise the time to UTC,
+sort equal times by trade_id. Skip corrupted rows: emit a warning
+and increment the rejected_rows counter. Count repeated valid IDs separately.
+NaN/Infinity, negative amounts, unknown sides and naive dates are forbidden.
+
+Do not change tests/ or jev-checks.json: this is a contract set in advance.
+Add your own tests in separate files if you need them, and write short, clear instructions.
+Run unittest and the real command on examples/trades.csv, and save report.json.
+At the end, show the result and the exact command, so I can run it again myself.

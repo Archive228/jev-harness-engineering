@@ -18,7 +18,11 @@ def prepare_mission(name: str, workspace: Path) -> dict:
     source = (MISSION_ROOT.parent / "examples" / "crypto-ledger") if name == "cryptolab" else MISSION_ROOT / "loglab"
     shutil.copytree(source / "seed", workspace, dirs_exist_ok=True)
     if name == "cryptolab":
-        return {"prompt": (source / "task.txt").read_text(encoding="utf-8"),
+        # task.txt is the prompt of the recorded run and is byte-identical to the
+        # input stored in verification/v2/crypto-live-session, so it stays in the
+        # language that run was done in. task.en.txt is the same task in English and
+        # is what the mission hands to the agent now.
+        return {"prompt": (source / "task.en.txt").read_text(encoding="utf-8"),
                 "checks": [{"id": "ledger-contract", "title": "Crypto Ledger: seven predefined tests",
                             "argv": [sys.executable, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"]}],
                 "protected": []}

@@ -1,16 +1,16 @@
-# Скриншоты экспериментов
+# Experiment screenshots
 
-Сняты 20 сентября 2026 в браузере с локальной [галереи результатов](../../verification/evidence-gallery.html). Галерея читает сохранённые JSON и вывод команд; её исходник — [build-evidence.py](../../scripts/build-evidence.py). Это снимки браузерного просмотра наших протоколов, а не интерфейса TypeSafe или нативного Terminal.
+Captured on 20 September 2026 in a browser from the local [results gallery](../../verification/evidence-gallery.html). The gallery reads the saved JSON and command output. Its source is [build-evidence.py](../../scripts/build-evidence.py). These are screenshots of a browser view of our own records, not of the TypeSafe interface and not of the native Terminal.
 
-Четыре снимка встроены в статью:
+Four captures are embedded in the article:
 
-- `01-live-primitives.png`: реальный русский запрос, три ответа Jev и usage.
-- `02-live-evaluations.png`: две отдельные размеченные матрицы по 28 решений.
-- `03-live-loop-and-recovery.png`: исходные два завершения и одна остановка, затем отдельное восстановление.
-- `04-tests-and-terminal.png`: фактический результат 83 тестов и фрагмент сохранённого stdout/stderr.
+- `01-live-primitives.png`: the real Russian request, three Jev answers and usage.
+- `02-live-evaluations.png`: two separate labelled matrices of 28 decisions each.
+- `03-live-loop-and-recovery.png`: the original two completions and one stop, then the separate recovery.
+- `04-tests-and-terminal.png`: the actual result of 83 tests and a fragment of the saved stdout/stderr.
 
-`mobile-gallery-check.png` и `mobile-loop-check.png` сохранены при проверке адаптивной вёрстки. Размеры viewport, SHA-256 и размеры оригинальных файлов находятся в [manifest.json](./manifest.json). Байты снимков не редактировались. Схемы устройства Jev и harness лежат уровнем выше как редактируемые SVG и PNG.
+`mobile-gallery-check.png` and `mobile-loop-check.png` were saved while checking the responsive layout. Viewport sizes, SHA-256 and the sizes of the original files are in [manifest.json](./manifest.json). The screenshot bytes were not edited. The diagrams of how Jev and the harness are built sit one level up as editable SVG and PNG.
 
-Полные текстовые журналы доступны в [verification/terminal](../../verification/terminal/), запросы и ответы — в [verification/jev-live-2026-09-20](../../verification/jev-live-2026-09-20/). Скриншот помогает прочитать результат; первоисточником чисел остаётся соответствующий JSON или журнал.
+Full text logs are in [verification/terminal](../../verification/terminal/), and the requests and responses are in [verification/jev-live-2026-09-20](../../verification/jev-live-2026-09-20/). A screenshot helps you read a result. The corresponding JSON or log remains the source of the numbers.
 
-Английские снимки той же галереи лежат рядом с суффиксом `.en.png`; их описание в [README.en.md](./README.en.md).
+English captures of the same gallery sit next to them with the `.en.png` suffix. Their description is in [README.en.md](./README.en.md).

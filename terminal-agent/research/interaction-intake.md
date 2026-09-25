@@ -3,7 +3,11 @@
 Research date: 21 September 2026. This is a targeted audit of interaction paths,
 not a claim to have read or tested every line of another agent. The starting Jev
 screen is the saved `terminal-pink-result-browser.png`; production code references
-below describe the version before the intake redesign.
+below describe the version before the intake redesign. That screen is from a
+Russian-language run, and the saved guided session artefacts are in Russian too,
+so strings quoted from them are kept as recorded with an English gloss in
+parentheses; the linked upstream sources and the current `jev_agent/` interface
+strings are English.
 
 ## What is wrong with the existing interaction
 
@@ -18,10 +22,11 @@ and the absence of an explicit requirements stage.
    read-only turn, but uncertainty is not the same as an interview. A review can
    return `needs_input` after work has already happened; it still carries ordinary
    worker prose, not an actionable question card.
-2. **The interface duplicates state.** The masthead displays both `ОЖИДАНИЕ` and
-   the preceding success. The phase strip, activity title, result row and status
-   counters repeat that run. The saved 126×44 screen spends roughly 18 rows on
-   navigation, status and composer furniture. This crowds out the conversation.
+2. **The interface duplicates state.** The masthead displays both `ОЖИДАНИЕ`
+   (“WAITING”) and the preceding success. The phase strip, activity title, result
+   row and status counters repeat that run. The saved 126×44 screen spends
+   roughly 18 rows on navigation, status and composer furniture. This crowds out
+   the conversation.
 3. **Several controls have equal visual priority.** Navigation, result actions,
    execution mode, Jev mode, expansion and send all resemble primary buttons.
    A new user has to decode the architecture before deciding what to do next.
@@ -54,7 +59,7 @@ requirements, not a requirement to adopt the Claude SDK. [Official SDK user-inpu
 
 Claude's guidance separates exploration, planning and implementation, allows plan
 editing, and says small clear changes do not need the overhead of planning. It
-also emphasizes observable checks. For Jev, the transferable principle is an
+also emphasises observable checks. For Jev, the transferable principle is an
 adaptive interview: clarify meaningful uncertainty, then establish what will be
 produced and how it will be checked. [Official best practices](https://code.claude.com/docs/en/best-practices)
 
@@ -132,13 +137,13 @@ The question area shows one full question, `1 of 3`, two or three options with
 short explanations, a multiline custom answer, Back and Continue. Choice and
 free-text editing have separate focus rules. Going back retains answers. Escape
 leaves the question intact for later; it does not approve a default or run the
-worker. A final review summarizes the actual answers before plan generation.
+worker. A final review summarises the actual answers before plan generation.
 
 The plan is a concrete brief, not a long transcript:
 
 - **Result:** what the person can use afterward.
 - **Inputs:** files or data already found, plus missing prerequisites.
-- **Scope:** included behavior and material assumptions.
+- **Scope:** included behaviour and material assumptions.
 - **Steps:** three to five outcome-oriented steps.
 - **Verification:** commands or observable examples that will establish success.
 
@@ -148,12 +153,14 @@ revision and the eventual execution prompt in session artifacts. Resuming a
 session restores the pending question or plan without starting work. Approval of
 revision 2 cannot accidentally execute revision 1.
 
-Example: “хочу что-то про крипту” should first establish whether the user wants a
-local portfolio tool, data report or explanation. For a portfolio tool, clarify
-where transactions come from and what report is useful. The resulting brief
-could specify a CSV reader, holdings and fees, a Markdown report, malformed-row
-behavior, sample data and a repeatable test command. The recommendation is not a
-claim to have current market data or permission to place trades.
+Example: “Хочу что-то полезное про крипту” (“I want something useful about
+crypto”) should first establish whether the user wants a local portfolio tool,
+data report or explanation. That phrasing is the `ROUGH_REQUEST` fixture in
+`tests/test_guided_tui.py`. For a portfolio tool, clarify where transactions come
+from and what report is useful. The resulting brief could specify a CSV reader,
+holdings and fees, a Markdown report, malformed-row behaviour, sample data and a
+repeatable test command. The recommendation is not a claim to have current market
+data or permission to place trades.
 
 ## Visual hierarchy for the pink terminal
 
@@ -177,9 +184,9 @@ only for observed success/failure. No fabricated progress percentage or decision
 trace. At 80×24, the question/plan body scrolls while the current action remains
 reachable; the conversation should receive materially more height than before.
 
-## Behavioral acceptance criteria
+## Behavioural acceptance criteria
 
-The critical behavior is absence of a premature write: a vague request must not
+The critical behaviour is absence of a premature write: a vague request must not
 start an implementing worker before the user reaches execution. Test the whole
 boundary, not only rendering. Also verify custom multiline answers, back/edit,
 request replacement, cancellation during generation, invalid structured output,

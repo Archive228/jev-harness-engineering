@@ -1,16 +1,16 @@
 # Jev Harness Lab
 
-Три небольших инструмента из статьи: отчёт о проверенных требованиях, выбор следующей диагностики и ограниченный цикл исправления. Дополнительно — первый запрос с Choice, Score и Noul, журнал решений и replay.
+Three small tools from the article: a report on confirmed requirements, the selection of the next diagnostic, and a bounded repair loop. Also included: the first request with Choice, Score and Noul, a decision log and replay.
 
-**Python 3.9+, macOS или Linux. Внешние Python-пакеты не нужны.** Локально на Python 3.9.6 проходят 83 теста. POSIX нужен для остановки дочерних процессов и общего HTTP deadline.
+**Python 3.9+, macOS or Linux. No external Python packages are needed.** Locally on Python 3.9.6, 83 tests pass. POSIX is needed to stop child processes and for the overall HTTP deadline.
 
-Первый раз здесь? Пройди [маршрут на 10 минут](../START-HERE.md): от найденной ошибки до исправленной копии приложения и отчёта. [Живые результаты](../VALIDATION.md) и [галерея доказательств](../verification/evidence-gallery.html) показывают, что было выполнено на самом деле. Репозиторий приватный; если доступа нет, используй архив статьи, полученный вместе с материалом.
+First time here? Follow the [ten-minute route](../START-HERE.md): from a found defect to a repaired copy of the application and a report. [Live results](../VALIDATION.md) and the [evidence gallery](../verification/evidence-gallery.en.html) show what was actually run. The repository is private; if you do not have access, use the article archive you received with the material.
 
-Демо полностью работает без ключей. В нём реальные subprocess-проверки выполняют настоящий код маленького приложения. Ответы «Jev» и исправление worker заранее заданы в коде и помечены `SYNTHETIC-DEMO-NOT-JEV`. Это демонстрация механики, а не эксперимент с качеством модели.
+The demo works without any keys. In it, real subprocess checks execute the actual code of the small application. The "Jev" answers and the worker repair are canned in the code and marked `SYNTHETIC-DEMO-NOT-JEV`. This is a demonstration of the mechanics, not an experiment on model quality.
 
-## Быстрый запуск
+## Quick start
 
-Из этой папки:
+From this directory:
 
 ```bash
 python3 run.py inspect --mode demo --case export-ticket
@@ -20,37 +20,37 @@ python3 run.py loop --mode demo --case missing-evidence
 python3 -m unittest discover -s tests -v
 ```
 
-Каждая команда печатает путь отдельной папки в `runs/`. Для удобного имени задайте `--out runs/my-run`; существующая папка не перезаписывается.
+Each command prints the path of its own directory under `runs/`. For a convenient name, pass `--out runs/my-run`; an existing directory is not overwritten.
 
-- `inspect`: создаёт `decisions.json`, где видны все три типа ответа.
-- `evidence`: выполняет C1 и показывает R1=`passed`, R2=`unverified`. Отсутствие выполнения C2 не считается провалом C2.
-- `next-check`: сначала код запускает обязательный C2. Когда C2 падает, Choice выбирает дополнительную диагностику; демо выбирает D2. Результат находится в `next-check.json`.
-- `loop`: после C2 и D2 worker исправляет параметры запроса; свежие C1/C2 проходят. Ожидаемый demo trace: **C1 → C2 → D2 → worker → C1 → C2**. Это 5 запусков проверок и 1 исправление.
+- `inspect`: creates `decisions.json`, where all three answer types are visible.
+- `evidence`: runs C1 and shows R1=`passed`, R2=`unverified`. C2 not having run does not count as C2 failing.
+- `next-check`: code runs the mandatory C2 first. When C2 fails, Choice picks an extra diagnostic; the demo picks D2. The result is in `next-check.json`.
+- `loop`: after C2 and D2 the worker fixes the request parameters; fresh C1/C2 pass. The expected demo trace: **C1 → C2 → D2 → worker → C1 → C2**. That is 5 check runs and 1 repair.
 
-Приложение находится в `demo-project/app.py`. При каждом запуске оно копируется в собственную папку `runs/.../project`. C1 проверяет совпадение по заголовку; C2 — совпадение только по описанию. Backend изначально умеет искать в обоих полях, но UI передаёт только `title`. D1 вызывает backend напрямую, D2 показывает параметры UI-запроса. В `check_runner.py` расположены сами проверки; в `checks.json` — реестр и описания их области действия.
+The application lives in `demo-project/app.py`. On every run it is copied into its own directory `runs/.../project`. C1 checks a match by title; C2 checks a match by description alone. The backend can search both fields from the start, but the UI passes only `title`. D1 calls the backend directly, D2 shows the parameters of the UI request. `check_runner.py` holds the checks themselves; `checks.json` holds the registry and the descriptions of their scope.
 
-## Что означает отчёт
+## What the report means
 
-`passed` требует успешного выполнения назначенного обязательного теста для текущего snapshot и текущего контракта проверки. `failed` означает реальный провал assertion. `unverified` означает отсутствие свежей проверки, timeout или ошибку инструмента (например, синтаксическую ошибку при импорте приложения).
+`passed` requires the assigned mandatory test to have run successfully against the current snapshot and the current check contract. `failed` means a real assertion failure. `unverified` means there is no fresh check, or a timeout, or a tool error (for example a syntax error when importing the application).
 
-**C1→R1 и C2→R2 уже известны программе.** Noul оценивает только соответствие текстового описания проверки требованию и сохраняется как `scope_noul`/`scope_supported`. Это shadow-аннотация: она не повышает и не понижает детерминированный acceptance status. Если API этой необязательной аннотации недоступен, ошибка записывается в `scope_annotation_error`, а детерминированная приёмка продолжается. Глобальные лимиты не игнорируются. В таком маленьком проекте сама эта аннотация не доказывает дополнительную пользу Jev. Её полезность для неоднозначных свидетельств нужно проверять отдельно.
+**C1→R1 and C2→R2 are already known to the program.** Noul judges only whether the check's text description matches the requirement, and it is saved as `scope_noul`/`scope_supported`. This is a shadow annotation: it neither raises nor lowers the deterministic acceptance status. If the API for this optional annotation is unavailable, the error is written to `scope_annotation_error` and deterministic acceptance carries on. Global limits are not ignored. In a project this small, the annotation on its own does not prove any added benefit from Jev. Its usefulness on ambiguous evidence has to be checked separately.
 
-У каждого результата есть команда, stdout/stderr, код возврата, длительность, hash проекта до/после выполнения, hash runner и `contract_sha256`. Последний объединяет тестовый runner, реестр и критерии. Изменение проекта или контракта делает старую проверку непригодной для завершения. Hash проверяет свежесть; он не доказывает подлинность записей, присланных извне.
+Every result has a command, stdout/stderr, an exit code, a duration, a project hash before and after the run, a runner hash and `contract_sha256`. The last one combines the test runner, the registry and the criteria. Changing the project or the contract makes an old check unusable for completion. The hash verifies freshness; it does not prove the authenticity of records sent in from outside.
 
-Сохранённое состояние можно подать отдельно:
+A saved state can be supplied separately:
 
 ```bash
 python3 run.py evidence --mode demo --state runs/example/state.json
 python3 run.py next-check --mode demo --state runs/example/state.json
 ```
 
-У `evidence --state` нет исполнения новых проверок: он читает записи и проверяет свежесть. `next-check --state` может запускать зарегистрированные команды, `loop --state` — также worker, который изменяет указанный проект. Такой запуск использует каталог из состояния; это отличается от обычного запуска, создающего новую копию. При переносе всей папки run относительная ссылка на её `project/` сохраняет работоспособность примера.
+`evidence --state` runs no new checks: it reads the records and verifies freshness. `next-check --state` may run registered commands, and `loop --state` may also run the worker, which modifies the project it was given. Such a run uses the directory from the state; that differs from an ordinary run, which creates a new copy. If the whole run directory is moved, the relative reference to its `project/` keeps the example working.
 
-## Реальный Jev
+## The real Jev
 
-Документация API сверена 20 сентября 2026, живые запросы выполнены: [REST API](https://docs.typesafe.ai/api), [модели](https://docs.typesafe.ai/models), [Choice](https://docs.typesafe.ai/primitives/choice), [Score](https://docs.typesafe.ai/primitives/score), [Noul](https://docs.typesafe.ai/primitives/noul).
+The API documentation was checked against the sources on 20 September 2026 and live requests were run: [REST API](https://docs.typesafe.ai/api), [models](https://docs.typesafe.ai/models), [Choice](https://docs.typesafe.ai/primitives/choice), [Score](https://docs.typesafe.ai/primitives/score), [Noul](https://docs.typesafe.ai/primitives/noul).
 
-Ключ TypeSafe передаётся через переменную окружения `TYPESAFE_API_KEY`; в распространяемом комплекте ключа нет. После настройки переменной:
+The TypeSafe key is passed through the `TYPESAFE_API_KEY` environment variable; the distributed kit contains no key. Once the variable is set:
 
 ```bash
 python3 run.py inspect --mode live --case export-ticket
@@ -58,18 +58,18 @@ python3 run.py evidence --mode live --case missing-evidence
 python3 run.py next-check --mode live --case missing-evidence
 ```
 
-`judge.py` вызывает `POST https://api.typesafe.ai/v1/systemone` с Bearer-авторизацией. По умолчанию версия `jev-1.13.0`; изменить можно через `--model`. Запрос содержит `state`, `model`, `questions`. Полные JSON-запрос и JSON-ответ сохраняются в `judge/judge-NNN.json`; заголовок Authorization не записывается. Там же сохраняется явный режим и время запроса. При HTTP-ошибке сохраняется код статуса и, если доступен, безопасный идентификатор запроса провайдера; заголовки целиком и тело ошибки не записываются. Скрытых повторных запросов нет.
+`judge.py` calls `POST https://api.typesafe.ai/v1/systemone` with Bearer authorisation. The default version is `jev-1.13.0`; change it with `--model`. The request contains `state`, `model`, `questions`. The full JSON request and JSON response are saved to `judge/judge-NNN.json`; the Authorization header is not recorded. The explicit mode and the request time are saved in the same place. On an HTTP error the status code is saved, along with the provider's safe request identifier when one is available; full headers and the error body are not recorded. There are no hidden retries.
 
-На 20 сентября сохранены два живых набора: основной и отдельно подготовленный усложнённый. В каждом 18 запросов, 28/28 совпадений с разметкой, 28 принятых решений. Первый запрос статьи дополнительно выполнен с русскими формулировками: `export`, `1.0`, `0.95`. Маленькие авторские наборы не устанавливают общую точность или калибровку confidence. [Методика и ограничения](./live-eval-method.md).
+As of 20 September, two live sets are saved: the primary one and a separately prepared harder one. Each has 18 requests, 28/28 matches with the labels, and 28 accepted decisions. The article's first request was additionally run with the Russian wording: `export`, `1.0`, `0.95`. Small author-assembled sets establish neither general accuracy nor `confidence` calibration. [Method and limitations](./live-eval-method.md).
 
 ```bash
 python3 live_eval.py --out runs/my-jev-primary
 python3 live_eval.py --cases fixtures/live-eval-challenge-cases.json --out runs/my-jev-challenge
 ```
 
-Расход сохраняется из проверенного API `usage`, включая полученные счётчики ответа, чьи `answers` оказались невалидны. `usage_complete=false` отмечает сбой живого запроса; `usage_reported_requests` и `usage_unreported_requests` отделяют запросы с полноценными счётчиками от запросов без них. Ноль известных токенов при сбое не означает бесплатного вызова. Денежная стоимость не вычисляется из токенов без тарифа и расходов worker.
+Spend is saved from the verified API `usage`, including the counters received for a response whose `answers` turned out to be invalid. `usage_complete=false` marks a failed live request; `usage_reported_requests` and `usage_unreported_requests` separate requests with full counters from requests without them. Zero known tokens on a failure does not mean the call was free. Monetary cost is not computed from tokens without a rate and the worker's own spend.
 
-## Проверенный worker: Codex CLI
+## The tested worker: Codex CLI
 
 ```bash
 python3 adapters/codex_cli.py --configure
@@ -77,21 +77,21 @@ python3 run.py loop --mode live --selector jev --case missing-evidence --worker-
 python3 worker_eval.py --selector jev --out runs/my-jev-codex
 ```
 
-Нужны авторизация Codex CLI и `TYPESAFE_API_KEY`. `worker_eval.py --selector jev` запускает три задачи с заранее заданными дефектами; после остановки каждой исполняется отдельная независимая проверка. Реальные запросы и вызовы worker расходуют лимиты сервисов.
+You need Codex CLI authorisation and `TYPESAFE_API_KEY`. `worker_eval.py --selector jev` runs three tasks with pre-set defects; after each one stops, a separate independent check is run. Real requests and worker calls consume service limits.
 
-В сохранённом прогоне Jev + Codex два дефекта исправлены. На третьем Jev выбрал D2, но confidence 0.52 оказался ниже порога 0.60: программа остановилась до вызова worker, сохранив неисправное приложение как неисправное. Затем копию состояния явно продолжили с `selector=all`: обе диагностики, одно исправление, четыре новых проверки и итоговая приёмка PASS. Это отдельное восстановление, а не автоматический fallback или третье успешное завершение первого маршрута. [Все результаты и исходные записи](../VALIDATION.md).
+In the saved Jev + Codex run, two defects were repaired. On the third, Jev picked D2, but a `confidence` of 0.52 came in below the threshold of 0.60: the program stopped before calling the worker and saved the broken application as broken. A copy of the state was then explicitly carried on with `selector=all`: both diagnostics, one repair, four new checks and a final acceptance of PASS. That is a separate recovery, not an automatic fallback and not a third successful completion of the first route. [All results and the source records](../VALIDATION.md).
 
-Для отдельной проверки worker без Jev используй `python3 worker_eval.py --selector fixed --out runs/my-codex-only`. Исторический прогон от 19 сентября с этим selector завершил три задачи из трёх; он сохранён отдельно. См. [настройку Codex](./codex-worker-setup.md).
+To test the worker on its own without Jev, use `python3 worker_eval.py --selector fixed --out runs/my-codex-only`. The historical run from 19 September with this selector completed three tasks out of three; it is saved separately. See [the Codex setup](./codex-worker-setup.md).
 
-## Worker: исполняемая команда с явным протоколом
+## Worker: an executable command with an explicit protocol
 
-Демо-worker меняет одну строку: `fields=["title"]` на `fields=["title", "description"]`. Он не является coding-моделью. В live-режиме подключается отдельный адаптер:
+The demo worker changes one line: `fields=["title"]` becomes `fields=["title", "description"]`. It is not a coding model. In live mode a separate adapter is plugged in:
 
 ```bash
 python3 run.py loop --mode live --task task.md --worker-config worker-config.example.json
 ```
 
-Сначала замените путь в примере конфига на путь к своему адаптеру. Конфиг содержит массив `argv`; shell не используется. Команда запускается с `cwd`, равным каталогу проекта. На stdin приходит один JSON:
+First replace the path in the example config with the path to your own adapter. The config contains an `argv` array; no shell is used. The command is started with `cwd` set to the project directory. One JSON object arrives on stdin:
 
 ```json
 {
@@ -105,41 +105,41 @@ python3 run.py loop --mode live --task task.md --worker-config worker-config.exa
 }
 ```
 
-Адаптер вызывает выбранного coding agent, меняет файлы проекта и возвращает **один JSON-объект на stdout**:
+The adapter calls the coding agent of your choice, changes the project files and returns **one JSON object on stdout**:
 
 ```json
 {"claim": "Expanded the search request to include description."}
 ```
 
-Все технические логи отправляются на stderr. Claim записывается отдельно и никогда не считается результатом теста. Код возврата должен быть 0. Неправильный JSON, ненулевой код или timeout останавливают цикл. Ключ `TYPESAFE_API_KEY` удаляется из окружения worker; его собственные credentials при необходимости остаются в окружении.
+All technical logs go to stderr. The claim is recorded separately and is never counted as a test result. The exit code must be 0. Invalid JSON, a non-zero code or a timeout each stop the loop. The `TYPESAFE_API_KEY` key is removed from the worker's environment; the worker's own credentials stay in the environment when they are needed.
 
-Папка проекта задаёт рабочий каталог, но сама по себе не является OS sandbox. Права coding agent ограничивает его адаптер/среда. Добавленный рядом `adapters/claude_code.py` описан в статье; generic-протокол не требует именно Claude.
+The project directory sets the working directory, but it is not an OS sandbox by itself. The coding agent's permissions are limited by its adapter and environment. The `adapters/claude_code.py` added alongside is described in the article; the generic protocol does not require Claude specifically.
 
-### Готовый адаптер Claude Code
+### The ready-made Claude Code adapter
 
-Нужны Claude Code >=2.1.248, `TYPESAFE_API_KEY` и `ANTHROPIC_API_KEY`. Адаптер использует bare/restricted режим, только Read/Edit, до 6 ходов и до $1 по лимиту CLI на попытку. Реальный live-запуск не проверен.
+You need Claude Code >=2.1.248, `TYPESAFE_API_KEY` and `ANTHROPIC_API_KEY`. The adapter uses bare/restricted mode, Read/Edit only, up to 6 turns and up to $1 on the CLI limit per attempt. A real live run has not been tested.
 
 ```bash
 python3 adapters/claude_code.py --configure
 python3 run.py loop --mode live --case missing-evidence --task task.md --worker-config worker-config-claude.json --policy policy-live.json
 ```
 
-`--configure` нужно повторить после переноса каталога: он записывает абсолютные пути текущей установки.
+`--configure` has to be repeated after the directory is moved: it records the absolute paths of the current installation.
 
-## Ограничения и остановка
+## Limits and stopping
 
-`policy.json` задаёт максимум 2 исправления, 10 проверок, 10 вызовов judge и 120 секунд всего; отдельно 10 секунд на проверку, 20 секунд на HTTP и 90 секунд на worker. Перед действием используется меньший из его timeout и оставшегося общего времени. API ограничен общим deadline запроса; по timeout worker/check останавливается вся группа процессов. Неизменившийся проект после исправления останавливает цикл как `no_new_evidence_or_source_change`.
+`policy.json` sets a maximum of 2 repairs, 10 checks, 10 judge calls and 120 seconds in total; separately 10 seconds per check, 20 seconds for HTTP and 90 seconds for the worker. Before an action, the smaller of its own timeout and the remaining total time is used. The API is bounded by an overall request deadline; on a worker or check timeout the whole process group is stopped. A project that did not change after a repair stops the loop with `no_new_evidence_or_source_change`.
 
-Если Choice возвращает `none_suitable` или недостаточную confidence, программа останавливается. Ошибка API маршрутизатора Choice также сохраняет факты и останавливает выбор. Сбой необязательного Noul отмечается в отчёте, но сам по себе не меняет acceptance. Модель может выбрать только ID из реестра, а не произвольную команду. Confidence и вероятность выбранного варианта — разные поля: в живой остановке D2 имел вероятность 0.68 при confidence 0.52.
+If Choice returns `none_suitable` or insufficient `confidence`, the program stops. An API error in the Choice router also saves the facts and stops the selection. A failure of the optional Noul is noted in the report, but on its own it does not change acceptance. The model can only pick an ID from the registry, never an arbitrary command. `confidence` and the probability of the chosen option are different fields: in the live stop, D2 had a probability of 0.68 at a `confidence` of 0.52.
 
 ```bash
 python3 run.py loop --mode demo --case correct
 python3 run.py loop --mode demo --case stalled
 ```
 
-`correct` завершается без исправлений. `stalled` сохраняет провал C2 и останавливается после неизменившегося проекта. Exit code 0 означает успешное выполнение команды (для `evidence` это успешное создание отчёта, а не обязательно прохождение требований); 2 — ограниченная остановка или replay divergence; 1 — ошибка входной конфигурации до запуска. Результат всегда проверяйте также по `result.json`.
+`correct` completes with no repairs. `stalled` saves the C2 failure and stops after the project did not change. Exit code 0 means the command ran successfully (for `evidence` that means the report was created, not necessarily that the requirements passed); 2 means a bounded stop or a replay divergence; 1 means an input configuration error before the run started. Always check the outcome against `result.json` as well.
 
-## Сравнение с простыми правилами
+## Comparison with simple rules
 
 ```bash
 python3 run.py loop --mode demo --selector fixed
@@ -147,9 +147,9 @@ python3 run.py loop --mode demo --selector all
 python3 evaluate.py --out evaluation-local
 ```
 
-`fixed` выбирает D1; `all` выполняет D1 и D2. Оба пропускают shadow-вызовы и полностью обходятся без Jev. `jev` использует Noul-аннотации и Choice. Матрица `evaluate.py` запускает три authored-case × три варианта политики; после каждой остановки отдельные assertions проверяют дополнительные строки поиска. Эти результаты не передаются обратно worker/selector. Отчёт — `evaluation.json`.
+`fixed` picks D1; `all` runs both D1 and D2. Both skip the shadow calls and work entirely without Jev. `jev` uses the Noul annotations and Choice. The `evaluate.py` matrix runs three authored cases × three policy variants; after each stop, separate assertions check extra search strings. These results are not fed back to the worker or the selector. The report is `evaluation.json`.
 
-Это девять запусков интеграционной механики со специально написанными фикстурами. Исправление детерминированное, поэтому матрица не измеряет пользу выбора D1 против D2. Из неё нельзя заключать, что Jev лучше, быстрее или дешевле. Для такого вывода нужны реальные сохранённые состояния, отложенная выборка, настоящий worker, повторные запуски и сравнение при одинаковом бюджете. Сохранение конечного результата само по себе не делает oracle исчерпывающим.
+That is nine runs of the integration mechanics against purpose-written fixtures. The repair is deterministic, so the matrix does not measure the benefit of picking D1 over D2. You cannot conclude from it that Jev is better, faster or cheaper. Such a conclusion needs real saved states, a held-out sample, a real worker, repeated runs and a comparison at an equal budget. Saving the final outcome does not by itself make the oracle exhaustive.
 
 ## Replay
 
@@ -157,10 +157,10 @@ python3 evaluate.py --out evaluation-local
 python3 run.py replay --run runs/example --policy policy.json
 ```
 
-Replay повторяет только программные решения по сохранённым контекстам и ответам. Он ничего не вызывает и не редактирует. При первом отличии действия выводит `diverged` и заканчивается: последующие наблюдения принадлежат прежнему маршруту. Это не полный контрфактический прогон. Чтобы увидеть расхождение, скопируйте `policy.json`, уменьшите `max_checks` до 1 и укажите новую копию. Изменение только `scope_threshold` может не изменить действий, потому что Noul здесь shadow-only.
+Replay repeats only the programmatic decisions against the saved contexts and answers. It calls nothing and edits nothing. At the first differing action it prints `diverged` and ends: the observations after that point belong to the earlier route. This is not a full counterfactual run. To see a divergence, copy `policy.json`, reduce `max_checks` to 1 and point the run at the new copy. Changing `scope_threshold` alone may not change any action, because Noul is shadow-only here.
 
-## Перенос в собственный проект
+## Carrying this into your own project
 
-Меняйте вместе требования в `task.md`, `CRITERIA` в `evidence.py`, зарегистрированные проверки и их описания, `check_runner.py`, фикстуры и независимый oracle. Один лишь новый `--task` не меняет критерии программы. В текущем виде это небольшой учебный контракт из двух проверок, а не универсальная сертификация проекта.
+Edit the requirements in `task.md`, `CRITERIA` in `evidence.py`, the registered checks and their descriptions, `check_runner.py`, the fixtures and the independent oracle in step with each other. A new `--task` on its own does not change the program's criteria. As it stands this is a small teaching contract of two checks, not a universal certification of a project.
 
-Сначала полезно подключить Jev в shadow-режиме к реальным неоднозначным случаям, проверить ошибки и только затем разрешать его выбору влиять на действия. Набор unit/integration тестов покрывает неизвестные и устаревшие свидетельства, изменённый контракт, tool errors, `none_suitable`, confidence, лимиты, HTTP-сбои, настоящий ремонт fixture и остановку дочерних процессов.
+It helps to first attach Jev in shadow mode to real ambiguous cases, review the errors, and only then let its choice influence actions. The unit and integration test suite covers unknown and stale evidence, a changed contract, tool errors, `none_suitable`, `confidence`, limits, HTTP failures, a real fixture repair and the stopping of child processes.
