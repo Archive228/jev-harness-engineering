@@ -2,7 +2,7 @@
 
 Start with one sentence: "I want something useful about crypto". JEVIS helps you pick the result, asks the questions it needs and prepares a plan you can read. After **Start work** it creates and fixes files, runs commands and shows the result together with the checks. Jev is the typed-decision mechanism inside JEVIS; the conversation, the plan and the record are saved locally.
 
-This is the runnable product that goes with the article **Jev + Harness Engineering**. A normal start opens an empty chat and waits for your message. **Enter** or **Discuss** sends the whole text. **Ctrl+J** adds a new line; Shift+Enter also works if the terminal passes that combination through. A paste keeps every paragraph and sends nothing by itself. Ctrl+D remains an additional way to send.
+This is the runnable product that goes with the article **Jev + Harness Engineering**. A normal start opens an empty chat and waits for your message. **Enter** or **Discuss ↵** sends the whole text. **Ctrl+J** adds a new line; Shift+Enter also works if the terminal passes that combination through. A paste keeps every paragraph and sends nothing by itself. Ctrl+D remains an additional way to send.
 
 ## First run
 
@@ -70,7 +70,7 @@ The clearest first run is **Crypto Ledger**: a small CLI that accounts for trade
 ```
 
 1. Press **Insert an example task** or **F2**: the task of this particular mission is pasted into the editor.
-2. Read it and press **Enter** or **Discuss**.
+2. Read it and press **Enter** or **Discuss ↵**.
 3. Look at the plan and press **Start work**. The mission already has a detailed task and checks, so extra questions may not be needed.
 4. Watch the real commands and results; the tool cards expand on a click or Enter.
 5. Press **Files** to read the fixed code, the saved diff and `report.json`.
@@ -123,7 +123,7 @@ Once the plan is accepted the agent can change the project you chose. To get acq
 
 ## The conversation, the tools and the details
 
-Most of the screen is the conversation, on a dark background with a pink accent. The top line now says **JEVIS** outright. On the right a small log of live stages and commands stays visible; the tabs next to it open the decisions, the checks and the full events. The compact navigation opens **Task**, sessions, files, JEVIS, logs and the menu. **New** creates a separate session with a new workspace; the previous conversation and draft stay saved. Sessions and modes can be switched between turns.
+Most of the screen is the conversation, on a dark background with a pink accent. The top line now says **JEVIS** outright. On the right a small log of live stages and commands stays visible; the tabs next to it open the decisions, the checks and the full events. The compact navigation opens **Task**, sessions, files, JEVIS, logs and the menu. **＋ New** creates a separate session with a new workspace; the previous conversation and draft stay saved. Sessions and modes can be switched between turns.
 
 Jev decisions, commands and checks are collected in **Activity**. After a successful finish that group collapses and the final answer stays separate. A click on the header or **Ctrl+O** expands the last group. If the turn ended in an error, a cancellation or a question for the user, the details stay open.
 
@@ -135,7 +135,7 @@ Each tool has one expandable card: the start and the end of a single call both u
 
 **JEVIS** or **F6** opens the details: the graph and Jev's answers with their probability distributions, the checks and files, the event log. The panel is hidden at start. In a narrow window it takes over the conversation area while keeping the editor reachable. **Logs** or **F3** opens the events tab directly: it is a limited on-screen preview, up to 4000 lines, and long payloads are shortened. The full sequence of events is in `events.jsonl` on disk. The current status distinguishes discussion, a ready plan and execution. On a restore it says that this is saved history.
 
-The message field grows as you paste text, wraps long lines and scrolls. The **↕** button or **F4** expands it to nearly the whole screen. **⌘⌫** deletes the current line, and **Ctrl+U** is the fallback for terminals that do not pass Command through. The limit for a message and for a draft is 20,000 characters; a request that is too long stays in the editor. The draft is saved separately for each session and restored without being sent. While the agent is working, a **Stop** button sits next to the editor. The **Discuss** and **Execute** buttons separate two decisions: the first turns on the questions and plan acceptance, the second grants the right to change files. Discussion is on by default; if the plan is already written, pick **Straight to the task** at the bottom.
+The message field grows as you paste text, wraps long lines and scrolls. The **↕** button or **F4** expands it to nearly the whole screen. **⌘⌫** deletes the current line, and **Ctrl+U** is the fallback for terminals that do not pass Command through. The limit for a message and for a draft is 20,000 characters; a request that is too long stays in the editor. The draft is saved separately for each session and restored without being sent. While the agent is working, a **■ Stop** button sits next to the editor. The **Discuss ↵** and **Execute ▾** buttons separate two decisions: the first turns on the questions and plan acceptance, the second grants the right to change files. Discussion is on by default; if the plan is already written, pick **Straight to the task** at the bottom.
 
 - **Enter** sends the whole message; **Ctrl+J** makes a new line. Shift+Enter adds a line if the terminal supports it. **Ctrl+D** also sends.
 - **F1 / Ctrl+P** finds a command; **F2** pastes the example without running it.

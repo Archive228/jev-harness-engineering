@@ -25,9 +25,9 @@ and the absence of an explicit requirements stage.
    worker prose, not an actionable question card.
 2. **The interface duplicates state.** The masthead displays both `ОЖИДАНИЕ`
    (“WAITING”) and the preceding success. The phase strip, activity title, result
-   row and status counters repeat that run. Of the 48 rows in the saved 126×48
-   capture, 21 carry the header, navigation, phase strip, result row, status
-   counters and composer furniture, leaving 27 rows for the conversation.
+   row and status counters repeat that run. The saved capture is 126×48, and the header,
+   navigation, phase strip, result row, status counters and composer furniture
+   take a good half of those rows before any conversation is shown.
 3. **Several controls have equal visual priority.** Navigation, result actions,
    execution mode, Jev mode, expansion and send all resemble primary buttons.
    A new user has to decode the architecture before deciding what to do next.

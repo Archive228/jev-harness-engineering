@@ -18,7 +18,8 @@ The details and the limits of each experiment: [VALIDATION.md](./VALIDATION.md).
 ## Reading and running
 
 - The article, shortened edition: [English](./jev-engineering.en.v2.md) · [HTML](./jev-engineering.en.v2.html), [Russian](./jev-engineering.v2.md) · [HTML](./jev-engineering.v2.html).
-- The full first edition: [English](./jev-engineering.en.jev-focus.md), [Russian](./jev-engineering.md) · [HTML](./jev-engineering.html).
+- The first edition, in Russian: [Markdown](./jev-engineering.md) · [HTML](./jev-engineering.html).
+- The long Jev-first edition: [English](./jev-engineering.en.jev-focus.md) · [HTML](./jev-engineering.en.jev-focus.html), [Russian](./jev-engineering.jev-focus.md) · [HTML](./jev-engineering.jev-focus.html).
 - [The quick route for a reader](./START-HERE.md).
 - [The lab and its commands](./jev-harness-lab/README.md).
 - [Method for the live Jev evaluations](./jev-harness-lab/live-eval-method.md).
@@ -80,10 +81,10 @@ API keys and local configs with absolute paths are excluded from Git. After movi
 
 A finished chat with free-form input, real Codex actions and Jev decisions: [launch and first request](./terminal-agent/README.md). The command `terminal-agent/jev` opens an empty chat. Write a plain idea: «Хочу что-нибудь полезное про крипту, чтобы запустить прямо в терминале.» ("I want something useful about crypto, to run right in the terminal.") The agent helps you pin down the result, offers a plan with criteria to check against, and starts execution after the **"Start work"** button. You can correct the plan in your own words, and the exact task for the worker is visible in a separate tab. Questions and answers are saved between runs. That session was run in Russian, so its saved artefacts and the screenshots are in Russian; the English in brackets is a gloss, while the button names quoted here are the current interface strings.
 
-**Enter** or the "Discuss" button sends the whole message; **Ctrl+J** adds a line. Shift+Enter works if the terminal supports it, and Ctrl+D remains an additional way to send. Pasting preserves every paragraph and sends nothing automatically. To execute an already exact task without any discussion, there are `--direct` and `/direct`.
+**Enter** or the **Discuss ↵** button sends the whole message; **Ctrl+J** adds a line. Shift+Enter works if the terminal supports it, and Ctrl+D remains an additional way to send. Pasting preserves every paragraph and sends nothing automatically. To execute an already exact task without any discussion, there are `--direct` and `/direct`.
 
 In version 2: expandable tool cards, the Jev decisions panel on F6, session search, drafts, a file and diff viewer, Markdown export, the plan mode and the Jev assist/observe/off modes. `terminal-agent/jev --mission cryptolab` creates a separate teaching project for tracking crypto trades, with seven tests set in advance. [The chapter on the finished terminal agent](./terminal-agent/ARTICLE-TERMINAL-V2.md), [a review of the Pi/PiJev/OpenCode/Crush sources](./terminal-agent/research/upstream-audit.md), [the v2 checks](./terminal-agent/verification/v2/README.md).
 
-The updated interface uses a pink accent, visible navigation buttons and a separate summary of the answer. After a successful completion "Activity" collapses; a click or Ctrl+O expands it. The "Files", "Copy" and "Export" buttons help you take the result away, and "Stop" is available while work is running. [The check of the updated interface](./terminal-agent/verification/ui-pink/README.md) is kept separate from the historical live v2 run.
+The updated interface uses a pink accent, visible navigation buttons and a separate summary of the answer. After a successful completion "Activity" collapses; a click or Ctrl+O expands it. The "Files", "Copy" and "Export" buttons help you take the result away, and **■ Stop** is available while work is running. [The check of the updated interface](./terminal-agent/verification/ui-pink/README.md) is kept separate from the historical live v2 run.
 
 The new path **idea → questions → plan → execution** was verified by building a terminal crypto calculator live. [The log, the code, the tests and the screenshots](./terminal-agent/verification/guided/README.md). The product uses adaptations of the open sources of OpenCode, Hermes and Codex; [the exact files, the licences and the limits of what was carried over](./terminal-agent/research/ATTRIBUTION.md) are kept in the repository.

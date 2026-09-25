@@ -17,7 +17,7 @@ Jev needs a TypeSafe key, and the worker needs an authorised Codex CLI.
 Setting that up without writing the key into your shell history is described in the [README](./README.md).
 You can check the installation with `./jev --doctor`: it calls no models.
 
-After it starts, the agent waits for your message. **Enter** or the **Discuss**
+After it starts, the agent waits for your message. **Enter** or the **Discuss ↵**
 button sends the whole text; **Ctrl+J** adds a line. Shift+Enter also adds a line
 if the terminal supports it. **Ctrl+D** remains an additional way to send.
 The **↕** button or **F4** opens the large editor. Pasted text is visible in full,
@@ -200,7 +200,7 @@ with the conversation, the checks and the events into the session directory.
 
 ![The finished result kept separate from the execution details](./verification/screenshots/guided-result-browser.png)
 
-**Sessions** opens a search across saved conversations, and **New** creates a separate
+**Sessions** opens a search across saved conversations, and **＋ New** creates a separate
 chat with a new workspace. A draft survives exiting and switching sessions.
 To carry on from the shell:
 
