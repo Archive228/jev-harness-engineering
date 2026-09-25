@@ -130,30 +130,29 @@ the execution in `turn-NNN/`. You can follow the path from the original sentence
 request and the result. If the project changed after the preparation, an old plan cannot be
 executed unnoticed: the application asks you to update it.
 
-Jev **does not write code or the text of the answer**. An example of its contract in our Python code:
+Jev **does not write code or the text of the answer**. Its contract in our Python code,
+`REVIEW_QUESTIONS` in `core.py`:
 
 ```python
-questions = {
-    "next_action": {
-        "type": "choice",
-        "instructions": "Use observed results. A worker's claim is not independent proof. Python determines acceptance.",
-        "criteria": {
-            "finish": "The request is addressed; observed evidence permits completion.",
-            "improve": "A concrete repair is still needed.",
-            "ask_user": "A user decision or missing information is required."
-        }
-    },
-    "addresses_request": {
-        "type": "noul",
-        "instructions": "Does the observed result address the current request?"
-    }
+REVIEW_QUESTIONS = {
+    "next_action": {"type": "choice", "instructions": (
+        "Select what to do after this worker attempt, using the user's request and observed results. "
+        "A worker's final message is a claim, not independent proof. Do not invent failures or demand "
+        "tests for a simple explanation. If registered checks fail and the worker can repair them, "
+        "choose improve. The program, not this answer, determines acceptance."),
+        "criteria": {"finish": "The requested response/artifact is prepared and no concrete remaining defect is apparent.",
+                     "improve": "A concrete unresolved defect can be addressed with another worker attempt.",
+                     "ask_user": "Essential missing information or access requires the user's answer."}},
+    "addresses_request": {"type": "noul", "instructions": (
+        "Does the observed work and final response address the current user's requested deliverable? "
+        "Assess correspondence to the request, not general correctness or hidden test coverage.")}
 }
 ```
 
-This is a shortened illustration of the format. The full instructions are in
-[`core.py`](./jev_agent/core.py); the request and the answer of every live call are saved
-in `turn-NNN/jev-NN/`. A Noul value and a confidence are answers from the model. They do not turn
-a failed command into a passing check.
+That is the review block verbatim; the routing, triage and per-requirement question sets sit
+beside it in [`core.py`](./jev_agent/core.py). The request and the answer of every live call are
+saved in `turn-NNN/jev-NN/`. A Noul value and a confidence are answers from the model. They do not
+turn a failed command into a passing check.
 
 ## Why Jev reads the source files
 

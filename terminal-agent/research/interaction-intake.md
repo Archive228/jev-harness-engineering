@@ -4,10 +4,11 @@ Research date: 21 September 2026. This is a targeted audit of interaction paths,
 not a claim to have read or tested every line of another agent. The starting Jev
 screen is the saved `terminal-pink-result-browser.png`; production code references
 below describe the version before the intake redesign. That screen is from a
-Russian-language run, and the saved guided session artefacts are in Russian too,
-so strings quoted from them are kept as recorded with an English gloss in
-parentheses; the linked upstream sources and the current `jev_agent/` interface
-strings are English.
+Russian-language run, so its interface strings are quoted as recorded with an
+English gloss in parentheses; the Russian example request below is quoted from
+the `ROUGH_REQUEST` fixture in `tests/test_guided_tui.py`. The linked upstream
+sources, the method notes and test output under `verification/guided/`, and the
+current `jev_agent/` interface strings are English.
 
 ## What is wrong with the existing interaction
 
@@ -24,9 +25,9 @@ and the absence of an explicit requirements stage.
    worker prose, not an actionable question card.
 2. **The interface duplicates state.** The masthead displays both `ОЖИДАНИЕ`
    (“WAITING”) and the preceding success. The phase strip, activity title, result
-   row and status counters repeat that run. The saved 126×44 screen spends
-   roughly 18 rows on navigation, status and composer furniture. This crowds out
-   the conversation.
+   row and status counters repeat that run. Of the 48 rows in the saved 126×48
+   capture, 21 carry the header, navigation, phase strip, result row, status
+   counters and composer furniture, leaving 27 rows for the conversation.
 3. **Several controls have equal visual priority.** Navigation, result actions,
    execution mode, Jev mode, expansion and send all resemble primary buttons.
    A new user has to decode the architecture before deciding what to do next.
@@ -133,9 +134,11 @@ plus custom text and a “choose a sensible default” answer where appropriate.
 the user supplied the information already, do not ask it again. A clear request
 can go directly to the plan, and an explicit direct mode can bypass the interview.
 
-The question area shows one full question, `1 of 3`, two or three options with
-short explanations, a multiline custom answer, Back and Continue. Choice and
-free-text editing have separate focus rules. Going back retains answers. Escape
+The question area shows one full question, a counter built as
+`Question %d of %d · %s` from the index, the total and the question header
+(`_render_question` in `jev_agent/intake_widgets.py`), two or three options with
+short explanations, a multiline custom answer, and `← Back` / `Next →` /
+`Later`. Choice and free-text editing have separate focus rules. Going back retains answers. Escape
 leaves the question intact for later; it does not approve a default or run the
 worker. A final review summarises the actual answers before plan generation.
 
@@ -147,8 +150,9 @@ The plan is a concrete brief, not a long transcript:
 - **Steps:** three to five outcome-oriented steps.
 - **Verification:** commands or observable examples that will establish success.
 
-The main action is **Start work**. The second is **Edit**; a correction can return
-to clarification. Retain the original sentence, each answer, the reviewed plan
+The main action is **Start work**. The second is **Refine**; a correction can
+return to clarification. A third, **Later**, dismisses the plan without
+approving it. Retain the original sentence, each answer, the reviewed plan
 revision and the eventual execution prompt in session artifacts. Resuming a
 session restores the pending question or plan without starting work. Approval of
 revision 2 cannot accidentally execute revision 1.

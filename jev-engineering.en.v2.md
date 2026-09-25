@@ -266,6 +266,10 @@ with urlopen(request, timeout=30) as response:
 
 The request took about 0.98 seconds, and the API reported 746 input and 79 output tokens. That is one observation of one request, and it promises nothing about latency. [The full API contract](https://docs.typesafe.ai/api), [the saved answer](./verification/jev-live-2026-09-20/first-call-ru/response.json).
 
+![The same answer as a file in the public repository: model, choice, confidence, the whole distribution and the Score legend](./assets/screenshots/github/05-saved-answer.png)
+
+Every number in this article is a file you can open. That one is the response of the first call, exactly as it came back.
+
 ![Screenshot of a real Jev answer: category export, Score 1.0, Noul 0.95](./assets/screenshots/01-live-primitives.en.png)
 
 *A local view of the saved API response. The values are read from the JSON.*
@@ -317,6 +321,8 @@ C2  mandatory check  search("carton") expects card 1
 D1  diagnostic       calls the backend directly across both fields
 D2  diagnostic       shows which fields the interface actually sent
 ```
+
+![The same registry in the repository, as checks.json](./assets/screenshots/github/04-checks.png)
 
 Code runs C1 and C2 itself: their relationship to the requirements is known in advance. D1 and D2 still have to be chosen, and that is where a place for Choice appears.
 
@@ -441,6 +447,8 @@ The rules in words:
 5. The answer to the mandatory Choice is missing, invalid or below the confidence threshold: stop with a reason. An API error never confirms readiness.
 
 A high score from the model cannot overturn a failing C2. A `complete` decision means precisely that the described acceptance contract is satisfied; two tests do not prove the absence of every possible defect.
+
+![Four inputs, one decision: the worker's claim, the checks, the Jev answer, and the policy that is the only thing allowed to end the turn](./assets/09-stop-anatomy-en.svg)
 
 ![A run stopped by the policy: one check of six passed, the model chose finish at confidence 0.58, and the policy blocked it](./assets/screenshots/terminal/05-run.png)
 
@@ -627,10 +635,18 @@ Open your agent's last failed run, pull a `state` out of it, and ask Jev one nar
 
 If you want a finished agent rather than a bench, built from these same three builds, it sits right here: [the JEVIS terminal agent](./terminal-agent/README.md), one command to install and runnable with no keys.
 
+![A map of the agent's screen: state and project, checks, the Jev decision, the policy, the live log drawer, and the message row](./assets/08-agent-map-en.svg)
+
 ![The agent on startup: tabs, the live log drawer and the message box](./assets/screenshots/terminal/01-start.png)
 
 ![The plan waiting for approval: outcome, files, steps, checks, constraints and assumptions](./assets/screenshots/terminal/04-plan.png)
 
 It asks a few questions, writes a plan, and waits. Work starts when you press the button, and every check and decision is on screen while it runs.
+
+![The files of one turn, separated into the ones it added and the ones that were already there](./assets/screenshots/terminal/07-files.png)
+
+![The help panel: what each key does and what the agent is for](./assets/screenshots/terminal/08-help.png)
+
+The files it touched are separated from the files that were already there, and every key is listed in one place.
 
 Everything else sits next to this text: [code and instructions](./jev-harness-lab/README.md), [the first call](./first_call.py), [first steps](./START-HERE.md), [source verification](./source-check.md), [results gallery](./verification/evidence-gallery.en.html), [VALIDATION.md](./VALIDATION.md), [GitHub Actions](https://github.com/Archive228/jev-harness-engineering/actions).

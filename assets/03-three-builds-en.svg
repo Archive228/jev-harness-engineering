@@ -1,58 +1,84 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1160" viewBox="0 0 1480 1160" role="img" aria-labelledby="title desc">
-<title id="title">Jev in three small builds</title>
-<desc id="desc">The first build uses Noul to judge evidence. The second uses Choice to pick an optional diagnostic from a registry. The third connects them to a worker and to programmatic transition rules. Mandatory checks, limits and the completion decision are set by code.</desc>
-<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L8,4.5 L0,9" fill="#66716C"/></marker></defs>
-<rect x="0" y="0" width="1480" height="1160" rx="0" fill="#FBF8F2"/>
-<text x="64" y="64" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#66716C" text-anchor="start">03  /  THREE SMALL BUILDS</text>
-<text x="64" y="126" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#26302F" text-anchor="start">Three tools. One contract with Jev.</text>
-<text x="64" y="172" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">Input → one narrow question → answer → observable result.</text>
-<rect x="64" y="219" width="1352" height="252" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
-<rect x="88" y="239" width="56" height="34" rx="17" fill="#F1F2EC"/>
-<text x="116.0" y="262" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">01</text>
-<text x="159" y="265" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Evidence report</text>
-<text x="88" y="324" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">Criteria, snapshot,</text>
-<text x="88" y="358" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">command results</text>
-<line x1="406" y1="337" x2="474" y2="337" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="488" y="289" width="420" height="108" rx="20" fill="#FFF0E8"/>
-<text x="511" y="320" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#E47254" text-anchor="start">Jev · Noul</text>
-<text x="511" y="353" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">Is this evidence related</text>
-<text x="511" y="382" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">to the requirement?</text>
-<line x1="922" y1="337" x2="986" y2="337" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="1004" y="324" font-family="Menlo, Consolas, monospace" font-size="23" font-weight="700" fill="#26302F" text-anchor="start">evidence-report.json</text>
-<text x="1004" y="363" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#66716C" text-anchor="start">passed · failed · unverified</text>
-<line x1="88" y1="415" x2="1392" y2="415" stroke="#D8DCD4" stroke-width="2"/>
-<text x="88" y="448" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">Noul is an annotation. Code sets the statuses from fresh test results.</text>
-<rect x="64" y="502" width="1352" height="252" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
-<rect x="88" y="522" width="56" height="34" rx="17" fill="#F1F2EC"/>
-<text x="116.0" y="545" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">02</text>
-<text x="159" y="548" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Next-check router</text>
-<text x="88" y="607" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">A failed check,</text>
-<text x="88" y="641" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">the diagnostic registry</text>
-<line x1="406" y1="620" x2="474" y2="620" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="488" y="572" width="420" height="108" rx="20" fill="#FFF0E8"/>
-<text x="511" y="603" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#E47254" text-anchor="start">Jev · Choice</text>
-<text x="511" y="636" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">Which extra check</text>
-<text x="511" y="665" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">is useful right now?</text>
-<line x1="922" y1="620" x2="986" y2="620" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="1004" y="607" font-family="Menlo, Consolas, monospace" font-size="23" font-weight="700" fill="#26302F" text-anchor="start">next-check.json</text>
-<text x="1004" y="646" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#66716C" text-anchor="start">ID from the registry / refusal</text>
-<line x1="88" y1="698" x2="1392" y2="698" stroke="#D8DCD4" stroke-width="2"/>
-<text x="88" y="731" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">Code runs the mandatory checks. Jev picks the extra diagnostic.</text>
-<rect x="64" y="785" width="1352" height="252" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
-<rect x="88" y="805" width="56" height="34" rx="17" fill="#F1F2EC"/>
-<text x="116.0" y="828" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">03</text>
-<text x="159" y="831" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26302F" text-anchor="start">Bounded loop</text>
-<text x="88" y="890" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">A new snapshot,</text>
-<text x="88" y="924" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" fill="#26302F" text-anchor="start">the report and limits</text>
-<line x1="406" y1="903" x2="474" y2="903" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="488" y="855" width="420" height="108" rx="20" fill="#FFF0E8"/>
-<text x="511" y="886" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#E47254" text-anchor="start">Jev · Noul + Choice</text>
-<text x="511" y="919" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">Related to the requirement?</text>
-<text x="511" y="948" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#26302F" text-anchor="start">What to check next?</text>
-<line x1="922" y1="903" x2="986" y2="903" stroke="#66716C" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="1004" y="890" font-family="Menlo, Consolas, monospace" font-size="23" font-weight="700" fill="#26302F" text-anchor="start">run-report.md</text>
-<text x="1004" y="929" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#66716C" text-anchor="start">complete / stopped + reason</text>
-<line x1="88" y1="981" x2="1392" y2="981" stroke="#D8DCD4" stroke-width="2"/>
-<text x="88" y="1014" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">Code ends the loop only when acceptance holds. Limits cap the attempts.</text>
-<text x="64" y="1100" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#26302F" text-anchor="start">Jev returns a judgement or an ID. The application runs the checks, the repairs and the stop.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1468" height="698" viewBox="0 0 1468 698" role="img" aria-labelledby="title desc">
+<title id="title">jev · three builds</title>
+<desc id="desc">Build one uses Noul to relate evidence to a requirement. Build two uses Choice to pick an optional diagnostic. Build three ties them to a worker, and code decides when the run ends.</desc>
+<rect x="0" y="0" width="1468" height="698" rx="14" fill="#18151d"/>
+<rect x="0" y="0" width="1468" height="44" rx="14" fill="#221c29"/>
+<rect x="0" y="30" width="1468" height="14" fill="#221c29"/>
+<circle cx="24" cy="22" r="6.5" fill="#ee9b9b"/>
+<circle cx="46" cy="22" r="6.5" fill="#e8c98a"/>
+<circle cx="68" cy="22" r="6.5" fill="#9fd6a8"/>
+<text x="734.0" y="28.0" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="15" font-weight="400" fill="#aaa0b2" text-anchor="middle" xml:space="preserve">jev · three builds</text>
+<text x="26.0" y="89.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="408.0" lengthAdjust="spacing">──────────────────────────────────</text>
+<text x="434.0" y="89.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#f2a0cc" xml:space="preserve" textLength="600.0" lengthAdjust="spacing"> input, one narrow question, an observable result </text>
+<text x="1034.0" y="89.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="408.0" lengthAdjust="spacing">──────────────────────────────────</text>
+<text x="26.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="1416.0" lengthAdjust="spacing">╭────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮</text>
+<text x="26.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="1416.0" lengthAdjust="spacing">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+<text x="50.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="48.0" lengthAdjust="spacing"> 01 </text>
+<text x="98.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="24.0" lengthAdjust="spacing">  </text>
+<text x="122.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="180.0" lengthAdjust="spacing">Evidence report</text>
+<text x="62.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="228.0" lengthAdjust="spacing">criteria, snapshot,</text>
+<text x="62.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="180.0" lengthAdjust="spacing">command results</text>
+<text x="386.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">──▶</text>
+<text x="458.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#f2a0cc" xml:space="preserve" textLength="120.0" lengthAdjust="spacing">jev · Noul</text>
+<text x="458.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="288.0" lengthAdjust="spacing">Is this evidence related</text>
+<text x="458.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="228.0" lengthAdjust="spacing">to the requirement?</text>
+<text x="842.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">──▶</text>
+<text x="914.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#c98fd8" xml:space="preserve" textLength="240.0" lengthAdjust="spacing">evidence-report.json</text>
+<text x="914.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="336.0" lengthAdjust="spacing">passed · failed · unverified</text>
+<text x="62.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#7d7188" xml:space="preserve" textLength="780.0" lengthAdjust="spacing">Noul is an annotation. Code sets the statuses from fresh results.</text>
+<text x="26.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="1416.0" lengthAdjust="spacing">╭────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮</text>
+<text x="26.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="413.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="413.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="440.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="1416.0" lengthAdjust="spacing">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+<text x="50.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="48.0" lengthAdjust="spacing"> 02 </text>
+<text x="98.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="24.0" lengthAdjust="spacing">  </text>
+<text x="122.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="204.0" lengthAdjust="spacing">Next-check router</text>
+<text x="62.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="180.0" lengthAdjust="spacing">a failed check,</text>
+<text x="62.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="276.0" lengthAdjust="spacing">the diagnostic registry</text>
+<text x="386.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">──▶</text>
+<text x="458.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#f2a0cc" xml:space="preserve" textLength="144.0" lengthAdjust="spacing">jev · Choice</text>
+<text x="458.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="240.0" lengthAdjust="spacing">Which extra check is</text>
+<text x="458.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="204.0" lengthAdjust="spacing">useful right now?</text>
+<text x="842.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">──▶</text>
+<text x="914.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#c98fd8" xml:space="preserve" textLength="180.0" lengthAdjust="spacing">next-check.json</text>
+<text x="914.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="444.0" lengthAdjust="spacing">an ID from the registry, or a refusal</text>
+<text x="62.0" y="413.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#7d7188" xml:space="preserve" textLength="672.0" lengthAdjust="spacing">Code runs the mandatory checks. Jev picks the extra one.</text>
+<text x="26.0" y="467.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="1416.0" lengthAdjust="spacing">╭────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮</text>
+<text x="26.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="521.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="521.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="548.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="548.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="575.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="575.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="602.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="1416.0" lengthAdjust="spacing">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+<text x="50.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="48.0" lengthAdjust="spacing"> 03 </text>
+<text x="98.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="24.0" lengthAdjust="spacing">  </text>
+<text x="122.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="144.0" lengthAdjust="spacing">Bounded loop</text>
+<text x="62.0" y="521.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="180.0" lengthAdjust="spacing">a new snapshot,</text>
+<text x="62.0" y="548.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="252.0" lengthAdjust="spacing">the report and limits</text>
+<text x="386.0" y="521.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">──▶</text>
+<text x="458.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#f2a0cc" xml:space="preserve" textLength="228.0" lengthAdjust="spacing">jev · Noul + Choice</text>
+<text x="458.0" y="521.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="324.0" lengthAdjust="spacing">Related to the requirement?</text>
+<text x="458.0" y="548.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="228.0" lengthAdjust="spacing">What to check next?</text>
+<text x="842.0" y="521.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">──▶</text>
+<text x="914.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#c98fd8" xml:space="preserve" textLength="156.0" lengthAdjust="spacing">run-report.md</text>
+<text x="914.0" y="521.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="408.0" lengthAdjust="spacing">complete, or stopped with a reason</text>
+<text x="62.0" y="575.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#7d7188" xml:space="preserve" textLength="852.0" lengthAdjust="spacing">Code ends the loop only when acceptance holds. Limits cap the attempts.</text>
+<text x="26.0" y="656.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="1128.0" lengthAdjust="spacing">  Jev returns a judgement or an ID. The application runs the checks, the repairs and the stop.</text>
 </svg>

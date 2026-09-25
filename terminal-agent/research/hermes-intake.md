@@ -74,12 +74,12 @@ check on the result belong in state, and the terminal only shows them. The word
 Before intake was added, `Session._execute` took the user's original sentence, chose
 between `implement/inspect/answer`, retrieved context and started the worker. The
 instruction “If essential information is missing, ask one concise question.” lived
-inside the worker prompt. The harness had no separate state for “we are waiting for an
-answer to this question”, no assembled task and no explicit boundary between design and
+inside the worker prompt. The harness had no separate state for waiting on an answer to a
+given question, no assembled task and no explicit boundary between design and
 execution. So a sentence like “Сделай что-нибудь про крипту” (“build me something about
 crypto”) went down the same path as a precise task about CSV. That phrasing is the
-fixture request in `tests/test_intake.py`; the intake tests use Russian user input, so
-it is quoted as recorded rather than translated. Polishing the buttons does not fix
+request literal at `tests/test_intake.py:316`; the intake tests use Russian user input,
+so it is quoted as recorded rather than translated. Polishing the buttons does not fix
 that defect.
 
 The path we need: original idea → bounded clarification → goal, inputs, result and
@@ -97,10 +97,10 @@ is kept as a record of provenance and is not imported by the product.
 
 [`jev_agent/choice_labels.py`](../jev_agent/choice_labels.py) adapts the code of
 `mark_recommended` and `strip_recommended` from lines 35–49 of the original. The
-changes: an English marker, reading the Russian marker as well, a fresh list for
-display and a guard against an empty first option. The API uses the standard library
-only, works on Python 3.9 and adds no dependencies. The recommendation label is
-presentation only; the selected value stays as bare text.
+changes: the Russian marker `(Рекомендуется)` is recognised on the way in as well, a
+fresh list for display and a guard against an empty first option. The API uses the
+standard library only, works on Python 3.9 and adds no dependencies. The recommendation
+label is presentation only; the selected value stays as bare text.
 
 [`tests/test_choice_labels.py`](../tests/test_choice_labels.py): five checks passed
 locally. They cover that the input data is left unchanged, repeated decoration, both

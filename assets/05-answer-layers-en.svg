@@ -1,46 +1,162 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="800" viewBox="0 0 1480 800" role="img" aria-labelledby="title desc">
-<title id="title">How one Jev answer is read, layer by layer</title>
-<desc id="desc">Choice: the distribution matters, the label is its argmax. Score: the legend matters, the number is a level index. Noul: one number, no distribution and no confidence.</desc>
-<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L8,4.5 L0,9" fill="#66716C"/></marker></defs>
-<rect x="0" y="0" width="1480" height="800" rx="0" fill="#FBF8F2"/>
-<text x="64" y="64" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#66716C" text-anchor="start">05  /  READING AN ANSWER</text>
-<text x="64" y="126" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#26302F" text-anchor="start">What to look at in each primitive</text>
-<text x="64" y="172" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#66716C" text-anchor="start">The label is the least useful field. The information lives in the distribution.</text>
-<rect x="64" y="232" width="430" height="488" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
-<rect x="88" y="256" width="132" height="34" rx="17" fill="#F1F2EC"/>
-<text x="154.0" y="279" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">CHOICE</text>
-<text x="88" y="336" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#26302F" text-anchor="start">probabilities</text>
-<text x="88" y="378" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">export  1.0</text>
-<text x="88" y="412" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">account 0.0</text>
-<text x="88" y="446" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">payment 0.0</text>
-<text x="88" y="480" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">other   0.0</text>
-<line x1="88" y1="528" x2="470" y2="528" stroke="#D8DCD4" stroke-width="2"/>
-<text x="88" y="572" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">choice is the argmax.</text>
-<text x="88" y="604" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">Two different situations</text>
-<text x="88" y="636" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">give the same label:</text>
-<text x="88" y="668" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">{0.4, 0.35, 0.25} is a coin flip.</text>
-<rect x="524" y="232" width="430" height="488" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
-<rect x="548" y="256" width="118" height="34" rx="17" fill="#F1F2EC"/>
-<text x="607.0" y="279" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">SCORE</text>
-<text x="548" y="336" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#26302F" text-anchor="start">legend</text>
-<text x="548" y="378" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">0  cosmetic</text>
-<text x="548" y="412" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">1  workaround exists</text>
-<text x="548" y="446" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" fill="#26302F" text-anchor="start">2  task is blocked</text>
-<line x1="548" y1="494" x2="930" y2="494" stroke="#D8DCD4" stroke-width="2"/>
-<text x="548" y="540" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#E47254" text-anchor="start">score 1.0</text>
-<text x="548" y="578" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">A level index,</text>
-<text x="548" y="610" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">not a fraction of the scale.</text>
-<text x="548" y="642" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">A fractional value is a position</text>
-<text x="548" y="674" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">between levels, not a label.</text>
-<rect x="984" y="232" width="432" height="488" rx="20" fill="#FFFFFF" stroke="#D8DCD4" stroke-width="1.5"/>
-<rect x="1008" y="256" width="108" height="34" rx="17" fill="#F1F2EC"/>
-<text x="1062.0" y="279" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#66716C" text-anchor="middle">NOUL</text>
-<text x="1008" y="336" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#26302F" text-anchor="start">noul</text>
-<text x="1008" y="386" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700" fill="#E47254" text-anchor="start">0.95</text>
-<line x1="1008" y1="430" x2="1392" y2="430" stroke="#D8DCD4" stroke-width="2"/>
-<text x="1008" y="476" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">One number: the probability</text>
-<text x="1008" y="508" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">that the statement holds.</text>
-<text x="1008" y="540" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start"></text>
-<text x="1008" y="572" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">No distribution, no confidence —</text>
-<text x="1008" y="604" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#66716C" text-anchor="start">nothing to read but itself.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1468" height="644" viewBox="0 0 1468 644" role="img" aria-labelledby="title desc">
+<title id="title">jev · reading an answer</title>
+<desc id="desc">What to look at in each primitive: the distribution for Choice, the legend for Score, and the single number for Noul.</desc>
+<rect x="0" y="0" width="1468" height="644" rx="14" fill="#18151d"/>
+<rect x="0" y="0" width="1468" height="44" rx="14" fill="#221c29"/>
+<rect x="0" y="30" width="1468" height="14" fill="#221c29"/>
+<circle cx="24" cy="22" r="6.5" fill="#ee9b9b"/>
+<circle cx="46" cy="22" r="6.5" fill="#e8c98a"/>
+<circle cx="68" cy="22" r="6.5" fill="#9fd6a8"/>
+<text x="734.0" y="28.0" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="15" font-weight="400" fill="#aaa0b2" text-anchor="middle" xml:space="preserve">jev · reading an answer</text>
+<text x="26.0" y="89.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="480.0" lengthAdjust="spacing">────────────────────────────────────────</text>
+<text x="506.0" y="89.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#f2a0cc" xml:space="preserve" textLength="444.0" lengthAdjust="spacing"> the label is the least useful field </text>
+<text x="950.0" y="89.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="492.0" lengthAdjust="spacing">─────────────────────────────────────────</text>
+<text x="26.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">╭</text>
+<text x="38.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">─</text>
+<text x="50.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#f2a0cc" xml:space="preserve" textLength="96.0" lengthAdjust="spacing"> CHOICE </text>
+<text x="146.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="324.0" lengthAdjust="spacing">───────────────────────────</text>
+<text x="470.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">╮</text>
+<text x="26.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="413.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="413.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="440.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="440.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="467.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="467.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="470.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="26.0" y="521.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="456.0" lengthAdjust="spacing">╰────────────────────────────────────╯</text>
+<text x="506.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">╭</text>
+<text x="518.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">─</text>
+<text x="530.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#f2a0cc" xml:space="preserve" textLength="84.0" lengthAdjust="spacing"> SCORE </text>
+<text x="614.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="336.0" lengthAdjust="spacing">────────────────────────────</text>
+<text x="950.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">╮</text>
+<text x="506.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="413.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="413.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="440.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="440.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="467.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="467.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="950.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="506.0" y="521.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="456.0" lengthAdjust="spacing">╰────────────────────────────────────╯</text>
+<text x="986.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">╭</text>
+<text x="998.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">─</text>
+<text x="1010.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#f2a0cc" xml:space="preserve" textLength="72.0" lengthAdjust="spacing"> NOUL </text>
+<text x="1082.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="348.0" lengthAdjust="spacing">─────────────────────────────</text>
+<text x="1430.0" y="143.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">╮</text>
+<text x="986.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="197.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="413.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="413.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="440.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="440.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="467.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="467.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="1430.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">│</text>
+<text x="986.0" y="521.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="456.0" lengthAdjust="spacing">╰────────────────────────────────────╯</text>
+<text x="50.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#eee8f1" xml:space="preserve" textLength="156.0" lengthAdjust="spacing">probabilities</text>
+<text x="50.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="108.0" lengthAdjust="spacing">export   </text>
+<text x="158.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">[</text>
+<text x="170.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="168.0" lengthAdjust="spacing">██████████████</text>
+<text x="338.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">]</text>
+<text x="362.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">1.0</text>
+<text x="50.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="108.0" lengthAdjust="spacing">account  </text>
+<text x="158.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">[</text>
+<text x="170.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="168.0" lengthAdjust="spacing">░░░░░░░░░░░░░░</text>
+<text x="338.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">]</text>
+<text x="362.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">0.0</text>
+<text x="50.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="108.0" lengthAdjust="spacing">payment  </text>
+<text x="158.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">[</text>
+<text x="170.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="168.0" lengthAdjust="spacing">░░░░░░░░░░░░░░</text>
+<text x="338.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">]</text>
+<text x="362.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">0.0</text>
+<text x="50.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="108.0" lengthAdjust="spacing">other    </text>
+<text x="158.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">[</text>
+<text x="170.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="168.0" lengthAdjust="spacing">░░░░░░░░░░░░░░</text>
+<text x="338.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">]</text>
+<text x="362.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">0.0</text>
+<text x="50.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="408.0" lengthAdjust="spacing">──────────────────────────────────</text>
+<text x="50.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="252.0" lengthAdjust="spacing">choice is the argmax.</text>
+<text x="50.0" y="413.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="300.0" lengthAdjust="spacing">Two different states give</text>
+<text x="50.0" y="440.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="336.0" lengthAdjust="spacing">one label: {0.4, 0.35, 0.25}</text>
+<text x="50.0" y="467.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="264.0" lengthAdjust="spacing">is nearly a coin flip.</text>
+<text x="530.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#eee8f1" xml:space="preserve" textLength="72.0" lengthAdjust="spacing">legend</text>
+<text x="530.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">0  </text>
+<text x="566.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="96.0" lengthAdjust="spacing">cosmetic</text>
+<text x="530.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">1  </text>
+<text x="566.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="204.0" lengthAdjust="spacing">workaround exists</text>
+<text x="530.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="36.0" lengthAdjust="spacing">2  </text>
+<text x="566.0" y="278.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#eee8f1" xml:space="preserve" textLength="180.0" lengthAdjust="spacing">task is blocked</text>
+<text x="530.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="408.0" lengthAdjust="spacing">──────────────────────────────────</text>
+<text x="530.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#f2a0cc" xml:space="preserve" textLength="108.0" lengthAdjust="spacing">score 1.0</text>
+<text x="530.0" y="413.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="300.0" lengthAdjust="spacing">an index into the legend,</text>
+<text x="530.0" y="440.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="312.0" lengthAdjust="spacing">not a fraction of a scale.</text>
+<text x="530.0" y="467.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="276.0" lengthAdjust="spacing">A fractional value sits</text>
+<text x="530.0" y="494.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="228.0" lengthAdjust="spacing">between two levels.</text>
+<text x="1010.0" y="170.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#eee8f1" xml:space="preserve" textLength="48.0" lengthAdjust="spacing">noul</text>
+<text x="1010.0" y="224.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="700" fill="#f2a0cc" xml:space="preserve" textLength="48.0" lengthAdjust="spacing">0.95</text>
+<text x="1010.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">[</text>
+<text x="1022.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="300.0" lengthAdjust="spacing">█████████████████████████</text>
+<text x="1322.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">░</text>
+<text x="1334.0" y="251.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="12.0" lengthAdjust="spacing">]</text>
+<text x="1010.0" y="305.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#5d4a68" xml:space="preserve" textLength="408.0" lengthAdjust="spacing">──────────────────────────────────</text>
+<text x="1010.0" y="332.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="180.0" lengthAdjust="spacing">one number: the</text>
+<text x="1010.0" y="359.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="240.0" lengthAdjust="spacing">probability that the</text>
+<text x="1010.0" y="386.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="192.0" lengthAdjust="spacing">statement holds.</text>
+<text x="1010.0" y="440.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="264.0" lengthAdjust="spacing">no distribution and no</text>
+<text x="1010.0" y="467.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#aaa0b2" xml:space="preserve" textLength="228.0" lengthAdjust="spacing">confidence to read.</text>
+<text x="26.0" y="602.6" font-family="Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="20" font-weight="400" fill="#f2a0cc" xml:space="preserve" textLength="852.0" lengthAdjust="spacing">  The information lives in the distribution, not in the label above it.</text>
 </svg>

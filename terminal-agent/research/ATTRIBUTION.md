@@ -20,9 +20,12 @@ another agent.
 - **Hermes, MIT.** The structure of the `mark_recommended` and
   `strip_recommended` functions from
   [`tools/clarify_tool.py`](https://github.com/NousResearch/hermes-agent/blob/c1c84ea37f9cfee75a1bf8326b5597959c7ba499/tools/clarify_tool.py)
-  is adapted in [`choice_labels.py`](../jev_agent/choice_labels.py): the marker
-  is localised, and the original answer values are separated from the display
-  text. The full vendored module serves as a record of provenance and is not
+  is adapted in [`choice_labels.py`](../jev_agent/choice_labels.py): the only
+  marker we write is upstream's own `(Recommended)` suffix, the Russian
+  `(Рекомендуется)` (Recommended) that an answer saved before the interface was
+  translated can still carry is recognised on the way in, and the undecorated
+  answer values are kept apart from the display labels, as they are upstream.
+  The full vendored module serves as a record of provenance and is not
   imported into the product. The Hermes callback system, registry and timeout
   behaviour were not ported.
   [Source, MIT and the differences](../vendor/hermes/README.md).

@@ -17,3 +17,33 @@ Diagrams `01`–`07` exist in two languages. The Russian labels are drawn by `bu
 python3 build_diagrams_en_base.py   # 01-04 -en
 python3 build_diagrams_jev_en.py    # 05-07 -en
 ```
+
+## English variants
+
+The English article's diagrams are not drawings. Each one is terminal output: a character grid in
+the interface's own palette, read out of `jev_agent/tui.py`, so a diagram and the screenshot below
+it read as the same object.
+
+```bash
+python3 build_diagrams_term.py     # 01-09, the English set
+```
+
+`termcanvas.py` holds the grid. Alignment is the one hard part of monospace in SVG, because the
+advance width depends on which font the reader actually has: every run is emitted with an explicit
+`textLength` of exactly `len(text) x CELL`, so a column lands in the same place in Menlo, in
+Consolas or in a fallback.
+
+Palette, taken from the interface and not invented here:
+
+```text
+background  #18151d     panel   #221c29     text    #eee8f1
+muted       #aaa0b2     accent  #f2a0cc     pass    #9fd6a8
+border      #5d4a68     dim     #7d7188     fail    #ee9b9b
+```
+
+Two of the nine are new: `08-agent-map-en.svg` maps the screen region by region, and
+`09-stop-anatomy-en.svg` shows the four inputs of one stopped turn and the policy that is the only
+thing allowed to end it.
+
+The Russian article keeps the earlier light drawings, built by `build_diagrams.py` and
+`build_diagrams_jev.py`.

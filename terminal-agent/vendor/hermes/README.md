@@ -16,7 +16,9 @@ or execute this upstream module; its registry integration belongs to Hermes.
 The actual adapted runtime code is `jev_agent/choice_labels.py`:
 
 - copied the structure of `mark_recommended` and `strip_recommended`;
-- localized the displayed suffix and accepted both English and Russian suffixes;
+- write only upstream's own English `(Recommended)` suffix, and also accept a
+  Russian `(Рекомендуется)` suffix when reading an answer saved before the
+  interface was translated;
 - return a fresh display list, including for empty and single-choice inputs;
 - avoid marking an empty first choice;
 - retain undecorated answer values separately from display labels.

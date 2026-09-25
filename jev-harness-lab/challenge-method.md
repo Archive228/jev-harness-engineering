@@ -35,4 +35,4 @@ The diagnostic states leave no choice between two equally useful commands that h
 
 Report separately from the original 18-case set: raw accuracy per question, accepted correct and incorrect decisions, abstentions, coverage, API errors, real requests, tokens and the total request time. Use the weak baselines already declared, without tuning them to these cases. This stress set does not prove cost savings, that repair is useful in a real repository, universal protection against injection, or superiority over an ordinary LLM.
 
-The current `evaluate(..., cases_path=...)` supports a separate path for the set. Adding a CLI flag for it is not a change to the questions or the gold. This document by itself does not claim that a live run has already been carried out.
+The existing `--cases` flag passes a separate dataset path through to `evaluate(cases_path=...)`. Selecting the set that way is not a change to the questions or the gold. This document by itself does not claim that a live run has already been carried out.
