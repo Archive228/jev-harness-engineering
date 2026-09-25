@@ -151,6 +151,10 @@ In practice: a threshold of `confidence = 0.60` on three options means exactly `
 
 You still cannot read `confidence` as a measured probability of being right on your data. [Confidence](https://docs.typesafe.ai/confidence).
 
+![The agent's own view of a saved answer: choice finish at confidence 0.58 over the distribution improve 0.14, ask_user 0.14, finish 0.72](./assets/screenshots/terminal/06-status.png)
+
+That is the agent showing one saved answer. The label says `finish`, and the line under it is the whole reason the label is not enough: `0.72` against `0.14` and `0.14`. The model is named `SYNTHETIC-DEMO-NOT-JEV`, because without a key nothing pretends to be Jev.
+
 ### We showed Score and did not use it in the builds
 
 From here on every decision runs on Choice and Noul. Score appears only in the first call.
@@ -438,6 +442,10 @@ The rules in words:
 
 A high score from the model cannot overturn a failing C2. A `complete` decision means precisely that the described acceptance contract is satisfied; two tests do not prove the absence of every possible defect.
 
+![A run stopped by the policy: one check of six passed, the model chose finish at confidence 0.58, and the policy blocked it](./assets/screenshots/terminal/05-run.png)
+
+Rule 1 in a real run. The model chose `finish`. One check of six had passed, so the policy wrote `A check failed or is stale: finishing is blocked by code` and the turn stopped. The number the model produced never entered the decision.
+
 Instead of "try again", the worker gets a minimal package where every fact points back to a tool record:
 
 ```text
@@ -618,5 +626,11 @@ Open your agent's last failed run, pull a `state` out of it, and ask Jev one nar
 ---
 
 If you want a finished agent rather than a bench, built from these same three builds, it sits right here: [the JEVIS terminal agent](./terminal-agent/README.md), one command to install and runnable with no keys.
+
+![The agent on startup: tabs, the live log drawer and the message box](./assets/screenshots/terminal/01-start.png)
+
+![The plan waiting for approval: outcome, files, steps, checks, constraints and assumptions](./assets/screenshots/terminal/04-plan.png)
+
+It asks a few questions, writes a plan, and waits. Work starts when you press the button, and every check and decision is on screen while it runs.
 
 Everything else sits next to this text: [code and instructions](./jev-harness-lab/README.md), [the first call](./first_call.py), [first steps](./START-HERE.md), [source verification](./source-check.md), [results gallery](./verification/evidence-gallery.en.html), [VALIDATION.md](./VALIDATION.md), [GitHub Actions](https://github.com/Archive228/jev-harness-engineering/actions).

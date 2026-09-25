@@ -1,36 +1,36 @@
-# LogLab: проверяемый разбор инцидента
+# LogLab: a checkable incident analysis
 
-Восстанови небольшой Python CLI. Вход — JSONL: один объект на строку. Выход — JSON для автоматизации и Markdown для дежурного инженера.
+Repair a small Python CLI. The input is JSONL, one object per line. The output is JSON for automation and Markdown for the engineer on duty.
 
 ```sh
 python3 loglab.py fixtures/incident.jsonl --json reports/incident.json --markdown reports/incident.md
 ```
 
-Требуется Python 3.9+; внешних зависимостей нет. В проекте намеренно оставлены четыре дефекта. Можно менять реализацию и добавлять свои тесты. Приёмка находится вне рабочей папки.
+Python 3.9+ is required and there are no external dependencies. Four defects were left in the project deliberately. You may change the implementation and add your own tests. Acceptance lives outside the working folder.
 
-## Вход и точные правила
+## Input and the exact rules
 
-Обязательные непустые строковые поля: `event_id`, `timestamp`, `service`, `severity`, `message`. `timestamp` — ISO 8601 с явно указанным часовым поясом; `Z` допустим. Поддерживаемые уровни: DEBUG, INFO, WARN, ERROR, FATAL. Регистр игнорируется, `warning` означает WARN, `err` означает ERROR. Неизвестный уровень, отсутствующее поле, невалидная дата, дата без пояса или не-объект делают строку невалидной.
+Required non-empty string fields: `event_id`, `timestamp`, `service`, `severity`, `message`. `timestamp` is ISO 8601 with an explicit time zone; `Z` is allowed. Supported levels: DEBUG, INFO, WARN, ERROR, FATAL. Case is ignored, `warning` means WARN, `err` means ERROR. An unknown level, a missing field, an invalid date, a date without a zone, or anything that is not an object makes the line invalid.
 
-Пустые строки пропускаются и не считаются ошибками. Остальные невалидные строки увеличивают `malformed_lines`, но не прерывают анализ. Валидация выполняется до дедупликации. Для повторного `event_id` сохраняется первое валидное событие, каждое последующее увеличивает `duplicate_events`. Счётчики и временная шкала учитывают только уникальные валидные события.
+Empty lines are skipped and do not count as errors. Any other invalid line increments `malformed_lines` without stopping the analysis. Validation runs before deduplication. For a repeated `event_id` the first valid event is kept, and each one after it increments `duplicate_events`. The counters and the timeline count unique valid events only.
 
-Сортируй события по реальному моменту времени, затем по `event_id` при равенстве. В JSON выводи время в UTC, точно в виде `YYYY-MM-DDTHH:MM:SS.ffffffZ`. При пустом наборе `first_timestamp` и `last_timestamp` равны null.
+Sort events by their real moment in time, then by `event_id` when those are equal. Write times in JSON in UTC, exactly as `YYYY-MM-DDTHH:MM:SS.ffffffZ`. When the set is empty, `first_timestamp` and `last_timestamp` are null.
 
-## JSON-контракт
+## The JSON contract
 
-- `total_events`: число уникальных валидных событий.
-- `duplicate_events`, `malformed_lines`: отдельные целые счётчики.
-- `first_timestamp`, `last_timestamp`: границы нормализованной временной шкалы.
-- `by_severity`: количества только присутствующих нормализованных уровней.
-- `by_service`: количества событий каждого сервиса.
-- `timeline`: список объектов с исходными `event_id`, `service`, `message` и нормализованными `timestamp`, `severity`.
-- `incident.candidate_service`: сервис с наибольшим числом ERROR или FATAL; при равенстве выбирается первый по алфавиту, без ошибок — null.
-- `incident.evidence_ids`: event_id всех ERROR/FATAL выбранного сервиса в порядке временной шкалы; без кандидата — пустой список.
+- `total_events`: the number of unique valid events.
+- `duplicate_events`, `malformed_lines`: separate integer counters.
+- `first_timestamp`, `last_timestamp`: the bounds of the normalised timeline.
+- `by_severity`: counts for the normalised levels that are present, and no others.
+- `by_service`: the event count for each service.
+- `timeline`: a list of objects carrying the original `event_id`, `service` and `message`, and the normalised `timestamp` and `severity`.
+- `incident.candidate_service`: the service with the most ERROR or FATAL events; on a tie the first alphabetically; null when there are no errors.
+- `incident.evidence_ids`: the event_id of every ERROR or FATAL event of the chosen service, in timeline order; an empty list when there is no candidate.
 
-Markdown должен содержать заголовок `# Incident report`, числа total/duplicate/malformed, раздел `## Timeline`, все уникальные event_id, название кандидата и его evidence_ids. Напиши явно, что кандидат — гипотеза (`Hypothesis`), а не доказанная первопричина. Экранируй `|` в содержимом Markdown-таблицы.
+The Markdown must carry the heading `# Incident report`, the total, duplicate and malformed numbers, a `## Timeline` section, every unique event_id, the candidate's name and its evidence_ids. State explicitly that the candidate is a `Hypothesis` rather than a proven root cause. Escape `|` inside the content of a Markdown table.
 
-CLI создаёт родительские каталоги выходных файлов, завершается с кодом 0 после успешного анализа, в том числе пустого или частично испорченного входа. Оба пути вывода обязательны. При системной ошибке чтения/записи допустим ненулевой код.
+The CLI creates the parent directories of its output files and exits with code 0 after a successful analysis, including on empty or partly corrupted input. Both output paths are required. A non-zero code is acceptable on a system read or write error.
 
-## Что сдать
+## What to deliver
 
-Работающую реализацию, свои регрессионные тесты и `reports/incident.json` + `reports/incident.md` на приложенном смешанном примере. Можно сначала запустить команду и увидеть реальный сбой, затем исправлять по одному свойству.
+A working implementation, your own regression tests, and `reports/incident.json` plus `reports/incident.md` for the mixed example provided. You can run the command first and watch it actually fail, then fix one property at a time.

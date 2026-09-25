@@ -324,7 +324,7 @@ class PlanScreen(ModalScreen):
                         yield Static(Text(plain(self.refined_prompt or self.original_request, 30000)),
                                      classes="plan-text", id="plan-exact-prompt")
             yield PromptEditor(id="plan-feedback")
-            yield Static(Text(plain(self.notice or "↑↓: read the plan · «Refine»: change the task", 1000)),
+            yield Static(Text(plain(self.notice or "↑↓: read the plan · Refine: change the task", 1000)),
                          id="plan-notice")
             with Horizontal(id="plan-actions"):
                 yield Button("Start work", id="plan-execute", disabled=not self.can_execute)

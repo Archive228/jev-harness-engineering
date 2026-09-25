@@ -44,8 +44,17 @@ open)
 		tell application "Finder" to set screen to bounds of window of desktop
 		set usableBottom to (item 4 of screen) - $DOCK_MARGIN
 		tell application "Terminal"
-			do script "cd $AGENT && clear && $CMD"
-			set w to front window
+			-- Launching Terminal opens a window of its own, so "front window" can be
+			-- the wrong one. do script returns the tab it started, and that tab
+			-- identifies the window that is actually running our command.
+			activate
+			delay 0.4
+			-- Open an idle shell first and give it its final geometry, then start the
+			-- program in it. Starting first and resizing after leaves a full-screen
+			-- app drawn at the old width, and the stale columns show up in the frame.
+			set t to do script ""
+			delay 0.4
+			set w to (first window whose tabs contains t)
 			-- the profile belongs to the tab, not the window
 			set current settings of (selected tab of w) to settings set "$PROFILE"
 			set number of columns of w to $COLS
@@ -60,6 +69,8 @@ open)
 				set h to (item 4 of b) - (item 2 of b)
 			end repeat
 			set bounds of w to {$X, $Y, $X + wd, $Y + h}
+			delay 0.5
+			do script "cd $AGENT && clear && $CMD" in t
 			activate
 			return id of w as string
 		end tell
@@ -83,6 +94,34 @@ enter)
 	[ -f "$STATE" ] || die "no open window; run: $0 open"
 	ID=$(head -1 "$STATE")
 	osascript -e "tell application \"Terminal\" to do script \"\" in (first window whose id is $ID)" >/dev/null
+	;;
+
+wait)
+	# Wait for text to appear on screen instead of sleeping a guessed number of
+	# seconds. A frame caught mid-redraw looks broken, and a fixed sleep is either
+	# too short on a slow start or wasted on a fast one.
+	[ -f "$STATE" ] || die "no open window; run: $0 open"
+	[ $# -ge 2 ] || die "usage: $0 wait \"text\" [seconds]"
+	ID=$(head -1 "$STATE")
+	LIMIT=${3:-40}
+	WAITED=0
+	while [ "$WAITED" -lt "$LIMIT" ]; do
+		if osascript -e "tell application \"Terminal\" to get contents of selected tab of (first window whose id is $ID)" 2>/dev/null | command grep -qF "$2"; then
+			sleep 1   # let the redraw settle
+			printf 'saw %s after %ss\n' "$2" "$WAITED"
+			exit 0
+		fi
+		sleep 1
+		WAITED=$((WAITED + 1))
+	done
+	die "waited ${LIMIT}s and never saw: $2"
+	;;
+
+screen)
+	# Dump what the window currently shows, for deciding what to do next.
+	[ -f "$STATE" ] || die "no open window; run: $0 open"
+	ID=$(head -1 "$STATE")
+	osascript -e "tell application \"Terminal\" to get contents of selected tab of (first window whose id is $ID)"
 	;;
 
 shot)

@@ -74,5 +74,50 @@
       "capture": "Google Chrome headless, 1100x750 viewport, device scale 1; original screenshot bytes, no image editing"
     }
   ],
-  "captured_date_en": "2026-09-24"
+  "captured_date_en": "2026-09-24",
+  "terminal_captures": {
+    "captured_date": "2026-09-25",
+    "source": "the JEVIS agent running in Terminal.app",
+    "command": ".venv/bin/python -m jev_agent --demo --mission loglab [--direct] --sessions /tmp/jevis-demo",
+    "window": "110x34 characters, opaque Novel profile",
+    "capture": "screencapture of the window rectangle, guarded by a front-window check before and after each frame",
+    "post_processing": "resized to 1600px wide and re-encoded to a 128-colour palette for the web; no content edited",
+    "images": [
+      {
+        "file": "terminal/01-start.png",
+        "sha256": "82cf57156c2e9b080695097300bf021d3153401dc4fdf34342769c8d43af4d44",
+        "bytes": 380299
+      },
+      {
+        "file": "terminal/02-clarify.png",
+        "sha256": "2e12da9ab0cd593a4694729f7af02a306da066d035c7213d37931e2a15b8291e",
+        "bytes": 309363
+      },
+      {
+        "file": "terminal/03-answers.png",
+        "sha256": "09f8090fac7e94cf35d9cca182d555b151744cc882c15a4896d92d291cbf6b2b",
+        "bytes": 313004
+      },
+      {
+        "file": "terminal/04-plan.png",
+        "sha256": "64dfde855edee387defeae3ae85bbf5c454d35cd1a28a077c824006a55b211cc",
+        "bytes": 320262
+      },
+      {
+        "file": "terminal/05-run.png",
+        "sha256": "1effc96480d9a75bcc1b5042412ebc7ea4e2149884def5510a125f6e64ca8f52",
+        "bytes": 444494
+      },
+      {
+        "file": "terminal/06-status.png",
+        "sha256": "7f803fda73e22d4d8adc4d742cbcad22f7e9490384a1da23d4245fed28bc725b",
+        "bytes": 470745
+      },
+      {
+        "file": "terminal/07-files.png",
+        "sha256": "7b4568a10b0173b3fc53b727ed039c1d5be8f23c43fe907d1d4bceeeff64f496",
+        "bytes": 319665
+      }
+    ]
+  }
 }
